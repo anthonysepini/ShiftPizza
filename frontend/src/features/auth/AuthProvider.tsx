@@ -1,22 +1,7 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  type ReactNode,
-} from 'react';
-import type { AuthUser } from '../../types';
+import { useState, useCallback, type ReactNode } from 'react';
+import { AuthContext } from './AuthContext';
 import { authService } from '../../services/auth.service';
-
-interface AuthCtx {
-  user: AuthUser | null;
-  login: (cpf: string, password: string) => Promise<void>;
-  logout: () => void;
-  isAuthenticated: boolean;
-  isAdmin: boolean;
-}
-
-const AuthContext = createContext<AuthCtx | null>(null);
+import type { AuthUser } from '../../types';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => {
@@ -50,10 +35,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be inside AuthProvider');
-  return ctx;
 }

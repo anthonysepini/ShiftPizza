@@ -1,7 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Users, CalendarDays, ClipboardList, Calendar, User, LogOut } from 'lucide-react';
-import { useAuth } from '../../features/auth/AuthContext';
-
+import { useAuth } from '../../features/auth/useAuth';
 const adminLinks = [
   { to: '/admin',           label: 'Dashboard',     icon: LayoutDashboard, end: true },
   { to: '/admin/employees', label: 'Funcionários',  icon: Users,           end: false },
