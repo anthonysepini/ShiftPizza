@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
-import PageHeader from '../../components/layouts/PageHeader.tsx';
+import PageHeader from '../../components/layout/PageHeader.tsx';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';

@@ -1,5 +1,5 @@
 import { useAuth } from '../../features/auth/useAuth';
-import PageHeader from '../../components/layouts/PageHeader.tsx';
+import PageHeader from '../../components/layout/PageHeader.tsx';
 import Card from '../../components/ui/Card';
 import Spinner from '../../components/ui/Spinner';
 import { useState, useEffect } from 'react';

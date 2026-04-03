@@ -1,6 +1,6 @@
 import { useReducer, useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import PageHeader from '../../components/layouts/PageHeader.tsx';
+import PageHeader from '../../components/layout/PageHeader.tsx';
 import Badge from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';
 import EmptyState from '../../components/ui/EmptyState';
