@@ -32,7 +32,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#070C18] flex items-center justify-center p-4 relative overflow-hidden">
       {/* Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 'w-125' 'h-75' bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w- 'h-75' bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-64 h-64 bg-orange-500/3 rounded-full blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-sm relative animate-in">
