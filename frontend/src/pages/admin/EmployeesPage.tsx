@@ -429,7 +429,7 @@ export default function EmployeesPage() {
   };
 
   return (
-    <div className="animate-in mx-auto flex min-h-[calc(100vh-8rem)] w-full max-w-[1540px] flex-col space-y-6 2xl:max-w-[1680px]">
+    <div className="animate-in mx-auto flex min-h-[calc(100vh-8rem)] w-full max-w-385 flex-col space-y-6 2xl:max-w-420]">
       <PageHeader
         title="Funcionários"
         subtitle="Gerencie a equipe e as escalas semanais"
@@ -441,8 +441,8 @@ export default function EmployeesPage() {
       />
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <div className="relative flex min-h-[144px] flex-col overflow-hidden rounded-[24px] border border-white/10 bg-[#050505]/90 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-300/30 to-transparent" />
+        <div className="relative flex min-h-36 flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#050505]/90 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-orange-300/30 to-transparent" />
           <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-orange-500/10 blur-2xl" />
 
           <div className="relative flex items-start justify-between gap-4">
@@ -466,8 +466,8 @@ export default function EmployeesPage() {
           </div>
         </div>
 
-        <div className="relative flex min-h-[144px] flex-col overflow-hidden rounded-[24px] border border-white/10 bg-[#050505]/90 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-300/30 to-transparent" />
+        <div className="relative flex min-h-36 flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#050505]/90 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-orange-300/30 to-transparent" />
           <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-orange-500/8 blur-2xl" />
 
           <div className="relative flex items-start justify-between gap-4">
@@ -493,8 +493,8 @@ export default function EmployeesPage() {
           </div>
         </div>
 
-        <div className="relative flex min-h-[144px] flex-col overflow-hidden rounded-[24px] border border-white/10 bg-[#050505]/90 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.38)] sm:col-span-2 xl:col-span-1">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-300/30 to-transparent" />
+        <div className="relative flex min-h-36 flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#050505]/90 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.38)] sm:col-span-2 xl:col-span-1">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-orange-300/30 to-transparent" />
           <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-amber-500/8 blur-2xl" />
 
           <div className="relative flex items-start justify-between gap-4">
@@ -522,9 +522,9 @@ export default function EmployeesPage() {
       </section>
 
       <section className="grid flex-1 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] xl:items-stretch">
-        <div className="relative flex h-full min-h-[560px] flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#050505]/90 shadow-[0_28px_70px_rgba(0,0,0,0.42)]">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-300/28 to-transparent" />
-          <div className="pointer-events-none absolute right-[-2rem] top-[-2rem] h-24 w-24 rounded-full bg-orange-500/10 blur-2xl" />
+        <div className="relative flex h-full min-h-140 flex-col overflow-hidden rounded-[28px] border border-white/10 bg-[#050505]/90 shadow-[0_28px_70px_rgba(0,0,0,0.42)]">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-orange-300/28 to-transparent" />
+          <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-orange-500/10 blur-2xl" />
 
           <div className="relative border-b border-white/8 px-5 py-5 sm:px-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -540,7 +540,7 @@ export default function EmployeesPage() {
                 </p>
               </div>
 
-              <div className="flex w-full flex-col gap-3 lg:max-w-[420px]">
+              <div className="flex w-full flex-col gap-3 lg:max-w-105">
                 <div className="group flex h-12 items-center gap-3 rounded-2xl border border-white/10 bg-[#0A0A0A] px-4 transition-all hover:border-white/15 focus-within:border-orange-400/30 focus-within:ring-4 focus-within:ring-orange-400/10">
                   <Search size={15} className="shrink-0 text-slate-500" />
                   <input
@@ -572,11 +572,11 @@ export default function EmployeesPage() {
 
           <div className="relative flex-1 px-5 py-5 sm:px-6">
             {loading ? (
-              <div className="flex h-full min-h-[260px] items-center justify-center">
+              <div className="flex h-full min-h-65 items-center justify-center">
                 <Spinner size="lg" />
               </div>
             ) : filtered.length === 0 ? (
-              <div className="flex h-full min-h-[320px] items-center justify-center rounded-[24px] border border-white/8 bg-[#070707]/70 px-6 py-10">
+              <div className="flex h-full min-h-80 items-center justify-center rounded-3xl border border-white/8 bg-[#070707]/70 px-6 py-10">
                 <EmptyState
                   icon="👥"
                   title="Nenhum funcionário encontrado"
@@ -593,7 +593,7 @@ export default function EmployeesPage() {
                 {filtered.map((emp) => (
                   <div
                     key={emp.id}
-                    className="group rounded-[24px] border border-white/8 bg-[#070707]/78 p-4 transition-all hover:border-orange-500/15 hover:bg-[#0A0A0A]"
+                    className="group rounded-3xl border border-white/8 bg-[#070707]/78 p-4 transition-all hover:border-orange-500/15 hover:bg-[#0A0A0A]"
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
                       <div className="flex min-w-0 flex-1 items-start gap-4">
@@ -606,7 +606,7 @@ export default function EmployeesPage() {
                               className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
                                 emp.isActive
                                   ? 'bg-orange-500/14 text-orange-300'
-                                  : 'bg-white/[0.06] text-slate-400'
+                                  : 'bg-white/6 text-slate-400'
                               }`}
                             >
                               {emp.isActive ? '● Ativo' : '○ Inativo'}
@@ -653,7 +653,7 @@ export default function EmployeesPage() {
                         <button
                           onClick={() => setModalEdit(emp)}
                           title="Editar"
-                          className="rounded-xl p-2.5 text-slate-500 transition-all hover:bg-white/[0.06] hover:text-slate-200"
+                          className="rounded-xl p-2.5 text-slate-500 transition-all hover:bg-white/6 hover:text-slate-200"
                         >
                           <Edit2 size={15} />
                         </button>
@@ -664,7 +664,7 @@ export default function EmployeesPage() {
                           className={`rounded-xl p-2.5 transition-all ${
                             emp.isActive
                               ? 'text-orange-300 hover:bg-orange-500/10'
-                              : 'text-slate-500 hover:bg-white/[0.06] hover:text-slate-300'
+                              : 'text-slate-500 hover:bg-white/6 hover:text-slate-300'
                           }`}
                         >
                           {emp.isActive ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
@@ -688,7 +688,7 @@ export default function EmployeesPage() {
 
         <div className="flex h-full flex-col gap-6">
           <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#050505]/90 p-5 shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-300/28 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-orange-300/28 to-transparent" />
             <div className="pointer-events-none absolute -right-8 top-0 h-24 w-24 rounded-full bg-orange-500/8 blur-2xl" />
 
             <div className="relative">
@@ -749,7 +749,7 @@ export default function EmployeesPage() {
           </div>
 
           <div className="relative flex-1 overflow-hidden rounded-[28px] border border-white/10 bg-[#050505]/90 p-5 shadow-[0_24px_60px_rgba(0,0,0,0.38)]">
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-300/28 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-orange-300/28 to-transparent" />
             <div className="pointer-events-none absolute -right-8 bottom-0 h-24 w-24 rounded-full bg-orange-500/8 blur-2xl" />
 
             <div className="relative flex h-full flex-col">
@@ -781,9 +781,9 @@ export default function EmployeesPage() {
                       </span>
                     </div>
 
-                    <div className="h-1.5 w-full rounded-full bg-white/[0.05]">
+                    <div className="h-1.5 w-full rounded-full bg-white/5">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-400"
+                        className="h-full rounded-full bg-linear-to-r from-orange-500 to-amber-400"
                         style={{
                           width: `${Math.min(
                             Math.max(
@@ -813,7 +813,7 @@ export default function EmployeesPage() {
         size="lg"
       >
         <form onSubmit={(e) => void handleCreate(e)} className="space-y-5">
-          <div className="rounded-[24px] border border-white/10 bg-[#070707]/80 p-4 sm:p-5">
+          <div className="rounded-3xl border border-white/10 bg-[#070707]/80 p-4 sm:p-5">
             <div className="mb-4">
               <p className="text-sm font-semibold text-slate-200">Dados principais</p>
               <p className="mt-1 text-xs text-slate-500">
@@ -866,7 +866,7 @@ export default function EmployeesPage() {
             </div>
           </div>
 
-          <div className="rounded-[24px] border border-white/10 bg-[#070707]/80 p-4 sm:p-5">
+          <div className="rounded-3xl border border-white/10 bg-[#070707]/80 p-4 sm:p-5">
             <div className="mb-4">
               <p className="text-sm font-semibold text-slate-200">
                 Dias de trabalho <span className="text-red-400">*</span>
@@ -921,7 +921,7 @@ export default function EmployeesPage() {
           size="lg"
         >
           <form onSubmit={(e) => void handleUpdate(e)} className="space-y-5">
-            <div className="rounded-[24px] border border-white/10 bg-[#070707]/80 p-4 sm:p-5">
+            <div className="rounded-3xl border border-white/10 bg-[#070707]/80 p-4 sm:p-5">
               <div className="mb-4">
                 <p className="text-sm font-semibold text-slate-200">Dados do funcionário</p>
                 <p className="mt-1 text-xs text-slate-500">
@@ -958,7 +958,7 @@ export default function EmployeesPage() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/10 bg-[#070707]/80 p-4 sm:p-5">
+            <div className="rounded-3xl border border-white/10 bg-[#070707]/80 p-4 sm:p-5">
               <div className="mb-4">
                 <p className="text-sm font-semibold text-slate-200">Dias de trabalho</p>
                 <p className="mt-1 text-xs text-slate-500">
