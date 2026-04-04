@@ -227,18 +227,18 @@ export default function EmployeesPage() {
         }
       />
 
-      {/* Search — lupa fora do texto */}
-      <div className="relative mb-6">
-        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-          <Search size={15} className="text-slate-500" />
-        </div>
-        <input
-          placeholder="Buscar por nome ou cargo..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-11 pr-5 py-3 rounded-xl text-sm bg-[#111827] border border-[#1E293B] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-orange-500/30 hover:border-[#2D3F55] transition-all"
-        />
-      </div>
+<div className="mb-6 w-full">
+  <div className="flex w-full items-center gap-3 rounded-xl border border-[#1E293B] bg-[#111827] px-4 py-3 transition-all hover:border-[#2D3F55] focus-within:ring-2 focus-within:ring-orange-500/30">
+    <Search size={16} className="shrink-0 text-slate-500" />
+    <input
+      type="text"
+      placeholder="Buscar por nome ou cargo..."
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      className="w-full bg-transparent text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none"
+    />
+  </div>
+</div>
 
       {loading ? (
         <div className="flex justify-center py-16"><Spinner size="lg" /></div>
