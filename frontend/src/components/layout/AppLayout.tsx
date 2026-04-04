@@ -7,10 +7,10 @@ export default function AppLayout() {
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#070C18]">
+    <div className="flex h-screen w-full overflow-hidden bg-[#070C18]">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto px-6 py-6">
+      <main className="flex-1 min-w-0 w-full overflow-y-auto">
+        <div className="w-full min-h-full px-8 py-7">
           <Outlet />
         </div>
       </main>
