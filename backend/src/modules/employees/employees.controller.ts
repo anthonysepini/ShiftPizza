@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -66,8 +67,15 @@ export class EmployeesController {
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Ativar ou desativar funcionário (Admin)' })
   toggleActive(@Param('id') id: string, @Body() dto: ToggleActiveDto) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const isActive: boolean = Boolean(dto.isActive);
+    const isActive: boolean = dto.isActive;
     return this.employeesService.toggleActive(id, isActive);
+  }
+
+  @Delete(':id')
+  @Roles(Role.ADMIN)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Remover funcionário permanentemente (Admin)' })
+  remove(@Param('id') id: string) {
+    return this.employeesService.remove(id);
   }
 }

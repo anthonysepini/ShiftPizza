@@ -100,4 +100,42 @@ export class EmployeesService {
       select: { id: true, fullName: true, isActive: true },
     });
   }
+
+  async remove(id: string) {
+    const employee = await this.prisma.employee.findUnique({
+      where: { id },
+      include: { user: true },
+    });
+
+    if (!employee) throw new NotFoundException('Funcionário não encontrado');
+
+    await this.prisma.$transaction(async (tx) => {
+      // 1. Remove dias de escala vinculados ao funcionário
+      await tx.scheduleDay.deleteMany({ where: { employeeId: id } });
+
+      // 2. Remove registros de escala alterados por este usuário (nullable)
+      if (employee.user) {
+        await tx.scheduleDay.updateMany({
+          where: { changedByUserId: employee.user.id },
+          data: { changedByUserId: null },
+        });
+
+        // 3. Remove logs de auditoria gerados por este usuário
+        await tx.auditLog.deleteMany({
+          where: { actorUserId: employee.user.id },
+        });
+
+        // 4. Remove o usuário de autenticação
+        await tx.user.delete({ where: { id: employee.user.id } });
+      }
+
+      // 5. Remove regras semanais
+      await tx.weeklyScheduleRule.deleteMany({ where: { employeeId: id } });
+
+      // 6. Remove o funcionário
+      await tx.employee.delete({ where: { id } });
+    });
+
+    return { message: `Funcionário ${employee.fullName} removido com sucesso` };
+  }
 }
