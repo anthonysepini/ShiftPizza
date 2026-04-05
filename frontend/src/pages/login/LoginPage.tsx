@@ -1,6 +1,7 @@
 import { useState, type FormEvent, useEffect, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../features/auth/useAuth';
+import { demoService } from '../../services/demo.service';
 
 function GithubIcon({ size = 16, className = '' }: { size?: number; className?: string }) {
   return (
@@ -94,6 +95,53 @@ function ArrowUpRightIcon({ className = '' }: { className?: string }) {
   );
 }
 
+function RefreshIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.36 2.64L21 9"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <path
+        d="M21 3v6h-6"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-6.36-2.64L3 15"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <path
+        d="M3 21v-6h6"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function WarningIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path d="M12 9v4M12 17h.01" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function BrandMark() {
   return (
     <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/10 shadow-[0_14px_40px_rgba(0,0,0,0.32)] backdrop-blur-md">
@@ -116,24 +164,6 @@ function LoadingSpinner() {
     </svg>
   );
 }
-
-const demoAccounts = [
-  { role: 'Admin', cpf: '000.000.000-01', pwd: 'admin123', accent: 'orange' },
-  { role: 'João', cpf: '000.000.000-02', pwd: 'joao123', accent: 'amber' },
-] as const;
-
-const accentStyles = {
-  orange: {
-    badge: 'border-orange-400/25 bg-orange-400/10 text-orange-200',
-    line: 'from-orange-400 via-amber-400 to-transparent',
-    shadow: 'hover:shadow-[0_16px_40px_rgba(249,115,22,0.18)]',
-  },
-  amber: {
-    badge: 'border-amber-400/25 bg-amber-400/10 text-amber-200',
-    line: 'from-amber-400 via-orange-300 to-transparent',
-    shadow: 'hover:shadow-[0_16px_40px_rgba(245,158,11,0.16)]',
-  },
-} as const;
 
 type FieldProps = {
   id: string;
@@ -188,6 +218,116 @@ function InputField({
   );
 }
 
+const demoAccounts = [
+  { role: 'Admin', cpf: '000.000.000-01', pwd: 'admin123', accent: 'orange' },
+  { role: 'João', cpf: '000.000.000-02', pwd: 'joao123', accent: 'amber' },
+] as const;
+
+const accentStyles = {
+  orange: {
+    badge: 'border-orange-400/25 bg-orange-400/10 text-orange-200',
+    line: 'from-orange-400 via-amber-400 to-transparent',
+    shadow: 'hover:shadow-[0_16px_40px_rgba(249,115,22,0.18)]',
+  },
+  amber: {
+    badge: 'border-amber-400/25 bg-amber-400/10 text-amber-200',
+    line: 'from-amber-400 via-orange-300 to-transparent',
+    shadow: 'hover:shadow-[0_16px_40px_rgba(245,158,11,0.16)]',
+  },
+} as const;
+
+function ResetModal({
+  open,
+  onClose,
+  onConfirm,
+  loading,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  loading: boolean;
+}) {
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+
+    if (open) document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+
+      <div className="relative w-full max-w-md overflow-hidden rounded-[28px] border border-white/10 bg-[#050505] p-7 shadow-[0_40px_100px_rgba(0,0,0,0.8)]">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-400/30 to-transparent" />
+
+        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-red-400/20 bg-red-400/10">
+          <WarningIcon className="h-7 w-7 text-red-400" />
+        </div>
+
+        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-red-400/80">
+          Ação irreversível
+        </p>
+        <h2 className="mt-2 text-2xl font-black tracking-tight text-white">Resetar demo?</h2>
+        <p className="mt-3 text-sm leading-relaxed text-slate-400">
+          Isso vai restaurar o sistema para o estado original de demonstração.
+        </p>
+
+        <ul className="mt-4 space-y-2">
+          {[
+            'Funcionários adicionados depois do seed',
+            'Fotos salvas localmente dos funcionários',
+            'Alterações na escala e faltas registradas',
+            'Histórico de ações do sistema',
+            'Dados de sessão salvos no navegador',
+          ].map((item) => (
+            <li key={item} className="flex items-center gap-2.5 text-sm text-slate-400">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-400/10 text-[10px] font-bold text-red-400">
+                ✕
+              </span>
+              {item}
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-7 flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={loading}
+            className="flex h-12 flex-1 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-sm font-semibold text-slate-300 transition-all hover:bg-white/8 disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={loading}
+            className="flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-red-500 text-sm font-bold uppercase tracking-[0.1em] text-white shadow-[0_12px_30px_rgba(239,68,68,0.3)] transition-all hover:from-red-500 hover:to-red-400 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {loading ? (
+              <>
+                <LoadingSpinner />
+                Resetando...
+              </>
+            ) : (
+              <>
+                <RefreshIcon className="h-4 w-4" />
+                Resetar
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LoginPage() {
   const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
@@ -196,6 +336,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [resetMsg, setResetMsg] = useState('');
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -217,6 +361,36 @@ export default function LoginPage() {
     }
   };
 
+  const handleReset = async () => {
+    setResetting(true);
+    setResetMsg('');
+
+    try {
+      await demoService.reset();
+
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i += 1) {
+        const key = localStorage.key(i);
+        if (key?.startsWith('sp_photo_') || key === 'sp_token' || key === 'sp_user') {
+          keysToRemove.push(key);
+        }
+      }
+
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
+
+      setCpf('');
+      setPassword('');
+      setError('');
+      setShowResetModal(false);
+      setResetMsg('✅ Demo restaurada com sucesso. Faça login novamente para testar.');
+    } catch {
+      setShowResetModal(false);
+      setResetMsg('❌ Erro ao resetar a demo. Verifique se o backend está rodando.');
+    } finally {
+      setResetting(false);
+    }
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-black text-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.16),transparent_28%),radial-gradient(circle_at_82%_18%,rgba(245,158,11,0.10),transparent_24%),radial-gradient(circle_at_50%_100%,rgba(249,115,22,0.08),transparent_34%)]" />
@@ -227,8 +401,40 @@ export default function LoginPage() {
       <div className="pointer-events-none absolute right-[-4rem] top-[14%] h-80 w-80 rounded-full bg-amber-500/10 blur-3xl" />
       <div className="pointer-events-none absolute left-[10%] bottom-[10%] h-64 w-64 rounded-full bg-orange-600/10 blur-3xl" />
 
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
         <div className="w-full max-w-[760px]">
+          <div className="mb-8 flex flex-col items-center gap-3">
+            {resetMsg && (
+              <div
+                aria-live="polite"
+                className={`w-full max-w-md rounded-2xl border px-5 py-3 text-center text-sm font-medium ${
+                  resetMsg.startsWith('✅')
+                    ? 'border-green-400/20 bg-green-400/10 text-green-200'
+                    : 'border-red-400/20 bg-red-400/10 text-red-200'
+                }`}
+              >
+                {resetMsg}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                setResetMsg('');
+                setShowResetModal(true);
+              }}
+              className="group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl border border-white/10 bg-[#0A0A0A]/80 px-6 py-3.5 text-sm font-bold uppercase tracking-[0.18em] text-slate-300 shadow-[0_8px_28px_rgba(0,0,0,0.4)] backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-400/25 hover:shadow-[0_14px_40px_rgba(249,115,22,0.14)] hover:text-orange-200"
+            >
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+              <RefreshIcon className="h-4 w-4 text-orange-400/80 transition-transform duration-500 group-hover:rotate-180" />
+              Resetar demo
+            </button>
+
+            <p className="max-w-xs text-center text-[11px] text-slate-600">
+              Restaura funcionários, agenda, faltas, fotos e histórico da demonstração
+            </p>
+          </div>
+
           <div className="relative mx-auto w-full overflow-hidden rounded-[30px] border border-white/10 bg-[#050505]/90 p-5 shadow-[0_32px_90px_rgba(0,0,0,0.6)] backdrop-blur-2xl sm:p-7">
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),transparent_26%)]" />
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-300/20 to-transparent" />
@@ -248,7 +454,7 @@ export default function LoginPage() {
 
                 <div className="inline-flex w-fit shrink-0 items-center gap-2 self-start rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-orange-300">
                   <ShieldIcon className="h-4 w-4 shrink-0" />
-                  <span className="whitespace-nowrap">Secure Accessㅤ</span>
+                  <span className="whitespace-nowrap">Secure Access</span>
                 </div>
               </div>
 
@@ -370,8 +576,8 @@ export default function LoginPage() {
                           <p className="mt-2 text-sm text-slate-400">{account.pwd}</p>
                           <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-500">
                             {account.role === 'Admin'
-                              ? 'ㅤㅤㅤㅤㅤㅤㅤㅤㅤÁrea administrativa'
-                              : 'ㅤㅤㅤㅤㅤㅤㅤㅤㅤÁrea de colaborador'}
+                              ? 'Área administrativa'
+                              : 'Área de colaborador'}
                           </p>
                         </div>
                       </button>
@@ -383,25 +589,30 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="mt-6 flex justify-center md:absolute md:bottom-6 md:left-1/2 md:mt-0 md:-translate-x-1/2">
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-sm font-medium text-slate-400">DESENVOLVIDO POR:</p>
+        <div className="mt-8 flex flex-col items-center gap-2">
+          <p className="text-sm font-medium text-slate-400">Desenvolvido por</p>
 
-            <a
-              href="https://github.com/anthonysepini"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-medium text-slate-300 shadow-[0_12px_30px_rgba(0,0,0,0.25)] transition-all hover:border-orange-400/20 hover:bg-orange-400/[0.08] hover:text-orange-100"
-            >
-              <GithubIcon
-                size={15}
-                className="text-slate-400 transition-colors group-hover:text-orange-200"
-              />
-              anthonysepini
-            </a>
-          </div>
+          <a
+            href="https://github.com/anthonysepini"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-medium text-slate-300 shadow-[0_12px_30px_rgba(0,0,0,0.25)] transition-all hover:border-orange-400/20 hover:bg-orange-400/[0.08] hover:text-orange-100"
+          >
+            <GithubIcon
+              size={15}
+              className="text-slate-400 transition-colors group-hover:text-orange-200"
+            />
+            anthonysepini
+          </a>
         </div>
       </div>
+
+      <ResetModal
+        open={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onConfirm={() => void handleReset()}
+        loading={resetting}
+      />
     </div>
   );
 }

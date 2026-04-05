@@ -10,7 +10,7 @@ export class DemoController {
   @Post('reset')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Resetar sistema demo — apaga tudo e reseed os dados originais',
+    summary: 'Resetar sistema demo — apaga tudo e restaura os dados originais',
   })
   reset() {
     return this.demoService.reset();

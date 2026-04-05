@@ -1,18 +1,53 @@
 import type { ScheduleStatus } from '../../types';
 
-const cfg: Record<ScheduleStatus, { label: string; cls: string }> = {
-  SCHEDULED:     { label: 'Agendado',  cls: 'bg-green-500/15 text-green-400 border-green-500/25' },
-  ABSENT:        { label: 'Falta',     cls: 'bg-red-500/15 text-red-400 border-red-500/25' },
-  EXTRA_SHIFT:   { label: 'Extra',     cls: 'bg-blue-500/15 text-blue-400 border-blue-500/25' },
-  DAY_OFF:       { label: 'Folga',     cls: 'bg-yellow-500/15 text-yellow-400 border-yellow-500/25' },
-  REMOVED_SHIFT: { label: 'Removido', cls: 'bg-slate-500/15 text-slate-400 border-slate-500/25' },
+type BadgeProps = {
+  status: ScheduleStatus;
 };
 
-export default function Badge({ status }: { status: ScheduleStatus }) {
-  const { label, cls } = cfg[status];
+const STATUS_STYLES: Record<
+  ScheduleStatus,
+  { label: string; className: string }
+> = {
+  SCHEDULED: {
+    label: 'ㅤ✅ Agendado',
+    className:
+      'border border-emerald-500/20 bg-emerald-500/10 text-emerald-300',
+  },
+  ABSENT: {
+    label: '❌ Falta',
+    className:
+      'border border-red-500/20 bg-red-500/10 text-red-300',
+  },
+  EXTRA_SHIFT: {
+    label: '➕ Turno Extra',
+    className:
+      'border border-blue-500/20 bg-blue-500/10 text-blue-300',
+  },
+  DAY_OFF: {
+    label: '🌴 Folga',
+    className:
+      'border border-yellow-500/20 bg-yellow-500/10 text-yellow-300',
+  },
+  REMOVED_SHIFT: {
+    label: '🗑️ Removido',
+    className:
+      'border border-slate-500/20 bg-slate-500/10 text-slate-300',
+  },
+};
+
+export default function Badge({ status }: BadgeProps) {
+  const config = STATUS_STYLES[status];
+
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${cls}`}>
-      {label}
+    <span
+      className={[
+        'inline-flex items-center gap-2 rounded-xl px-3 py-1.5',
+        'text-xs font-medium leading-none whitespace-nowrap',
+        'shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]',
+        config.className,
+      ].join(' ')}
+    >
+      {config.label}
     </span>
   );
 }

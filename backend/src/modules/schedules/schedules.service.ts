@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ScheduleSource } from '@prisma/client';
+import { ScheduleSource, ScheduleStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { GenerateMonthDto } from './dto/generate-month.dto';
@@ -11,6 +11,16 @@ export class SchedulesService {
     private prisma: PrismaService,
     private audit: AuditService,
   ) {}
+
+  private getMonthRange(year: number, month: number) {
+    const start = new Date(year, month - 1, 1);
+    const end = new Date(year, month, 0);
+
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999);
+
+    return { start, end };
+  }
 
   async generateMonth(dto: GenerateMonthDto, actorUserId: string) {
     const { year, month } = dto;
@@ -35,7 +45,12 @@ export class SchedulesService {
         if (!workingWeekdays.includes(weekday)) continue;
 
         const exists = await this.prisma.scheduleDay.findUnique({
-          where: { employeeId_date: { employeeId: employee.id, date } },
+          where: {
+            employeeId_date: {
+              employeeId: employee.id,
+              date,
+            },
+          },
         });
 
         if (!exists) {
@@ -43,7 +58,7 @@ export class SchedulesService {
             data: {
               employeeId: employee.id,
               date,
-              status: 'SCHEDULED',
+              status: ScheduleStatus.SCHEDULED,
               source: ScheduleSource.AUTO,
             },
           });
@@ -60,20 +75,30 @@ export class SchedulesService {
       metadata: { year, month, created },
     });
 
-    return { message: 'Escala gerada com sucesso', year, month, created };
+    return {
+      message: 'Escala gerada com sucesso',
+      year,
+      month,
+      created,
+    };
   }
 
   async getMonthSchedule(year: number, month: number, employeeId?: string) {
-    const start = new Date(year, month - 1, 1);
-    const end = new Date(year, month, 0);
+    const { start, end } = this.getMonthRange(year, month);
 
     return this.prisma.scheduleDay.findMany({
       where: {
         date: { gte: start, lte: end },
+        status: { not: ScheduleStatus.REMOVED_SHIFT },
         ...(employeeId ? { employeeId } : {}),
       },
       include: {
-        employee: { select: { fullName: true, position: true } },
+        employee: {
+          select: {
+            fullName: true,
+            position: true,
+          },
+        },
       },
       orderBy: [{ date: 'asc' }, { employee: { fullName: 'asc' } }],
     });
@@ -83,7 +108,10 @@ export class SchedulesService {
     const existing = await this.prisma.scheduleDay.findUnique({
       where: { id },
     });
-    if (!existing) throw new NotFoundException('Dia não encontrado na escala');
+
+    if (!existing) {
+      throw new NotFoundException('Dia não encontrado na escala');
+    }
 
     const updated = await this.prisma.scheduleDay.update({
       where: { id },
@@ -111,11 +139,14 @@ export class SchedulesService {
   }
 
   async getEmployeeSchedule(employeeId: string, year: number, month: number) {
-    const start = new Date(year, month - 1, 1);
-    const end = new Date(year, month, 0);
+    const { start, end } = this.getMonthRange(year, month);
 
     return this.prisma.scheduleDay.findMany({
-      where: { employeeId, date: { gte: start, lte: end } },
+      where: {
+        employeeId,
+        date: { gte: start, lte: end },
+        status: { not: ScheduleStatus.REMOVED_SHIFT },
+      },
       orderBy: { date: 'asc' },
     });
   }

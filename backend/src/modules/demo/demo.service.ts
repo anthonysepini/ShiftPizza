@@ -4,17 +4,9 @@ import * as argon2 from 'argon2';
 
 @Injectable()
 export class DemoService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async reset() {
-    // ── 1. Apaga tudo na ordem correta (respeita FK) ──────────
-    await this.prisma.auditLog.deleteMany();
-    await this.prisma.scheduleDay.deleteMany();
-    await this.prisma.weeklyScheduleRule.deleteMany();
-    await this.prisma.user.deleteMany();
-    await this.prisma.employee.deleteMany();
-
-    // ── 2. Reseed ─────────────────────────────────────────────
     const seed = [
       {
         fullName: 'Administrador',
@@ -45,31 +37,43 @@ export class DemoService {
       },
     ];
 
-    for (const s of seed) {
-      const passwordHash = await argon2.hash(s.password);
-      await this.prisma.employee.create({
-        data: {
-          fullName: s.fullName,
-          cpf: s.cpf,
-          phone: s.phone,
-          position: s.position,
-          isActive: true,
-          user: {
-            create: { passwordHash, role: s.role },
+    await this.prisma.$transaction(async (tx) => {
+      await tx.auditLog.deleteMany();
+      await tx.scheduleDay.deleteMany();
+      await tx.weeklyScheduleRule.deleteMany();
+      await tx.user.deleteMany();
+      await tx.employee.deleteMany();
+
+      for (const item of seed) {
+        const passwordHash = await argon2.hash(item.password);
+
+        await tx.employee.create({
+          data: {
+            fullName: item.fullName,
+            cpf: item.cpf,
+            phone: item.phone,
+            position: item.position,
+            isActive: true,
+            user: {
+              create: {
+                passwordHash,
+                role: item.role,
+              },
+            },
+            weeklyRules: {
+              create: item.workDays.map((weekday) => ({
+                weekday,
+                shouldWork: true,
+              })),
+            },
           },
-          weeklyRules: {
-            create: s.workDays.map((weekday) => ({
-              weekday,
-              shouldWork: true,
-            })),
-          },
-        },
-      });
-    }
+        });
+      }
+    });
 
     return {
       message: 'Sistema resetado com sucesso.',
-      restored: seed.map((s) => s.fullName),
+      restored: seed.map((item) => item.fullName),
     };
   }
 }
