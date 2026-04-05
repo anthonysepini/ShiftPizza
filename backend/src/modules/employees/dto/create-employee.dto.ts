@@ -12,18 +12,21 @@ import {
   Validate,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsCpfValidConstraint } from '../validators/cpfvalidator';
+import { CpfValidator } from '../dto/validators/cpfvalidator';
 
 export class CreateEmployeeDto {
   @ApiProperty({ example: 'João Silva' })
   @IsString({ message: 'O nome completo é obrigatório.' })
   fullName!: string;
 
-  @ApiProperty({ example: '12345678900', description: 'CPF sem formatação' })
+  @ApiProperty({
+    example: '12345678900',
+    description: 'CPF sem formatação',
+  })
   @Transform(({ value }) => String(value ?? '').replace(/\D/g, ''))
   @IsString({ message: 'O CPF é obrigatório.' })
   @Length(11, 11, { message: 'O CPF deve conter exatamente 11 dígitos.' })
-  @Validate(IsCpfValidConstraint)
+  @Validate(CpfValidator)
   cpf!: string;
 
   @ApiPropertyOptional({ example: '(35) 99999-0000' })
@@ -46,5 +49,17 @@ export class CreateEmployeeDto {
   })
   @IsArray({ message: 'Os dias de trabalho devem ser uma lista.' })
   @ArrayMinSize(1, { message: 'Selecione ao menos um dia de trabalho.' })
+  @IsInt({
+    each: true,
+    message: 'Cada dia de trabalho deve ser um número inteiro.',
+  })
+  @Min(0, {
+    each: true,
+    message: 'Os dias de trabalho devem estar entre 0 e 6.',
+  })
+  @Max(6, {
+    each: true,
+    message: 'Os dias de trabalho devem estar entre 0 e 6.',
+  })
   workDays!: number[];
 }

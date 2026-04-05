@@ -33,10 +33,9 @@ const CURRENT_MONTH = NOW.getMonth() + 1;
 
 const getPhoto = (id: string) => localStorage.getItem(`sp_photo_${id}`);
 const savePhoto = (id: string, base64: string) => localStorage.setItem(`sp_photo_${id}`, base64);
-
 const onlyDigits = (value: string) => value.replace(/\D/g, '');
 
-const getApiErrorMessage = (error: unknown): string => {
+function getApiErrorMessage(error: unknown, fallback = 'Erro ao cadastrar funcionário.'): string {
   if (typeof error === 'object' && error !== null) {
     const maybeError = error as {
       response?: {
@@ -65,8 +64,8 @@ const getApiErrorMessage = (error: unknown): string => {
     }
   }
 
-  return 'Erro ao cadastrar funcionário.';
-};
+  return fallback;
+}
 
 // ── Avatar ────────────────────────────────────────────────────
 function Avatar({
@@ -90,6 +89,7 @@ function Avatar({
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = reader.result as string;
@@ -156,10 +156,12 @@ function MarkAbsenceModal({
 
   const handleSave = async () => {
     if (!employee) return;
+
     setSaving(true);
     try {
       const [y, m] = date.split('-').map(Number);
       const scheduleDays = await schedulesService.getMonthSchedule(y, m, employee.id);
+
       const target = scheduleDays.find(
         (d) => new Date(d.date).toISOString().split('T')[0] === date,
       );
@@ -251,6 +253,7 @@ function DeleteConfirmModal({
 
   const handleDelete = async () => {
     if (!employee) return;
+
     setDeleting(true);
     try {
       await employeesService.remove(employee.id);
@@ -459,8 +462,8 @@ export default function EmployeesPage() {
       await load();
       await autoGenerateSchedule();
       toast('Escala do mês sincronizada.', 'info');
-    } catch {
-      toast('Erro ao atualizar.', 'error');
+    } catch (error) {
+      toast(getApiErrorMessage(error, 'Erro ao atualizar.'), 'error');
     } finally {
       setSaving(false);
     }
@@ -474,8 +477,8 @@ export default function EmployeesPage() {
         emp.isActive ? 'info' : 'success',
       );
       await load();
-    } catch {
-      toast('Erro ao alterar status.', 'error');
+    } catch (error) {
+      toast(getApiErrorMessage(error, 'Erro ao alterar status.'), 'error');
     }
   };
 
@@ -683,6 +686,7 @@ export default function EmployeesPage() {
                                 const works = emp.weeklyRules.some(
                                   (r) => r.weekday === i && r.shouldWork,
                                 );
+
                                 return (
                                   <span
                                     key={d}
