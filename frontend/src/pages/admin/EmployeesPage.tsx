@@ -34,6 +34,40 @@ const CURRENT_MONTH = NOW.getMonth() + 1;
 const getPhoto = (id: string) => localStorage.getItem(`sp_photo_${id}`);
 const savePhoto = (id: string, base64: string) => localStorage.setItem(`sp_photo_${id}`, base64);
 
+const onlyDigits = (value: string) => value.replace(/\D/g, '');
+
+const getApiErrorMessage = (error: unknown): string => {
+  if (typeof error === 'object' && error !== null) {
+    const maybeError = error as {
+      response?: {
+        data?: {
+          message?: unknown;
+        };
+      };
+      message?: unknown;
+    };
+
+    const apiMessage = maybeError.response?.data?.message;
+
+    if (Array.isArray(apiMessage) && apiMessage.length > 0) {
+      const firstMessage = apiMessage[0];
+      if (typeof firstMessage === 'string' && firstMessage.trim()) {
+        return firstMessage;
+      }
+    }
+
+    if (typeof apiMessage === 'string' && apiMessage.trim()) {
+      return apiMessage;
+    }
+
+    if (typeof maybeError.message === 'string' && maybeError.message.trim()) {
+      return maybeError.message;
+    }
+  }
+
+  return 'Erro ao cadastrar funcionário.';
+};
+
 // ── Avatar ────────────────────────────────────────────────────
 function Avatar({
   employee,
@@ -357,8 +391,30 @@ export default function EmployeesPage() {
     }
   };
 
+  const handleCpfChange = (value: string) => {
+    const cpfDigits = onlyDigits(value).slice(0, 11);
+
+    setForm((prev) => ({
+      ...prev,
+      cpf: cpfDigits,
+    }));
+  };
+
   const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
+
+    const cpfDigits = onlyDigits(form.cpf);
+
+    if (form.password.length < 6) {
+      toast('A senha deve conter no mínimo 6 caracteres.', 'error');
+      return;
+    }
+
+    if (cpfDigits.length !== 11) {
+      toast('O CPF deve conter exatamente 11 dígitos.', 'error');
+      return;
+    }
+
     if (form.workDays.length === 0) {
       toast('Selecione ao menos um dia de trabalho.', 'error');
       return;
@@ -366,15 +422,19 @@ export default function EmployeesPage() {
 
     setSaving(true);
     try {
-      await employeesService.create({ ...form, cpf: form.cpf.replace(/\D/g, '') });
+      await employeesService.create({
+        ...form,
+        cpf: cpfDigits,
+      });
+
       toast('Funcionário cadastrado! Atualizando escala...', 'success');
       setModalCreate(false);
       resetForm();
       await load();
       await autoGenerateSchedule();
       toast('Escala do mês atualizada com o novo funcionário.', 'info');
-    } catch {
-      toast('Erro ao cadastrar. CPF pode já estar em uso.', 'error');
+    } catch (error) {
+      toast(getApiErrorMessage(error), 'error');
     } finally {
       setSaving(false);
     }
@@ -836,8 +896,8 @@ export default function EmployeesPage() {
                 label="CPF"
                 required
                 value={form.cpf}
-                onChange={(e) => setForm((f) => ({ ...f, cpf: e.target.value }))}
-                placeholder="000.000.000-00"
+                onChange={(e) => handleCpfChange(e.target.value)}
+                placeholder="12345678900"
               />
 
               <Input

@@ -2,7 +2,7 @@ import { IsInt, Max, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GenerateMonthDto {
-  @ApiProperty({ example: 2025 })
+  @ApiProperty({ example: 2026 })
   @IsInt()
   @Min(2020)
   year!: number;
