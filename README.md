@@ -128,7 +128,7 @@ O ShiftPizza foi dividido em dois fluxos principais:
 
 O objetivo foi: uma aplicação que mostrasse organização full stack, separação entre frontend e backend, regras de negócio, autenticação, validação e uma experiência de demonstração fácil para quem quiser testar o projeto sem complicação.
 
-## Tecnologias utilizadas
+## Foi utilizado neste projeto:
 
 ### Frontend
 - <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="18" alt="React" /> React
