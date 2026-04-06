@@ -16,13 +16,10 @@
 </p>
 
 <p>
-  <a href="#-prévia-do-projeto">
+  <a href="### Demonstração em GIF">
     <img src="https://img.shields.io/badge/Ver%20prévia-1a1a1a?style=for-the-badge" alt="Ver prévia" />
   </a>
-  <a href="#-como-executar-localmente">
-    <img src="https://img.shields.io/badge/Executar%20localmente-1a1a1a?style=for-the-badge" alt="Executar localmente" />
-  </a>
-  <a href="#-tecnologias-utilizadas">
+  <a href="## Tecnologias utilizadas">
     <img src="https://img.shields.io/badge/Stack%20do%20projeto-1a1a1a?style=for-the-badge" alt="Stack do projeto" />
   </a>
 </p>
@@ -35,7 +32,7 @@ A proposta nasceu de um problema real e comum: em muitos negócios menores, a or
 
 Ele foi pensado para mostrar mais do que interface. A intenção aqui foi construir um projeto com estrutura clara, separação entre frontend e backend, validações, autenticação, regras de negócio e uma experiência de demonstração fácil de entender logo no primeiro acesso.
 
-## Demonstração
+
 
 <div align="center">
 
@@ -56,7 +53,7 @@ Ele foi pensado para mostrar mais do que interface. A intenção aqui foi constr
 
 </div>
 
-### Prévia do projeto
+
 
 <div align="center">
 
@@ -108,9 +105,9 @@ O painel do funcionário foi feito para dar uma visão direta da própria rotina
 
 ![Dashboard do funcionário](docs/media/dashboardemployee.png)
 
-## O que o sistema faz
+## O que o sistema faz?
 
-O ShiftPizza foi dividido em dois fluxos principais.
+O ShiftPizza foi dividido em dois fluxos principais:
 
 ### Área do administrador
 - cadastrar funcionários
@@ -124,7 +121,7 @@ O ShiftPizza foi dividido em dois fluxos principais.
 - acompanhar ações recentes
 - resetar o ambiente demo
 
-### Área do funcionário
+### Área do colaborador
 - acessar um dashboard pessoal
 - consultar a própria escala
 - visualizar os próprios dados
@@ -137,9 +134,8 @@ O ShiftPizza foi dividido em dois fluxos principais.
 
 ## Por que este projeto foi criado
 
-A ideia aqui não foi fazer apenas mais um CRUD.
 
-O objetivo foi construir algo com mais cara de produto: uma aplicação que mostrasse organização full stack, separação entre frontend e backend, regras de negócio, autenticação, validação e uma experiência de demonstração fácil para quem quiser testar o projeto sem complicação.
+O objetivo foi: uma aplicação que mostrasse organização full stack, separação entre frontend e backend, regras de negócio, autenticação, validação e uma experiência de demonstração fácil para quem quiser testar o projeto sem complicação.
 
 ## Tecnologias utilizadas
 
@@ -167,7 +163,7 @@ O objetivo foi construir algo com mais cara de produto: uma aplicação que most
 - <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="18" alt="HTML" /> HTML
 - <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg" width="18" alt="npm" /> npm
 
-## Estrutura do projeto
+
 
 <div align="center">
 
@@ -179,7 +175,7 @@ O objetivo foi construir algo com mais cara de produto: uma aplicação que most
 
 </div>
 
-```bash
+
 shiftpizza/
 ├── 📁 frontend/      # interface, páginas, componentes e navegação
 └── 📁 backend/       # API, autenticação, regras de negócio e banco
