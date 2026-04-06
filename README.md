@@ -15,15 +15,6 @@
   <img src="https://img.shields.io/badge/Licen%C3%A7a-MIT-orange?style=for-the-badge" alt="Licença MIT" />
 </p>
 
-<p>
-  <a href="### Demonstração em GIF">
-    <img src="https://img.shields.io/badge/Ver%20prévia-1a1a1a?style=for-the-badge" alt="Ver prévia" />
-  </a>
-  <a href="## Tecnologias utilizadas">
-    <img src="https://img.shields.io/badge/Stack%20do%20projeto-1a1a1a?style=for-the-badge" alt="Stack do projeto" />
-  </a>
-</p>
-
 </div>
 
 O ShiftPizza é um projeto full stack de portfólio criado para simular o gerenciamento de funcionários e escalas de trabalho em pequenas empresas.
@@ -163,22 +154,7 @@ O objetivo foi: uma aplicação que mostrasse organização full stack, separaç
 - <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="18" alt="HTML" /> HTML
 - <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg" width="18" alt="npm" /> npm
 
-
-
 <div align="center">
-
-### Como o projeto foi organizado
-
-<p>
-  O repositório foi dividido de forma simples e clara para facilitar leitura, manutenção e apresentação.
-</p>
-
-</div>
-
-
-shiftpizza/
-├── 📁 frontend/      # interface, páginas, componentes e navegação
-└── 📁 backend/       # API, autenticação, regras de negócio e banco
 
 <table>
   <tr>
