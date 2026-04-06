@@ -328,6 +328,76 @@ function ResetModal({
   );
 }
 
+function WelcomeModal({
+  open,
+  onContinue,
+}: {
+  open: boolean;
+  onContinue: () => void;
+}) {
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onContinue();
+    };
+
+    if (open) {
+      document.addEventListener('keydown', onKeyDown);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [open, onContinue]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" />
+
+      <div className="relative w-full max-w-xl overflow-hidden rounded-[28px] border border-white/10 bg-[#050505] p-7 shadow-[0_40px_100px_rgba(0,0,0,0.82)]">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-300/30 to-transparent" />
+        <div className="pointer-events-none absolute -right-16 top-[-54px] h-36 w-36 rounded-full bg-orange-500/12 blur-3xl" />
+        <div className="pointer-events-none absolute -left-12 bottom-[-56px] h-28 w-28 rounded-full bg-amber-500/10 blur-3xl" />
+
+        <div className="flex items-center gap-4">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-orange-400/20 bg-orange-500/10">
+            <WarningIcon className="h-7 w-7 text-orange-300" />
+          </div>
+
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-orange-300/80">
+            Atenção
+          </p>
+        </div>
+
+        <h2 className="mt-5 text-2xl font-black tracking-tight text-white sm:text-[2rem] leading-tight">
+          Antes de iniciar e após concluir a experiência, clique no botão
+          {' '}
+          <span className="text-orange-300">Resetar demo</span>
+          {' '}
+          para reiniciar o sistema.
+        </h2>
+
+        <p className="mt-4 text-sm leading-relaxed text-slate-300">
+          Ao reiniciar o sistema, você garante a experiência conforme ela foi originalmente projetada. Além disso, ao realizar o reset após o uso, assegura a remoção dos dados inseridos no site.
+        </p>
+
+        <div className="mt-7 flex justify-end">
+          <button
+            type="button"
+            onClick={onContinue}
+            className="flex h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 px-6 text-sm font-bold uppercase tracking-[0.1em] text-white shadow-[0_12px_30px_rgba(249,115,22,0.28)] transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_38px_rgba(249,115,22,0.34)]"
+          >
+            Continuar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LoginPage() {
   const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
@@ -340,6 +410,7 @@ export default function LoginPage() {
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [resetMsg, setResetMsg] = useState('');
+  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -612,6 +683,11 @@ export default function LoginPage() {
         onClose={() => setShowResetModal(false)}
         onConfirm={() => void handleReset()}
         loading={resetting}
+      />
+
+      <WelcomeModal
+        open={showWelcomeModal}
+        onContinue={() => setShowWelcomeModal(false)}
       />
     </div>
   );
