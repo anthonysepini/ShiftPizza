@@ -144,7 +144,7 @@ export default function MyDashboardPage() {
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-slate-400">
-              ㅤAcompanhe os próximos turnos, faltas e alterações da sua escala diretamente aqui, de forma rápida ㅤe organizada.
+              ㅤAcompanhe os próximos turnos, faltas e alterações da sua escala diretamente aqui, de forma rápida e ㅤorganizada.
             </p>
           </div>
 
