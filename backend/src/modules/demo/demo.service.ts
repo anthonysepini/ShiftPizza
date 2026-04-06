@@ -37,39 +37,51 @@ export class DemoService {
       },
     ];
 
-    await this.prisma.$transaction(async (tx) => {
-      await tx.auditLog.deleteMany();
-      await tx.scheduleDay.deleteMany();
-      await tx.weeklyScheduleRule.deleteMany();
-      await tx.user.deleteMany();
-      await tx.employee.deleteMany();
+    // Gera os hashes FORA da transação
+    const preparedSeed = await Promise.all(
+      seed.map(async (item) => ({
+        ...item,
+        passwordHash: await argon2.hash(item.password),
+      })),
+    );
 
-      for (const item of seed) {
-        const passwordHash = await argon2.hash(item.password);
+    await this.prisma.$transaction(
+      async (tx) => {
+        await tx.auditLog.deleteMany();
+        await tx.scheduleDay.deleteMany();
+        await tx.weeklyScheduleRule.deleteMany();
+        await tx.user.deleteMany();
+        await tx.employee.deleteMany();
 
-        await tx.employee.create({
-          data: {
-            fullName: item.fullName,
-            cpf: item.cpf,
-            phone: item.phone,
-            position: item.position,
-            isActive: true,
-            user: {
-              create: {
-                passwordHash,
-                role: item.role,
+        for (const item of preparedSeed) {
+          await tx.employee.create({
+            data: {
+              fullName: item.fullName,
+              cpf: item.cpf,
+              phone: item.phone,
+              position: item.position,
+              isActive: true,
+              user: {
+                create: {
+                  passwordHash: item.passwordHash,
+                  role: item.role,
+                },
+              },
+              weeklyRules: {
+                create: item.workDays.map((weekday) => ({
+                  weekday,
+                  shouldWork: true,
+                })),
               },
             },
-            weeklyRules: {
-              create: item.workDays.map((weekday) => ({
-                weekday,
-                shouldWork: true,
-              })),
-            },
-          },
-        });
-      }
-    });
+          });
+        }
+      },
+      {
+        maxWait: 10000,
+        timeout: 20000,
+      },
+    );
 
     return {
       message: 'Sistema resetado com sucesso.',
