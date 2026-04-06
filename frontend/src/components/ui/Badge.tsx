@@ -9,7 +9,7 @@ const STATUS_STYLES: Record<
   { label: string; className: string }
 > = {
   SCHEDULED: {
-    label: 'ㅤ✅ Agendado',
+    label: 'ㅤ✅ Escalado',
     className:
       'border border-emerald-500/20 bg-emerald-500/10 text-emerald-300',
   },

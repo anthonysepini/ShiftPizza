@@ -431,7 +431,7 @@ export default function LoginPage() {
             </button>
 
             <p className="max-w-xs text-center text-[11px] text-slate-600">
-              Restaura funcionários, agenda, faltas, fotos e histórico da demonstração
+              Restaura funcionários, agenda, faltas, fotos e histórico da demonstração.
             </p>
           </div>
 
@@ -454,7 +454,7 @@ export default function LoginPage() {
 
                 <div className="inline-flex w-fit shrink-0 items-center gap-2 self-start rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-orange-300">
                   <ShieldIcon className="h-4 w-4 shrink-0" />
-                  <span className="whitespace-nowrap">Secure Access</span>
+                  <span className="whitespace-nowrap">Secure Accessㅤ</span>
                 </div>
               </div>
 
@@ -576,8 +576,8 @@ export default function LoginPage() {
                           <p className="mt-2 text-sm text-slate-400">{account.pwd}</p>
                           <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-500">
                             {account.role === 'Admin'
-                              ? 'Área administrativa'
-                              : 'Área de colaborador'}
+                              ? 'ㅤㅤㅤㅤㅤㅤㅤㅤㅤÁrea administrativa'
+                              : 'ㅤㅤㅤㅤㅤㅤㅤㅤÁrea de colaborador'}
                           </p>
                         </div>
                       </button>

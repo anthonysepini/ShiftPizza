@@ -148,22 +148,22 @@ export default function AuditPage() {
   }, [logs]);
 
   return (
-    <div className="animate-in w-full min-h-full bg-[#050505] text-white">
-      <div className="space-y-6 rounded-[28px] border border-white/6 bg-[#050505] p-0">
+    <div className="animate-in w-full min-h-full bg-[#000000] text-white">
+      <div className="space-y-6 rounded-[28px] border border-white/6 bg-[#000000] p-0">
         <PageHeader
           title="Histórico"
           subtitle="Todas as ações realizadas no sistema"
         />
 
         {loading ? (
-          <Card className="relative overflow-hidden border border-white/10 bg-[#080808] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_22px_70px_rgba(0,0,0,0.45)]">
+          <Card className="relative overflow-hidden border border-white/10 bg-[#000000] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_22px_70px_rgba(0,0,0,0.45)]">
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
             <div className="flex justify-center py-20">
               <Spinner size="lg" />
             </div>
           </Card>
         ) : logs.length === 0 ? (
-          <Card className="relative overflow-hidden border border-white/10 bg-[#080808] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_22px_70px_rgba(0,0,0,0.45)]">
+          <Card className="relative overflow-hidden border border-white/10 bg-[#000000] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_22px_70px_rgba(0,0,0,0.45)]">
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
             <div className="p-3 sm:p-5">
               <EmptyState
@@ -176,15 +176,15 @@ export default function AuditPage() {
         ) : (
           <>
             <div className="grid gap-4 md:grid-cols-3">
-              <Card className="relative overflow-hidden border border-white/10 bg-[#080808] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_18px_50px_rgba(0,0,0,0.35)]">
+              <Card className="relative overflow-hidden border border-white/10 bg-[#000000] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_18px_50px_rgba(0,0,0,0.35)]">
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
                 <div className="p-4 sm:p-5">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                    Total de registros
+                    ㅤTotal de registros
                   </p>
                   <div className="mt-3 flex items-end justify-between gap-3">
                     <h3 className="text-3xl font-semibold tracking-tight text-white">
-                      {metrics.total}
+                      ㅤ{metrics.total}
                     </h3>
                     <span className="rounded-full border border-orange-500/20 bg-orange-500/10 px-2.5 py-1 text-[11px] font-medium text-orange-200">
                       Últimos 100
@@ -197,11 +197,11 @@ export default function AuditPage() {
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
                 <div className="p-4 sm:p-5">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                    Ações de hoje
+                    ㅤAções de hoje
                   </p>
                   <div className="mt-3 flex items-end justify-between gap-3">
                     <h3 className="text-3xl font-semibold tracking-tight text-white">
-                      {metrics.today}
+                      ㅤ{metrics.today}
                     </h3>
                     <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium text-slate-300">
                       Tempo real
@@ -214,11 +214,11 @@ export default function AuditPage() {
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
                 <div className="p-4 sm:p-5">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                    Escalas geradas
+                    ㅤEscalas geradas
                   </p>
                   <div className="mt-3 flex items-end justify-between gap-3">
                     <h3 className="text-3xl font-semibold tracking-tight text-white">
-                      {metrics.generatedMonths}
+                      ㅤ{metrics.generatedMonths}
                     </h3>
                     <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium text-slate-300">
                       Histórico
@@ -260,7 +260,7 @@ export default function AuditPage() {
                     return (
                       <div
                         key={log.id}
-                        className="group relative overflow-hidden rounded-[22px] border border-white/10 bg-[#101010] px-4 py-4 transition-all duration-200 hover:border-orange-500/20 hover:bg-[#131313]"
+                        className="group relative overflow-hidden rounded-[22px] border border-white/10 bg-[#000000] px-4 py-4 transition-all duration-200 hover:border-orange-500/20 hover:bg-[#000000]"
                       >
                         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent transition-all duration-200 group-hover:via-orange-500/30" />
 
@@ -313,21 +313,21 @@ export default function AuditPage() {
               </Card>
 
               <div className="space-y-4">
-                <Card className="relative overflow-hidden border border-white/10 bg-[#080808] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_18px_55px_rgba(0,0,0,0.34)]">
+                <Card className="relative overflow-hidden border border-white/10 bg-[#000000] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_18px_55px_rgba(0,0,0,0.34)]">
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
                   <div className="p-4 sm:p-5">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                      Última movimentação
+                      ㅤÚltima movimentação
                     </p>
 
                     {metrics.latest ? (
                       <div className="mt-3 space-y-3">
                         <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
                           <p className="text-sm font-medium text-white">
-                            {(ACTION_CONFIG[metrics.latest.action] ?? FALLBACK_ACTION_CONFIG).label}
+                            ㅤ{(ACTION_CONFIG[metrics.latest.action] ?? FALLBACK_ACTION_CONFIG).label}
                           </p>
                           <p className="mt-1 text-sm text-slate-400">
-                            {formatFullDateTime(metrics.latest.createdAt)}
+                            ㅤ{formatFullDateTime(metrics.latest.createdAt)}
                           </p>
                           <p className="mt-3 text-xs leading-relaxed text-slate-500">
                             {(ACTION_CONFIG[metrics.latest.action] ?? FALLBACK_ACTION_CONFIG).description(metrics.latest)}
@@ -336,17 +336,17 @@ export default function AuditPage() {
                       </div>
                     ) : (
                       <p className="mt-3 text-sm text-slate-400">
-                        Nenhuma movimentação recente.
+                        ㅤNenhuma movimentação recente.
                       </p>
                     )}
                   </div>
                 </Card>
 
-                <Card className="relative overflow-hidden border border-white/10 bg-[#080808] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_18px_55px_rgba(0,0,0,0.34)]">
+                <Card className="relative overflow-hidden border border-white/10 bg-[#000000] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_18px_55px_rgba(0,0,0,0.34)]">
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
                   <div className="p-4 sm:p-5">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                      Tipos de ação
+                      ㅤTipos de ação
                     </p>
 
                     <div className="mt-4 space-y-3">
