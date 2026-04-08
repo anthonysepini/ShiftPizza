@@ -156,19 +156,15 @@ npm run dev
 
 ---
 
-### AI-assisted workflow
+### AI-assisted build
 
-ShiftPizza was built by me using an AI-assisted vibecoding workflow: fast iteration with ChatGPT and Claude in the loop, but never on autopilot. I used them to explore approaches, debug issues, and refine details, while I kept control of the architecture, implementation direction, feature decisions, visual choices, review, and final quality bar. That mattered here, because ShiftPizza solves a real operational problem where small mistakes in schedules, absences, extra shifts, and vacations quickly turn into daily friction.
+ I built the project myself and used ChatGPT and ClaudeCode as part of the workflow for fast iteration, debugging, and refinement. They helped me move faster, but the architecture, implementation, product decisions, visual direction, and final review were mine.
 
-<p align="left">
-  <img src="https://cdn.simpleicons.org/openai" alt="ChatGPT" width="16" height="16" />
-  <a href="https://chatgpt.com/">ChatGPT</a>
-  &nbsp;&nbsp;
-  <img src="https://cdn.simpleicons.org/anthropic" alt="Claude" width="16" height="16" />
-  <a href="https://www.anthropic.com/claude">Claude</a>
-</p>
+- <img src=".docs/media/icons/chatgpt.svg" alt="ChatGPT" width="16" /> <a href="https://chatgpt.com/">ChatGPT</a>
+- <img src=".docs/media/icons/claude.svg" alt="Claude" width="16" /> <a href="https://www.anthropic.com/claude">Claude</a>
 
 ---
+
 ## Author
 
 <table>
