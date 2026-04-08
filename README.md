@@ -1,170 +1,213 @@
 <div align="center">
 
-# ShiftPizza
+# 🍕 ShiftPizza
 
-### Sistema full stack de gestão de funcionários e escalas para pequenas empresas
+**Full stack employee & schedule management system for small businesses**
 
-<p>
-  Projeto de portfólio desenvolvido para demonstrar arquitetura full stack, regras de negócio, autenticação, experiência demo e organização de produto com foco visual e técnico.
-</p>
+[![Live Demo](https://img.shields.io/badge/🍕%20Live%20Demo-shiftpizza.vercel.app-FF6B35?style=for-the-badge)](https://shiftpizza.vercel.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-F7DF1E?style=for-the-badge)](LICENSE)
 
-<p>
-  <img src="https://img.shields.io/badge/Frontend-React%20%2B%20Vite-111111?style=for-the-badge" alt="Frontend React e Vite" />
-  <img src="https://img.shields.io/badge/Backend-NestJS%20%2B%20Prisma-111111?style=for-the-badge" alt="Backend NestJS e Prisma" />
-  <img src="https://img.shields.io/badge/Banco-PostgreSQL%20%2F%20Neon-111111?style=for-the-badge" alt="Banco PostgreSQL e Neon" />
-  <img src="https://img.shields.io/badge/Licen%C3%A7a-MIT-orange?style=for-the-badge" alt="Licença MIT" />
-</p>
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 
 </div>
 
-O ShiftPizza é um projeto full stack de portfólio criado para simular o gerenciamento de funcionários e escalas de trabalho em pequenas empresas.
+---
 
-A proposta nasceu de um problema real e comum: em muitos negócios menores, a organização da equipe ainda depende de anotações espalhadas, planilhas, alterações de última hora e pouco controle sobre faltas, férias e rotina de trabalho. O ShiftPizza reúne esse fluxo em um único sistema, com uma área administrativa para gestão e uma área do funcionário para consulta pessoal.
+## 📋 Table of Contents
 
-Ele foi pensado para mostrar mais do que interface. A intenção aqui foi construir um projeto com estrutura clara, separação entre frontend e backend, validações, autenticação, regras de negócio e uma experiência de demonstração fácil de entender logo no primeiro acesso.
+- [About](#-about)
+- [Preview](#-preview)
+- [Screenshots](#-screenshots)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Architecture](#-architecture)
+- [Getting Started](#-getting-started)
+- [Author](#-author)
 
+---
 
+## 🧠 About
+
+ShiftPizza tackles a real, common problem in small businesses: team schedules that still live in scattered notes, WhatsApp messages, and last-minute paper changes. This system consolidates the full workflow into a single application — from employee registration and monthly schedule generation to absence tracking, overtime shifts, and vacation management.
+
+Built as a full stack portfolio project, the focus was intentional architecture: clean separation between frontend and backend, JWT authentication, Argon2 password hashing, role-based access control, DTO validation, and a demo experience that's frictionless from the first click.
+
+**Key technical decisions:**
+- NestJS modules with clear separation of concerns — `auth`, `employees`, `schedules`, `shifts`
+- Prisma ORM with PostgreSQL hosted on Neon (serverless, zero cold-start overhead)
+- JWT access tokens with role guards protecting every sensitive route
+- Argon2 for password hashing — stronger resistance to GPU attacks than bcrypt
+- Demo reset endpoint that restores seed state without re-deployment
+
+---
+
+## 🎬 Preview
 
 <div align="center">
 
-### Acesse o projeto
-
-<p>
-  <a href="shiftpizza.vercel.app" target="_blank">
-    <img src="https://img.shields.io/badge/Frontend-Acessar%20site-111111?style=for-the-badge" alt="Acessar site DEMO" />
-  </a>
-</p>
-
-<p>
-  O ShiftPizza está disponível online para navegação e teste da experiência demo.
-</p>
+![ShiftPizza Demo](docs/media/apresentation.gif)
 
 </div>
 
+---
 
+## 📸 Screenshots
 
-<div align="center">
+| Login | Admin Dashboard | Employee Dashboard |
+|:---:|:---:|:---:|
+| ![Login](docs/media/logindemo.png) | ![Admin](docs/media/admindashboard.png) | ![Employee](docs/media/dashboardemployee.png) |
 
-### Visão geral da experiência
+> **Login screen** — demo credentials and quick-access buttons are displayed directly, reducing friction for reviewers. **Admin panel** — shows active employees, absences, recent activity, and shortcuts to all key areas. **Employee panel** — personal schedule view focused on upcoming shifts, absences, and manual changes.
 
-<p>
-  Esta prévia mostra o fluxo principal do ShiftPizza, com foco na experiência demo, na área administrativa e na visão do funcionário.
-</p>
+---
 
-</div>
+## ✨ Features
 
-### Demonstração em GIF
+### 🔐 Admin Panel
 
-<div align="center">
+| Feature | Description |
+|---|---|
+| 👤 Employee management | Register, edit, and remove employees with full profile control |
+| 📅 Schedule generation | Create and organize monthly work schedules |
+| ❌ Absence tracking | Log and monitor absences per employee |
+| ⏰ Extra shifts | Add and control overtime or replacement shifts |
+| 🏖️ Vacation control | Manage and visualize vacation periods |
+| 📊 Activity feed | Track recent actions across the system |
+| 🔄 Demo reset | Restore the demo environment to its original seeded state |
 
-![Demonstração do ShiftPizza](docs/media/apresentation.gif)
+### 👷 Employee Panel
 
-</div>
+| Feature | Description |
+|---|---|
+| 📆 Personal schedule | View own upcoming shifts and work days |
+| 🗂️ Profile data | Access own registration and contact details |
+| 📋 Absence history | See personal absence records |
 
-### Principais telas
+### 🎭 Demo Experience
 
-#### Tela de login
-A entrada do sistema foi pensada para reduzir atrito durante a demonstração. Nela, o usuário encontra o acesso demo, as credenciais rápidas e a ação de reset.
+- One-click demo login directly from the login screen
+- Pre-loaded credentials for both **admin** and **employee** roles
+- Full environment reset available at any time — no re-deployment needed
 
-![Tela de login do ShiftPizza](docs/media/logindemo.png)
+---
 
-#### Dashboard do administrador
-O painel administrativo reúne os dados mais importantes da operação, como quantidade de funcionários ativos, faltas registradas, atividade recente e atalhos para as áreas centrais do sistema.
-
-![Dashboard do administrador](docs/media/admindashboard.png)
-
-#### Dashboard do funcionário
-O painel do funcionário foi construído para entregar uma leitura rápida da rotina pessoal, com foco em escala, próximos dias de trabalho e alterações relevantes.
-
-![Dashboard do funcionário](docs/media/dashboardemployee.png)
-
-### Tela de login
-A entrada do sistema foi pensada para deixar a demonstração simples de testar. A tela já apresenta o acesso demo, credenciais rápidas e a ação de reset.
-
-![Tela de login do ShiftPizza](docs/media/logindemo.png)
-
-### Dashboard do administrador
-O painel administrativo mostra uma visão geral da operação, com funcionários ativos, faltas do mês, quantidade de pessoas trabalhando no dia, atividades recentes e atalhos para as principais áreas do sistema.
-
-![Dashboard do administrador](docs/media/admindashboard.png)
-
-### Dashboard do funcionário
-O painel do funcionário foi feito para dar uma visão direta da própria rotina. Ele mostra próximos dias de trabalho, faltas registradas, alterações manuais e a escala pessoal de forma objetiva.
-
-![Dashboard do funcionário](docs/media/dashboardemployee.png)
-
-## O que o sistema faz?
-
-O ShiftPizza foi dividido em dois fluxos principais:
-
-### Área do administrador
-- cadastrar funcionários
-- editar dados de funcionários
-- remover funcionários
-- gerenciar nome, CPF, telefone, cargo e senha
-- gerar e organizar escalas mensais
-- marcar faltas
-- lançar turnos extras
-- controlar férias
-- acompanhar ações recentes
-- resetar o ambiente demo
-
-### Área do colaborador
-- acessar um dashboard pessoal
-- consultar a própria escala
-- visualizar os próprios dados
-
-### Experiência demo
-- acesso por perfil
-- credenciais demo disponíveis na tela de login
-- botão de reset para restaurar o estado original
-- usuários demo preparados para teste rápido
-
-## Por que este projeto foi criado
-
-
-O objetivo foi: uma aplicação que mostrasse organização full stack, separação entre frontend e backend, regras de negócio, autenticação, validação e uma experiência de demonstração fácil para quem quiser testar o projeto sem complicação.
-
-## Foi utilizado neste projeto:
+## 🛠 Tech Stack
 
 ### Frontend
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="18" alt="React" /> React
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" width="18" alt="Vite" /> Vite
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="18" alt="TypeScript" /> TypeScript
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" width="18" alt="Tailwind CSS" /> Tailwind CSS
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="18" alt="CSS" /> CSS
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/axios/axios-plain.svg" width="18" alt="Axios" /> Axios
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/reactrouter/reactrouter-original.svg" width="18" alt="React Router DOM" /> React Router DOM
+
+| Technology | Role |
+|---|---|
+| **React + Vite** | UI framework and lightning-fast build tool |
+| **TypeScript** | Type safety across all components and services |
+| **Tailwind CSS** | Utility-first styling system |
+| **React Router DOM** | Client-side routing with protected routes |
+| **Axios** | HTTP client with interceptors for auth headers |
 
 ### Backend
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nestjs/nestjs-original.svg" width="18" alt="NestJS" /> NestJS
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="18" alt="TypeScript" /> TypeScript
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/prisma/prisma-original.svg" width="18" alt="Prisma ORM" /> Prisma ORM
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" width="18" alt="Node.js" /> Node.js
-- <img src="https://jwt.io/img/pic_logo.svg" width="18" alt="JWT" /> JWT
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="18" alt="class-validator" /> class-validator
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="18" alt="Argon2" /> Argon2
 
-### Banco e infraestrutura
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="18" alt="PostgreSQL" /> PostgreSQL
-- <img src="https://neon.com/brand/neon-logomark-dark-color.svg" width="18" alt="Neon" /> Neon
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="18" alt="HTML" /> HTML
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg" width="18" alt="npm" /> npm
+| Technology | Role |
+|---|---|
+| **NestJS** | Modular, decorator-based backend framework |
+| **TypeScript** | Strict typing on all layers — DTOs, services, guards |
+| **Prisma ORM** | Type-safe database access and schema migrations |
+| **JWT** | Stateless authentication with role-based guards |
+| **Argon2** | Secure password hashing |
+| **class-validator** | Automatic DTO validation on all incoming payloads |
 
-<div align="center">
+### Infrastructure
+
+| Technology | Role |
+|---|---|
+| **PostgreSQL** | Relational database |
+| **Neon** | Serverless PostgreSQL hosting |
+| **Vercel** | Frontend deployment with automatic CI from GitHub |
+
+---
+
+## 🏗 Architecture
+
+```
+shiftpizza/
+├── frontend/                 # React + Vite
+│   └── src/
+│       ├── components/       # Reusable UI components
+│       ├── pages/            # Route-level views (Login, Dashboard, etc.)
+│       ├── services/         # Axios API calls per domain
+│       └── context/          # Global auth context
+│
+└── backend/                  # NestJS
+    ├── src/
+    │   ├── auth/             # JWT strategy, guards, login logic
+    │   ├── employees/        # Employee CRUD + DTO validation
+    │   ├── schedules/        # Monthly schedule generation
+    │   ├── shifts/           # Shift and absence management
+    │   └── prisma/           # PrismaService (shared DB client)
+    └── prisma/
+        ├── schema.prisma     # Database schema
+        └── seed.ts           # Demo data seeder
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- PostgreSQL database (or a [Neon](https://neon.tech) connection string)
+
+### Backend
+
+```bash
+cd backend
+npm install
+cp .env.example .env        # Set DATABASE_URL and JWT_SECRET
+npx prisma migrate dev
+npx prisma db seed
+npm run start:dev
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+cp .env.example .env        # Set VITE_API_URL
+npm run dev
+```
+
+> **Don't want to run locally?** Visit [shiftpizza.vercel.app](https://shiftpizza.vercel.app) — demo credentials are displayed right on the login screen.
+
+---
+
+## 👤 Author
 
 <table>
   <tr>
     <td>
       <strong>Anthony Diniz Sepini Azevedo</strong><br/>
-      Desenvolvedor focado em projetos full stack, arquitetura de aplicações e construção de soluções com boa apresentação visual e técnica.
+      Full stack developer focused on clean architecture, real business problems, and strong visual and technical presentation.
       <br/><br/>
       <a href="https://github.com/anthonysepini" target="_blank">
-        <img src="https://img.shields.io/badge/GitHub-anthonysepini-111111?style=for-the-badge&logo=github&logoColor=white" alt="GitHub">
+        <img src="https://img.shields.io/badge/GitHub-anthonysepini-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
       </a>
+      &nbsp;
       <a href="https://www.linkedin.com/in/anthonysepini" target="_blank">
-        <img src="https://img.shields.io/badge/LinkedIn-anthonysepini-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
+        <img src="https://img.shields.io/badge/LinkedIn-anthonysepini-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
       </a>
     </td>
   </tr>
 </table>
+
+---
+
+<div align="center">
+
+Built with focus on architecture, not just code.
+
+</div>
