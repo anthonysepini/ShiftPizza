@@ -79,11 +79,31 @@ The demo resets on demand, so you can break it as many times as you want.
 
 ## Tech stack
 
-**Frontend** — React, Vite, TypeScript, Tailwind CSS, React Router DOM, Axios
+**Frontend**
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="18" alt="React" /> React
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" width="18" alt="Vite" /> Vite
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="18" alt="TypeScript" /> TypeScript
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" width="18" alt="Tailwind CSS" /> Tailwind CSS
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="18" alt="CSS" /> CSS
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/axios/axios-plain.svg" width="18" alt="Axios" /> Axios
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/reactrouter/reactrouter-original.svg" width="18" alt="React Router DOM" /> React Router DOM
 
-**Backend** — NestJS, TypeScript, Prisma ORM, JWT, Argon2, class-validator
+**Backend**
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nestjs/nestjs-original.svg" width="18" alt="NestJS" /> NestJS
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="18" alt="TypeScript" /> TypeScript
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/prisma/prisma-original.svg" width="18" alt="Prisma ORM" /> Prisma ORM
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" width="18" alt="Node.js" /> Node.js
+- <img src="https://jwt.io/img/pic_logo.svg" width="18" alt="JWT" /> JWT
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="18" alt="class-validator" /> class-validator
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="18" alt="Argon2" /> Argon2
 
-**Infrastructure** — PostgreSQL, Neon, Vercel
+**Infrastructure**
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="18" alt="PostgreSQL" /> PostgreSQL
+- <img src="https://neon.com/brand/neon-logomark-dark-color.svg" width="18" alt="Neon" /> Neon
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="18" alt="HTML" /> HTML
+- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg" width="18" alt="npm" /> npm
+
+
 
 ---
 
@@ -136,6 +156,19 @@ npm run dev
 
 ---
 
+### AI-assisted workflow
+
+ShiftPizza was built by me using an AI-assisted vibecoding workflow: fast iteration with ChatGPT and Claude in the loop, but never on autopilot. I used them to explore approaches, debug issues, and refine details, while I kept control of the architecture, implementation direction, feature decisions, visual choices, review, and final quality bar. That mattered here, because ShiftPizza solves a real operational problem where small mistakes in schedules, absences, extra shifts, and vacations quickly turn into daily friction.
+
+<p align="left">
+  <img src="https://cdn.simpleicons.org/openai" alt="ChatGPT" width="16" height="16" />
+  <a href="https://chatgpt.com/">ChatGPT</a>
+  &nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/anthropic" alt="Claude" width="16" height="16" />
+  <a href="https://www.anthropic.com/claude">Claude</a>
+</p>
+
+---
 ## Author
 
 <table>
