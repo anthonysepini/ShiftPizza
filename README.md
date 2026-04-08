@@ -156,15 +156,6 @@ npm run dev
 
 ---
 
-### AI-assisted build
-
- I built the project myself and used ChatGPT and ClaudeCode as part of the workflow for fast iteration, debugging, and refinement. They helped me move faster, but the architecture, implementation, product decisions, visual direction, and final review were mine.
-
-- <img src=".docs/media/icons/chatgpt.svg" alt="ChatGPT" width="16" /> <a href="https://chatgpt.com/">ChatGPT</a>
-- <img src=".docs/media/icons/claude.svg" alt="Claude" width="16" /> <a href="https://www.anthropic.com/claude">Claude</a>
-
----
-
 ## Author
 
 <table>

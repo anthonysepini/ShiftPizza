@@ -593,7 +593,7 @@ export default function EmployeesPage() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                  Gestão da equipe
+                  ㅤGestão da equipe
                 </p>
                 <h2 className="mt-2 text-xl font-semibold tracking-tight text-white">
                   Funcionários cadastrados
