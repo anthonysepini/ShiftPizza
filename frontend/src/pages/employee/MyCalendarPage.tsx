@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useReducer, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import PageHeader from '../../components/layout/PageHeader';
-import Spinner from '../../components/ui/Spinner';
-import EmptyState from '../../components/ui/EmptyState';
-import { schedulesService } from '../../services/schedules.service';
-import type { ScheduleDay } from '../../types';
+import { useEffect, useMemo, useReducer, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import PageHeader from "../../components/layout/PageHeader";
+import Spinner from "../../components/ui/Spinner";
+import EmptyState from "../../components/ui/EmptyState";
+import { schedulesService } from "../../services/schedules.service";
+import type { ScheduleDay } from "../../types";
 
-const WEEKDAYS_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+const WEEKDAYS_SHORT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 const TODAY = new Date();
 TODAY.setHours(0, 0, 0, 0);
@@ -17,16 +17,16 @@ type State = {
 };
 
 type Action =
-  | { type: 'loading' }
-  | { type: 'success'; payload: ScheduleDay[] }
-  | { type: 'error' };
+  | { type: "loading" }
+  | { type: "success"; payload: ScheduleDay[] }
+  | { type: "error" };
 
 type DisplayStatusKey =
-  | 'PRESENT'
-  | 'SCHEDULED'
-  | 'ABSENT'
-  | 'EXTRA'
-  | 'DAY_OFF';
+  | "PRESENT"
+  | "SCHEDULED"
+  | "ABSENT"
+  | "EXTRA"
+  | "DAY_OFF";
 
 type DisplayStatus = {
   key: DisplayStatusKey;
@@ -39,11 +39,11 @@ type DisplayStatus = {
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'loading':
+    case "loading":
       return { ...state, loading: true };
-    case 'success':
+    case "success":
       return { loading: false, days: action.payload };
-    case 'error':
+    case "error":
       return { loading: false, days: [] };
     default:
       return state;
@@ -51,14 +51,10 @@ function reducer(state: State, action: Action): State {
 }
 
 function parseLocalDate(value: string) {
-  const normalized = value.split('T')[0];
-  const [year, month, day] = normalized.split('-').map(Number);
+  const normalized = value.split("T")[0];
+  const [year, month, day] = normalized.split("-").map(Number);
 
-  if (
-    Number.isFinite(year) &&
-    Number.isFinite(month) &&
-    Number.isFinite(day)
-  ) {
+  if (Number.isFinite(year) && Number.isFinite(month) && Number.isFinite(day)) {
     return new Date(year, month - 1, day);
   }
 
@@ -69,8 +65,8 @@ function parseLocalDate(value: string) {
 
 function getDateKey(date: Date) {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
 
@@ -83,10 +79,10 @@ function isSameDay(a: Date, b: Date) {
 }
 
 function normalizeText(value?: string | null) {
-  return (value ?? '')
+  return (value ?? "")
     .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 }
 
 function hasVacationSignal(day: ScheduleDay) {
@@ -94,12 +90,12 @@ function hasVacationSignal(day: ScheduleDay) {
   const note = normalizeText(day.note);
 
   return (
-    rawStatus.includes('VACATION') ||
-    rawStatus.includes('VACATIONS') ||
-    rawStatus.includes('VACACAO') ||
-    rawStatus.includes('FERIAS') ||
-    note.includes('ferias') ||
-    note.includes('vacation')
+    rawStatus.includes("VACATION") ||
+    rawStatus.includes("VACATIONS") ||
+    rawStatus.includes("VACACAO") ||
+    rawStatus.includes("FERIAS") ||
+    note.includes("ferias") ||
+    note.includes("vacation")
   );
 }
 
@@ -109,60 +105,60 @@ function getDisplayStatus(day: ScheduleDay): DisplayStatus {
   const rawStatus = String(day.status).toUpperCase();
 
   if (
-    rawStatus === 'ABSENT' ||
-    rawStatus === 'REMOVED_SHIFT' ||
+    rawStatus === "ABSENT" ||
+    rawStatus === "REMOVED_SHIFT" ||
     hasVacationSignal(day)
   ) {
     return {
-      key: 'ABSENT',
-      label: 'Ausente',
-      shortLabel: 'Aus.',
-      dotClass: 'bg-red-400',
-      badgeClass: 'border-red-500/20 bg-red-500/10 text-red-300',
-      chipClass: 'border-red-500/15 bg-red-500/8 text-red-300',
+      key: "ABSENT",
+      label: "Ausente",
+      shortLabel: "Aus.",
+      dotClass: "bg-red-400",
+      badgeClass: "border-red-500/20 bg-red-500/10 text-red-300",
+      chipClass: "border-red-500/15 bg-red-500/8 text-red-300",
     };
   }
 
-  if (rawStatus === 'DAY_OFF') {
+  if (rawStatus === "DAY_OFF") {
     return {
-      key: 'DAY_OFF',
-      label: 'Folga',
-      shortLabel: 'Folga',
-      dotClass: 'bg-zinc-400',
-      badgeClass: 'border-white/10 bg-white/[0.04] text-zinc-300',
-      chipClass: 'border-white/10 bg-white/[0.03] text-zinc-300',
+      key: "DAY_OFF",
+      label: "Folga",
+      shortLabel: "Folga",
+      dotClass: "bg-zinc-400",
+      badgeClass: "border-white/10 bg-white/[0.04] text-zinc-300",
+      chipClass: "border-white/10 bg-white/[0.03] text-zinc-300",
     };
   }
 
-  if (rawStatus === 'EXTRA_SHIFT') {
+  if (rawStatus === "EXTRA_SHIFT") {
     return {
-      key: 'EXTRA',
-      label: 'Extra',
-      shortLabel: 'Extra',
-      dotClass: 'bg-amber-300',
-      badgeClass: 'border-amber-500/20 bg-amber-500/10 text-amber-300',
-      chipClass: 'border-amber-500/15 bg-amber-500/8 text-amber-300',
+      key: "EXTRA",
+      label: "Extra",
+      shortLabel: "Extra",
+      dotClass: "bg-amber-300",
+      badgeClass: "border-amber-500/20 bg-amber-500/10 text-amber-300",
+      chipClass: "border-amber-500/15 bg-amber-500/8 text-amber-300",
     };
   }
 
-  if (isPast && rawStatus === 'SCHEDULED') {
+  if (isPast && rawStatus === "SCHEDULED") {
     return {
-      key: 'PRESENT',
-      label: 'Presente',
-      shortLabel: 'Pres.',
-      dotClass: 'bg-emerald-400',
-      badgeClass: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-300',
-      chipClass: 'border-emerald-500/15 bg-emerald-500/8 text-emerald-300',
+      key: "PRESENT",
+      label: "Presente",
+      shortLabel: "Pres.",
+      dotClass: "bg-emerald-400",
+      badgeClass: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
+      chipClass: "border-emerald-500/15 bg-emerald-500/8 text-emerald-300",
     };
   }
 
   return {
-    key: 'SCHEDULED',
-    label: 'Escalado',
-    shortLabel: 'Ag.',
-    dotClass: 'bg-orange-400',
-    badgeClass: 'border-orange-500/20 bg-orange-500/10 text-orange-300',
-    chipClass: 'border-orange-500/15 bg-orange-500/8 text-orange-300',
+    key: "SCHEDULED",
+    label: "Escalado",
+    shortLabel: "Ag.",
+    dotClass: "bg-orange-400",
+    badgeClass: "border-orange-500/20 bg-orange-500/10 text-orange-300",
+    chipClass: "border-orange-500/15 bg-orange-500/8 text-orange-300",
   };
 }
 
@@ -172,17 +168,17 @@ function getDefaultNote(day: ScheduleDay, display: DisplayStatus) {
   }
 
   switch (display.key) {
-    case 'PRESENT':
-      return 'Turno concluído com presença registrada.';
-    case 'ABSENT':
-      return 'Registro de ausência, remoção ou férias neste dia.';
-    case 'EXTRA':
-      return 'Turno extra registrado na sua escala.';
-    case 'DAY_OFF':
-      return 'Dia livre sem turno programado.';
-    case 'SCHEDULED':
+    case "PRESENT":
+      return "Turno concluído com presença registrada.";
+    case "ABSENT":
+      return "Registro de ausência, remoção ou férias neste dia.";
+    case "EXTRA":
+      return "Turno extra registrado na sua escala.";
+    case "DAY_OFF":
+      return "Dia livre sem turno programado.";
+    case "SCHEDULED":
     default:
-      return 'Turno programado na sua escala atual.';
+      return "Turno programado na sua escala atual.";
   }
 }
 
@@ -197,18 +193,18 @@ export default function MyCalendarPage() {
   useEffect(() => {
     let cancelled = false;
 
-    dispatch({ type: 'loading' });
+    dispatch({ type: "loading" });
 
     schedulesService
       .getMySchedule(year, month)
       .then((data) => {
         if (!cancelled) {
-          dispatch({ type: 'success', payload: data });
+          dispatch({ type: "success", payload: data });
         }
       })
       .catch(() => {
         if (!cancelled) {
-          dispatch({ type: 'error' });
+          dispatch({ type: "error" });
         }
       });
 
@@ -239,9 +235,9 @@ export default function MyCalendarPage() {
 
   const daysInMonth = new Date(year, month, 0).getDate();
   const firstWeekday = new Date(year, month - 1, 1).getDay();
-  const monthLabel = new Date(year, month - 1).toLocaleDateString('pt-BR', {
-    month: 'long',
-    year: 'numeric',
+  const monthLabel = new Date(year, month - 1).toLocaleDateString("pt-BR", {
+    month: "long",
+    year: "numeric",
   });
 
   const sortedDays = useMemo(() => {
@@ -263,21 +259,21 @@ export default function MyCalendarPage() {
         const display = getDisplayStatus(day);
         const date = parseLocalDate(day.date);
 
-        if (display.key === 'PRESENT') {
+        if (display.key === "PRESENT") {
           acc.present += 1;
         }
 
-        if (display.key === 'ABSENT') {
+        if (display.key === "ABSENT") {
           acc.absent += 1;
         }
 
-        if (display.key === 'EXTRA') {
+        if (display.key === "EXTRA") {
           acc.extra += 1;
         }
 
         if (
           date >= TODAY &&
-          (display.key === 'SCHEDULED' || display.key === 'EXTRA')
+          (display.key === "SCHEDULED" || display.key === "EXTRA")
         ) {
           acc.upcoming += 1;
         }
@@ -290,10 +286,7 @@ export default function MyCalendarPage() {
 
   return (
     <div className="animate-in w-full space-y-6">
-      <PageHeader
-        title="Minha Escala"
-        subtitle="Visualize seu mês aqui."
-      />
+      <PageHeader title="Minha Escala" subtitle="Visualize seu mês aqui." />
 
       <section className="relative overflow-hidden rounded-[28px] border border-white/8 bg-[#070707] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.42)] sm:p-6">
         <div className="pointer-events-none absolute -right-16 top-[-88px] h-44 w-44 rounded-full bg-orange-500/10 blur-3xl" />
@@ -380,29 +373,30 @@ export default function MyCalendarPage() {
         <div className="flex flex-wrap gap-2">
           {[
             {
-              label: 'Presente',
-              dotClass: 'bg-emerald-400',
-              chipClass: 'border-emerald-500/15 bg-emerald-500/8 text-emerald-300',
+              label: "Presente",
+              dotClass: "bg-emerald-400",
+              chipClass:
+                "border-emerald-500/15 bg-emerald-500/8 text-emerald-300",
             },
             {
-              label: 'Escalado',
-              dotClass: 'bg-orange-400',
-              chipClass: 'border-orange-500/15 bg-orange-500/8 text-orange-300',
+              label: "Escalado",
+              dotClass: "bg-orange-400",
+              chipClass: "border-orange-500/15 bg-orange-500/8 text-orange-300",
             },
             {
-              label: 'Ausente',
-              dotClass: 'bg-red-400',
-              chipClass: 'border-red-500/15 bg-red-500/8 text-red-300',
+              label: "Ausente",
+              dotClass: "bg-red-400",
+              chipClass: "border-red-500/15 bg-red-500/8 text-red-300",
             },
             {
-              label: 'Extra',
-              dotClass: 'bg-amber-300',
-              chipClass: 'border-amber-500/15 bg-amber-500/8 text-amber-300',
+              label: "Extra",
+              dotClass: "bg-amber-300",
+              chipClass: "border-amber-500/15 bg-amber-500/8 text-amber-300",
             },
             {
-              label: 'Folga',
-              dotClass: 'bg-zinc-400',
-              chipClass: 'border-white/10 bg-white/[0.03] text-zinc-300',
+              label: "Folga",
+              dotClass: "bg-zinc-400",
+              chipClass: "border-white/10 bg-white/[0.03] text-zinc-300",
             },
           ].map((item) => (
             <div
@@ -462,18 +456,18 @@ export default function MyCalendarPage() {
                   <div
                     key={day}
                     className={`min-h-[88px] border-b border-white/6 p-2 sm:min-h-[108px] sm:p-3 ${
-                      column < 6 ? 'border-r' : ''
+                      column < 6 ? "border-r" : ""
                     } ${
                       isToday
-                        ? 'bg-orange-500/[0.06] ring-1 ring-inset ring-orange-500/30'
-                        : 'bg-transparent'
+                        ? "bg-orange-500/[0.06] ring-1 ring-inset ring-orange-500/30"
+                        : "bg-transparent"
                     }`}
                   >
                     <div
                       className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold sm:h-9 sm:w-9 ${
                         isToday
-                          ? 'bg-orange-500 text-white shadow-[0_10px_24px_rgba(249,115,22,0.25)]'
-                          : 'text-slate-400'
+                          ? "bg-orange-500 text-white shadow-[0_10px_24px_rgba(249,115,22,0.25)]"
+                          : "text-slate-400"
                       }`}
                     >
                       {day}
@@ -512,7 +506,7 @@ export default function MyCalendarPage() {
               </div>
 
               <div className="inline-flex w-fit items-center rounded-full border border-orange-400/15 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-300">
-                {sortedDays.length} registro{sortedDays.length === 1 ? '' : 's'}
+                {sortedDays.length} registro{sortedDays.length === 1 ? "" : "s"}
               </div>
             </div>
 
@@ -529,8 +523,8 @@ export default function MyCalendarPage() {
                       key={day.id}
                       className={`relative overflow-hidden rounded-2xl border px-4 py-4 transition-all duration-200 sm:px-5 ${
                         isToday
-                          ? 'border-orange-500/25 bg-orange-500/[0.07]'
-                          : 'border-white/8 bg-white/[0.02] hover:border-orange-500/15 hover:bg-white/[0.03]'
+                          ? "border-orange-500/25 bg-orange-500/[0.07]"
+                          : "border-white/8 bg-white/[0.02] hover:border-orange-500/15 hover:bg-white/[0.03]"
                       }`}
                     >
                       {isToday && (
@@ -542,36 +536,38 @@ export default function MyCalendarPage() {
                           <div
                             className={`flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-2xl border ${
                               isToday
-                                ? 'border-orange-400/20 bg-[#140D08]'
-                                : 'border-white/8 bg-white/[0.03]'
+                                ? "border-orange-400/20 bg-[#140D08]"
+                                : "border-white/8 bg-white/[0.03]"
                             }`}
                           >
                             <span
                               className={`text-base font-bold leading-none ${
-                                isToday ? 'text-orange-300' : 'text-white'
+                                isToday ? "text-orange-300" : "text-white"
                               }`}
                             >
                               {date.getDate()}
                             </span>
                             <span className="mt-1 text-[10px] uppercase tracking-[0.18em] text-slate-500">
                               {date
-                                .toLocaleDateString('pt-BR', {
-                                  weekday: 'short',
+                                .toLocaleDateString("pt-BR", {
+                                  weekday: "short",
                                 })
-                                .replace('.', '')}
+                                .replace(".", "")}
                             </span>
                           </div>
 
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-white">
-                              {date.toLocaleDateString('pt-BR', {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric',
+                              {date.toLocaleDateString("pt-BR", {
+                                day: "2-digit",
+                                month: "long",
+                                year: "numeric",
                               })}
                             </p>
                             <p className="mt-1 text-xs text-slate-500">
-                              {isToday ? 'Dia atual da escala' : 'Dia da escala'}
+                              {isToday
+                                ? "Dia atual da escala"
+                                : "Dia da escala"}
                             </p>
                           </div>
                         </div>

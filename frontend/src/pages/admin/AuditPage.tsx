@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
-import PageHeader from '../../components/layout/PageHeader';
-import Card from '../../components/ui/Card';
-import Spinner from '../../components/ui/Spinner';
-import EmptyState from '../../components/ui/EmptyState';
-import { auditService } from '../../services/audit.service';
-import type { AuditLog } from '../../types';
+import { useEffect, useMemo, useState } from "react";
+import PageHeader from "../../components/layout/PageHeader";
+import Card from "../../components/ui/Card";
+import Spinner from "../../components/ui/Spinner";
+import EmptyState from "../../components/ui/EmptyState";
+import { auditService } from "../../services/audit.service";
+import type { AuditLog } from "../../types";
 
 type ActionConfig = {
   label: string;
@@ -17,93 +17,104 @@ type ActionConfig = {
 
 const ACTION_CONFIG: Record<string, ActionConfig> = {
   GENERATE_MONTH: {
-    label: 'Escala gerada',
-    icon: '📅',
-    color: 'text-orange-300',
-    pillClass: 'border-orange-500/20 bg-orange-500/10 text-orange-200',
-    iconClass: 'border-orange-500/15 bg-orange-500/10 text-orange-200',
+    label: "Escala gerada",
+    icon: "📅",
+    color: "text-orange-300",
+    pillClass: "border-orange-500/20 bg-orange-500/10 text-orange-200",
+    iconClass: "border-orange-500/15 bg-orange-500/10 text-orange-200",
     description: (log) => {
-      const meta = log.metadata as { year?: number; month?: number; created?: number } | null;
+      const meta = log.metadata as {
+        year?: number;
+        month?: number;
+        created?: number;
+      } | null;
 
       if (meta?.year && meta?.month) {
-        const monthName = new Date(meta.year, meta.month - 1).toLocaleDateString('pt-BR', {
-          month: 'long',
-          year: 'numeric',
+        const monthName = new Date(
+          meta.year,
+          meta.month - 1,
+        ).toLocaleDateString("pt-BR", {
+          month: "long",
+          year: "numeric",
         });
 
         return `${meta.created ?? 0} dias criados para ${monthName}`;
       }
 
-      return 'Escala mensal gerada automaticamente';
+      return "Escala mensal gerada automaticamente";
     },
   },
   UPDATE_DAY: {
-    label: 'Dia alterado',
-    icon: '✏️',
-    color: 'text-amber-300',
-    pillClass: 'border-amber-500/20 bg-amber-500/10 text-amber-200',
-    iconClass: 'border-amber-500/15 bg-amber-500/10 text-amber-200',
+    label: "Dia alterado",
+    icon: "✏️",
+    color: "text-amber-300",
+    pillClass: "border-amber-500/20 bg-amber-500/10 text-amber-200",
+    iconClass: "border-amber-500/15 bg-amber-500/10 text-amber-200",
     description: (log) => {
-      const meta = log.metadata as { from?: string; to?: string; note?: string } | null;
+      const meta = log.metadata as {
+        from?: string;
+        to?: string;
+        note?: string;
+      } | null;
 
       const statusLabel: Record<string, string> = {
-        SCHEDULED: 'Agendado',
-        ABSENT: 'Falta',
-        EXTRA_SHIFT: 'Turno Extra',
-        DAY_OFF: 'Folga',
-        REMOVED_SHIFT: 'Removido',
+        SCHEDULED: "Agendado",
+        ABSENT: "Falta",
+        EXTRA_SHIFT: "Turno Extra",
+        DAY_OFF: "Folga",
+        REMOVED_SHIFT: "Removido",
       };
 
       if (meta?.from && meta?.to) {
         const from = statusLabel[meta.from] ?? meta.from;
         const to = statusLabel[meta.to] ?? meta.to;
 
-        return `Status alterado de ${from} para ${to}${meta.note ? ` · ${meta.note}` : ''}`;
+        return `Status alterado de ${from} para ${to}${meta.note ? ` · ${meta.note}` : ""}`;
       }
 
-      return 'Status de um dia foi alterado';
+      return "Status de um dia foi alterado";
     },
   },
   CREATE_EMPLOYEE: {
-    label: 'Funcionário cadastrado',
-    icon: '👤',
-    color: 'text-emerald-300',
-    pillClass: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-200',
-    iconClass: 'border-emerald-500/15 bg-emerald-500/10 text-emerald-200',
-    description: () => 'Novo funcionário adicionado ao sistema',
+    label: "Funcionário cadastrado",
+    icon: "👤",
+    color: "text-emerald-300",
+    pillClass: "border-emerald-500/20 bg-emerald-500/10 text-emerald-200",
+    iconClass: "border-emerald-500/15 bg-emerald-500/10 text-emerald-200",
+    description: () => "Novo funcionário adicionado ao sistema",
   },
 };
 
 const FALLBACK_ACTION_CONFIG: ActionConfig = {
-  label: 'Ação do sistema',
-  icon: '⚙️',
-  color: 'text-slate-300',
-  pillClass: 'border-white/10 bg-white/[0.04] text-slate-200',
-  iconClass: 'border-white/10 bg-white/[0.04] text-slate-200',
-  description: () => 'Ação do sistema',
+  label: "Ação do sistema",
+  icon: "⚙️",
+  color: "text-slate-300",
+  pillClass: "border-white/10 bg-white/[0.04] text-slate-200",
+  iconClass: "border-white/10 bg-white/[0.04] text-slate-200",
+  description: () => "Ação do sistema",
 };
 
 function formatShortDate(value: string) {
-  return new Date(value).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: 'short',
+  return new Date(value).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
   });
 }
 
 function formatTime(value: string) {
-  return new Date(value).toLocaleTimeString('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(value).toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
 function formatFullDateTime(value: string) {
-  return new Date(value).toLocaleString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(value).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
@@ -123,18 +134,24 @@ export default function AuditPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    auditService.findAll(100).then(setLogs).finally(() => setLoading(false));
+    auditService
+      .findAll(100)
+      .then(setLogs)
+      .finally(() => setLoading(false));
   }, []);
 
   const metrics = useMemo(() => {
     const total = logs.length;
     const today = logs.filter((log) => isToday(log.createdAt)).length;
-    const generatedMonths = logs.filter((log) => log.action === 'GENERATE_MONTH').length;
+    const generatedMonths = logs.filter(
+      (log) => log.action === "GENERATE_MONTH",
+    ).length;
 
     const latest = logs.reduce<AuditLog | null>((latestLog, currentLog) => {
       if (!latestLog) return currentLog;
 
-      return new Date(currentLog.createdAt).getTime() > new Date(latestLog.createdAt).getTime()
+      return new Date(currentLog.createdAt).getTime() >
+        new Date(latestLog.createdAt).getTime()
         ? currentLog
         : latestLog;
     }, null);
@@ -245,7 +262,8 @@ export default function AuditPage() {
 
                     <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-slate-300">
                       <span className="h-2 w-2 rounded-full bg-orange-400 shadow-[0_0_12px_rgba(251,146,60,0.45)]" />
-                      {logs.length} evento{logs.length > 1 ? 's' : ''} carregado{logs.length > 1 ? 's' : ''}
+                      {logs.length} evento{logs.length > 1 ? "s" : ""} carregado
+                      {logs.length > 1 ? "s" : ""}
                     </div>
                   </div>
                 </div>
@@ -281,10 +299,12 @@ export default function AuditPage() {
                                     {cfg.label}
                                   </span>
 
-                                  <span className="hidden text-slate-600 sm:inline">•</span>
+                                  <span className="hidden text-slate-600 sm:inline">
+                                    •
+                                  </span>
 
                                   <p className="truncate text-sm font-medium text-slate-200">
-                                    {log.actor?.employee?.fullName ?? 'Sistema'}
+                                    {log.actor?.employee?.fullName ?? "Sistema"}
                                   </p>
                                 </div>
 
@@ -324,13 +344,22 @@ export default function AuditPage() {
                       <div className="mt-3 space-y-3">
                         <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
                           <p className="text-sm font-medium text-white">
-                            ㅤ{(ACTION_CONFIG[metrics.latest.action] ?? FALLBACK_ACTION_CONFIG).label}
+                            ㅤ
+                            {
+                              (
+                                ACTION_CONFIG[metrics.latest.action] ??
+                                FALLBACK_ACTION_CONFIG
+                              ).label
+                            }
                           </p>
                           <p className="mt-1 text-sm text-slate-400">
                             ㅤ{formatFullDateTime(metrics.latest.createdAt)}
                           </p>
                           <p className="mt-3 text-xs leading-relaxed text-slate-500">
-                            {(ACTION_CONFIG[metrics.latest.action] ?? FALLBACK_ACTION_CONFIG).description(metrics.latest)}
+                            {(
+                              ACTION_CONFIG[metrics.latest.action] ??
+                              FALLBACK_ACTION_CONFIG
+                            ).description(metrics.latest)}
                           </p>
                         </div>
                       </div>
@@ -362,7 +391,9 @@ export default function AuditPage() {
                           </div>
 
                           <div className="min-w-0">
-                            <p className={`text-sm font-medium ${cfg.color}`}>{cfg.label}</p>
+                            <p className={`text-sm font-medium ${cfg.color}`}>
+                              {cfg.label}
+                            </p>
                           </div>
                         </div>
                       ))}

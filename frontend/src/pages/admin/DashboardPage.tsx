@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Users,
   AlertTriangle,
@@ -8,26 +8,29 @@ import {
   ArrowRight,
   CalendarDays,
   Activity,
-} from 'lucide-react';
-import PageHeader from '../../components/layout/PageHeader';
-import Card from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
-import Spinner from '../../components/ui/Spinner';
-import { employeesService } from '../../services/employees.service';
-import { schedulesService } from '../../services/schedules.service';
-import { auditService } from '../../services/audit.service';
-import type { Employee, AuditLog, ScheduleDay } from '../../types';
+} from "lucide-react";
+import PageHeader from "../../components/layout/PageHeader";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import Spinner from "../../components/ui/Spinner";
+import { employeesService } from "../../services/employees.service";
+import { schedulesService } from "../../services/schedules.service";
+import { auditService } from "../../services/audit.service";
+import type { Employee, AuditLog, ScheduleDay } from "../../types";
 
 // Definido fora do componente — não muda entre renders
 const NOW = new Date();
 const CURRENT_YEAR = NOW.getFullYear();
 const CURRENT_MONTH = NOW.getMonth() + 1;
-const MONTH_NAME = NOW.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+const MONTH_NAME = NOW.toLocaleDateString("pt-BR", {
+  month: "long",
+  year: "numeric",
+});
 
 const ACTION_LABEL: Record<string, { label: string; icon: string }> = {
-  GENERATE_MONTH: { label: 'Escala gerada', icon: '📅' },
-  UPDATE_DAY: { label: 'Dia alterado', icon: '✏️' },
-  CREATE_EMPLOYEE: { label: 'Funcionário cadastrado', icon: '👤' },
+  GENERATE_MONTH: { label: "Escala gerada", icon: "📅" },
+  UPDATE_DAY: { label: "Dia alterado", icon: "✏️" },
+  CREATE_EMPLOYEE: { label: "Funcionário cadastrado", icon: "👤" },
 };
 
 export default function AdminDashboardPage() {
@@ -37,7 +40,7 @@ export default function AdminDashboardPage() {
   const [days, setDays] = useState<ScheduleDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [genMsg, setGenMsg] = useState('');
+  const [genMsg, setGenMsg] = useState("");
 
   const loadData = useCallback(async () => {
     try {
@@ -60,14 +63,14 @@ export default function AdminDashboardPage() {
 
   const handleGenerate = async () => {
     setGenerating(true);
-    setGenMsg('');
+    setGenMsg("");
     try {
       const r = await schedulesService.generateMonth({
         year: CURRENT_YEAR,
         month: CURRENT_MONTH,
       });
       setGenMsg(
-        `✅ ${r.created} dias criados para ${NOW.toLocaleDateString('pt-BR', { month: 'long' })}`,
+        `✅ ${r.created} dias criados para ${NOW.toLocaleDateString("pt-BR", { month: "long" })}`,
       );
       const [d, l] = await Promise.all([
         schedulesService.getMonthSchedule(CURRENT_YEAR, CURRENT_MONTH),
@@ -76,7 +79,7 @@ export default function AdminDashboardPage() {
       setDays(d);
       setLogs(l);
     } catch {
-      setGenMsg('❌ Erro ao gerar escala.');
+      setGenMsg("❌ Erro ao gerar escala.");
     } finally {
       setGenerating(false);
     }
@@ -84,19 +87,21 @@ export default function AdminDashboardPage() {
 
   const active = employees.filter((e) => e.isActive).length;
   const inactive = employees.filter((e) => !e.isActive).length;
-  const absents = days.filter((d) => d.status === 'ABSENT').length;
+  const absents = days.filter((d) => d.status === "ABSENT").length;
   const today = days.filter((d) => {
     const dt = new Date(d.date);
     return (
       dt.getUTCDate() === NOW.getDate() &&
       dt.getUTCMonth() === NOW.getMonth() &&
-      d.status === 'SCHEDULED'
+      d.status === "SCHEDULED"
     );
   }).length;
 
-  const activePercent = employees.length > 0 ? (active / employees.length) * 100 : 0;
+  const activePercent =
+    employees.length > 0 ? (active / employees.length) * 100 : 0;
   const absentPercent = days.length > 0 ? (absents / days.length) * 100 : 0;
-  const todayPercent = employees.length > 0 ? Math.min((today / employees.length) * 100, 100) : 0;
+  const todayPercent =
+    employees.length > 0 ? Math.min((today / employees.length) * 100, 100) : 0;
 
   if (loading) {
     return (
@@ -114,7 +119,11 @@ export default function AdminDashboardPage() {
         title="Dashboard"
         subtitle={`Visão geral — ${MONTH_NAME}`}
         action={
-          <Button onClick={() => void handleGenerate()} loading={generating} size="sm">
+          <Button
+            onClick={() => void handleGenerate()}
+            loading={generating}
+            size="sm"
+          >
             Gerar escala do mês
           </Button>
         }
@@ -137,7 +146,9 @@ export default function AdminDashboardPage() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 ㅤEquipe
               </p>
-              <h3 className="mt-2 text-sm font-medium text-slate-300">ㅤFuncionários ativos</h3>
+              <h3 className="mt-2 text-sm font-medium text-slate-300">
+                ㅤFuncionários ativos
+              </h3>
             </div>
 
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10">
@@ -146,10 +157,12 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="relative mt-6">
-            <p className="text-4xl font-black tracking-tight text-white">ㅤ{active}</p>
+            <p className="text-4xl font-black tracking-tight text-white">
+              ㅤ{active}
+            </p>
             <p className="mt-2 text-sm leading-6 text-slate-500">
               {inactive > 0
-                ? `${inactive} inativo${inactive > 1 ? 's' : ''} • ${employees.length} total`
+                ? `${inactive} inativo${inactive > 1 ? "s" : ""} • ${employees.length} total`
                 : `ㅤTodos ativos • ${employees.length} total`}
             </p>
           </div>
@@ -157,7 +170,9 @@ export default function AdminDashboardPage() {
           <div className="relative mt-5 h-1.5 w-full rounded-full bg-white/5">
             <div
               className="h-full rounded-full bg-linear-to-r from-orange-500 to-amber-400"
-              style={{ width: `${Math.min(Math.max(activePercent, employees.length ? 10 : 0), 100)}%` }}
+              style={{
+                width: `${Math.min(Math.max(activePercent, employees.length ? 10 : 0), 100)}%`,
+              }}
             />
           </div>
         </div>
@@ -171,7 +186,9 @@ export default function AdminDashboardPage() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 ㅤOcorrências
               </p>
-              <h3 className="mt-2 text-sm font-medium text-slate-300">ㅤFaltas no mês</h3>
+              <h3 className="mt-2 text-sm font-medium text-slate-300">
+                ㅤFaltas no mês
+              </h3>
             </div>
 
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10">
@@ -180,14 +197,20 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="relative mt-6">
-            <p className="text-4xl font-black tracking-tight text-white">ㅤ{absents}</p>
-            <p className="mt-2 text-sm capitalize leading-6 text-slate-500">ㅤ{MONTH_NAME}</p>
+            <p className="text-4xl font-black tracking-tight text-white">
+              ㅤ{absents}
+            </p>
+            <p className="mt-2 text-sm capitalize leading-6 text-slate-500">
+              ㅤ{MONTH_NAME}
+            </p>
           </div>
 
           <div className="relative mt-5 h-1.5 w-full rounded-full bg-white/5">
             <div
               className="h-full rounded-full bg-linear-to-r from-orange-500 to-orange-300"
-              style={{ width: `${Math.min(Math.max(absentPercent, absents > 0 ? 10 : 0), 100)}%` }}
+              style={{
+                width: `${Math.min(Math.max(absentPercent, absents > 0 ? 10 : 0), 100)}%`,
+              }}
             />
           </div>
         </div>
@@ -201,7 +224,9 @@ export default function AdminDashboardPage() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 ㅤHoje
               </p>
-              <h3 className="mt-2 text-sm font-medium text-slate-300">ㅤTrabalhando hoje</h3>
+              <h3 className="mt-2 text-sm font-medium text-slate-300">
+                ㅤTrabalhando hoje
+              </h3>
             </div>
 
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10">
@@ -210,14 +235,20 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="relative mt-6">
-            <p className="text-4xl font-black tracking-tight text-white">ㅤ{today}</p>
-            <p className="mt-2 text-sm leading-6 text-slate-500">ㅤTurnos agendados para o dia</p>
+            <p className="text-4xl font-black tracking-tight text-white">
+              ㅤ{today}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              ㅤTurnos agendados para o dia
+            </p>
           </div>
 
           <div className="relative mt-5 h-1.5 w-full rounded-full bg-white/5">
             <div
               className="h-full rounded-full bg-linear-to-r from-amber-400 to-orange-500"
-              style={{ width: `${Math.min(Math.max(todayPercent, today > 0 ? 10 : 0), 100)}%` }}
+              style={{
+                width: `${Math.min(Math.max(todayPercent, today > 0 ? 10 : 0), 100)}%`,
+              }}
             />
           </div>
         </div>
@@ -243,7 +274,7 @@ export default function AdminDashboardPage() {
               </div>
 
               <button
-                onClick={() => navigate('/admin/audit')}
+                onClick={() => navigate("/admin/audit")}
                 className="inline-flex w-fit items-center gap-2 rounded-xl border border-orange-500/20 bg-orange-500/10 px-3.5 py-2 text-xs font-semibold text-orange-300 transition-all hover:border-orange-400/30 hover:bg-orange-500/15 hover:text-orange-200"
               >
                 Ver tudo
@@ -254,7 +285,9 @@ export default function AdminDashboardPage() {
             {logs.length === 0 ? (
               <div className="rounded-3xl border border-white/8 bg-[#070707]/70 px-6 py-12 text-center">
                 <p className="text-3xl">📋</p>
-                <p className="mt-3 text-sm font-medium text-slate-300">Nenhuma atividade ainda</p>
+                <p className="mt-3 text-sm font-medium text-slate-300">
+                  Nenhuma atividade ainda
+                </p>
                 <p className="mt-1 text-sm text-slate-500">
                   As ações recentes aparecerão aqui assim que forem registradas.
                 </p>
@@ -262,7 +295,10 @@ export default function AdminDashboardPage() {
             ) : (
               <div className="space-y-3">
                 {logs.map((log) => {
-                  const cfg = ACTION_LABEL[log.action] ?? { label: log.action, icon: '⚙️' };
+                  const cfg = ACTION_LABEL[log.action] ?? {
+                    label: log.action,
+                    icon: "⚙️",
+                  };
 
                   return (
                     <div
@@ -274,16 +310,18 @@ export default function AdminDashboardPage() {
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-slate-200">{cfg.label}</p>
+                        <p className="truncate text-sm font-medium text-slate-200">
+                          {cfg.label}
+                        </p>
                         <p className="mt-1 truncate text-xs text-slate-500">
-                          {log.actor?.employee?.fullName ?? '—'}
+                          {log.actor?.employee?.fullName ?? "—"}
                         </p>
                       </div>
 
                       <div className="shrink-0 rounded-full border border-white/8 bg-white/3 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                        {new Date(log.createdAt).toLocaleDateString('pt-BR', {
-                          day: '2-digit',
-                          month: 'short',
+                        {new Date(log.createdAt).toLocaleDateString("pt-BR", {
+                          day: "2-digit",
+                          month: "short",
                         })}
                       </div>
                     </div>
@@ -302,7 +340,9 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="min-w-0">
-                <h3 className="text-base font-semibold tracking-tight text-white">Acesso rápido</h3>
+                <h3 className="text-base font-semibold tracking-tight text-white">
+                  Acesso rápido
+                </h3>
                 <p className="mt-1 text-sm text-slate-500">
                   Navegação direta para as áreas mais usadas
                 </p>
@@ -312,22 +352,22 @@ export default function AdminDashboardPage() {
             <div className="space-y-3">
               {[
                 {
-                  label: 'Gerenciar funcionários',
+                  label: "Gerenciar funcionários",
                   icon: <Users size={18} className="text-orange-300" />,
                   sub: `${employees.length} cadastrados`,
-                  to: '/admin/employees',
+                  to: "/admin/employees",
                 },
                 {
-                  label: 'Ver escala do mês',
+                  label: "Ver escala do mês",
                   icon: <CalendarDays size={18} className="text-orange-300" />,
                   sub: `${days.length} dias gerados`,
-                  to: '/admin/schedule',
+                  to: "/admin/schedule",
                 },
                 {
-                  label: 'Ver histórico de ações',
+                  label: "Ver histórico de ações",
                   icon: <Activity size={18} className="text-orange-300" />,
                   sub: `${logs.length} ações recentes`,
-                  to: '/admin/audit',
+                  to: "/admin/audit",
                 },
               ].map(({ label, icon, sub, to }) => (
                 <button
@@ -340,8 +380,12 @@ export default function AdminDashboardPage() {
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-slate-200">{label}</p>
-                    <p className="mt-1 truncate text-xs text-slate-500">{sub}</p>
+                    <p className="truncate text-sm font-medium text-slate-200">
+                      {label}
+                    </p>
+                    <p className="mt-1 truncate text-xs text-slate-500">
+                      {sub}
+                    </p>
                   </div>
 
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/8 bg-white/3 transition-colors group-hover:border-orange-500/20 group-hover:bg-orange-500/10">

@@ -1,9 +1,15 @@
-import { useState, type FormEvent, useEffect, type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../features/auth/useAuth';
-import { demoService } from '../../services/demo.service';
+import { useState, type FormEvent, useEffect, type ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../features/auth/useAuth";
+import { demoService } from "../../services/demo.service";
 
-function GithubIcon({ size = 16, className = '' }: { size?: number; className?: string }) {
+function GithubIcon({
+  size = 16,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) {
   return (
     <svg
       width={size}
@@ -29,9 +35,14 @@ function GithubIcon({ size = 16, className = '' }: { size?: number; className?: 
   );
 }
 
-function ShieldIcon({ className = '' }: { className?: string }) {
+function ShieldIcon({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+      aria-hidden="true"
+    >
       <path
         d="M12 3 5.5 5.4v5.4c0 4.27 2.73 8.25 6.5 9.7 3.77-1.45 6.5-5.43 6.5-9.7V5.4L12 3Z"
         stroke="currentColor"
@@ -49,9 +60,14 @@ function ShieldIcon({ className = '' }: { className?: string }) {
   );
 }
 
-function UserIcon({ className = '' }: { className?: string }) {
+function UserIcon({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+      aria-hidden="true"
+    >
       <path
         d="M12 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"
         stroke="currentColor"
@@ -67,10 +83,23 @@ function UserIcon({ className = '' }: { className?: string }) {
   );
 }
 
-function LockIcon({ className = '' }: { className?: string }) {
+function LockIcon({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <rect x="5" y="11" width="14" height="9" rx="2.2" stroke="currentColor" strokeWidth="1.8" />
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+      aria-hidden="true"
+    >
+      <rect
+        x="5"
+        y="11"
+        width="14"
+        height="9"
+        rx="2.2"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
       <path
         d="M8.5 11V8.6A3.5 3.5 0 0 1 12 5a3.5 3.5 0 0 1 3.5 3.6V11"
         stroke="currentColor"
@@ -81,9 +110,14 @@ function LockIcon({ className = '' }: { className?: string }) {
   );
 }
 
-function ArrowUpRightIcon({ className = '' }: { className?: string }) {
+function ArrowUpRightIcon({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+      aria-hidden="true"
+    >
       <path
         d="M7 17 17 7M9 7h8v8"
         stroke="currentColor"
@@ -95,9 +129,14 @@ function ArrowUpRightIcon({ className = '' }: { className?: string }) {
   );
 }
 
-function RefreshIcon({ className = '' }: { className?: string }) {
+function RefreshIcon({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+      aria-hidden="true"
+    >
       <path
         d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.36 2.64L21 9"
         stroke="currentColor"
@@ -128,16 +167,26 @@ function RefreshIcon({ className = '' }: { className?: string }) {
   );
 }
 
-function WarningIcon({ className = '' }: { className?: string }) {
+function WarningIcon({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+      aria-hidden="true"
+    >
       <path
         d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinejoin="round"
       />
-      <path d="M12 9v4M12 17h.01" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        d="M12 9v4M12 17h.01"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -153,8 +202,20 @@ function BrandMark() {
 
 function LoadingSpinner() {
   return (
-    <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" opacity="0.25" />
+    <svg
+      className="h-5 w-5 animate-spin"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="9"
+        stroke="currentColor"
+        strokeWidth="3"
+        opacity="0.25"
+      />
       <path
         d="M21 12a9 9 0 0 0-9-9"
         stroke="currentColor"
@@ -168,15 +229,15 @@ function LoadingSpinner() {
 type FieldProps = {
   id: string;
   label: string;
-  type: 'text' | 'password';
+  type: "text" | "password";
   placeholder: string;
   value: string;
   autoComplete: string;
   onChange: (value: string) => void;
   icon: ReactNode;
   accent:
-    | 'focus-within:border-orange-400/40 focus-within:ring-orange-400/10'
-    | 'focus-within:border-amber-400/40 focus-within:ring-amber-400/10';
+    | "focus-within:border-orange-400/40 focus-within:ring-orange-400/10"
+    | "focus-within:border-amber-400/40 focus-within:ring-amber-400/10";
 };
 
 function InputField({
@@ -192,7 +253,10 @@ function InputField({
 }: FieldProps) {
   return (
     <div>
-      <label htmlFor={id} className="mb-2.5 block text-sm font-medium text-slate-200">
+      <label
+        htmlFor={id}
+        className="mb-2.5 block text-sm font-medium text-slate-200"
+      >
         {label}
       </label>
 
@@ -219,20 +283,20 @@ function InputField({
 }
 
 const demoAccounts = [
-  { role: 'Admin', cpf: '000.000.000-01', pwd: 'admin123', accent: 'orange' },
-  { role: 'João', cpf: '000.000.000-02', pwd: 'joao123', accent: 'amber' },
+  { role: "Admin", cpf: "000.000.000-01", pwd: "admin123", accent: "orange" },
+  { role: "João", cpf: "000.000.000-02", pwd: "joao123", accent: "amber" },
 ] as const;
 
 const accentStyles = {
   orange: {
-    badge: 'border-orange-400/25 bg-orange-400/10 text-orange-200',
-    line: 'from-orange-400 via-amber-400 to-transparent',
-    shadow: 'hover:shadow-[0_16px_40px_rgba(249,115,22,0.18)]',
+    badge: "border-orange-400/25 bg-orange-400/10 text-orange-200",
+    line: "from-orange-400 via-amber-400 to-transparent",
+    shadow: "hover:shadow-[0_16px_40px_rgba(249,115,22,0.18)]",
   },
   amber: {
-    badge: 'border-amber-400/25 bg-amber-400/10 text-amber-200',
-    line: 'from-amber-400 via-orange-300 to-transparent',
-    shadow: 'hover:shadow-[0_16px_40px_rgba(245,158,11,0.16)]',
+    badge: "border-amber-400/25 bg-amber-400/10 text-amber-200",
+    line: "from-amber-400 via-orange-300 to-transparent",
+    shadow: "hover:shadow-[0_16px_40px_rgba(245,158,11,0.16)]",
   },
 } as const;
 
@@ -249,18 +313,21 @@ function ResetModal({
 }) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === "Escape") onClose();
     };
 
-    if (open) document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
+    if (open) document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
   }, [open, onClose]);
 
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        onClick={onClose}
+      />
 
       <div className="relative w-full max-w-md overflow-hidden rounded-[28px] border border-white/10 bg-[#050505] p-7 shadow-[0_40px_100px_rgba(0,0,0,0.8)]">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-400/30 to-transparent" />
@@ -272,20 +339,25 @@ function ResetModal({
         <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-red-400/80">
           Ação irreversível
         </p>
-        <h2 className="mt-2 text-2xl font-black tracking-tight text-white">Resetar demo?</h2>
+        <h2 className="mt-2 text-2xl font-black tracking-tight text-white">
+          Resetar demo?
+        </h2>
         <p className="mt-3 text-sm leading-relaxed text-slate-400">
           Isso vai restaurar o sistema para o estado original de demonstração.
         </p>
 
         <ul className="mt-4 space-y-2">
           {[
-            'Funcionários adicionados depois do seed',
-            'Fotos salvas localmente dos funcionários',
-            'Alterações na escala e faltas registradas',
-            'Histórico de ações do sistema',
-            'Dados de sessão salvos no navegador',
+            "Funcionários adicionados depois do seed",
+            "Fotos salvas localmente dos funcionários",
+            "Alterações na escala e faltas registradas",
+            "Histórico de ações do sistema",
+            "Dados de sessão salvos no navegador",
           ].map((item) => (
-            <li key={item} className="flex items-center gap-2.5 text-sm text-slate-400">
+            <li
+              key={item}
+              className="flex items-center gap-2.5 text-sm text-slate-400"
+            >
               <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-400/10 text-[10px] font-bold text-red-400">
                 ✕
               </span>
@@ -337,17 +409,17 @@ function WelcomeModal({
 }) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onContinue();
+      if (e.key === "Escape") onContinue();
     };
 
     if (open) {
-      document.addEventListener('keydown', onKeyDown);
-      document.body.style.overflow = 'hidden';
+      document.addEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "hidden";
     }
 
     return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      document.body.style.overflow = '';
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
     };
   }, [open, onContinue]);
 
@@ -373,15 +445,15 @@ function WelcomeModal({
         </div>
 
         <h2 className="mt-5 text-2xl font-black tracking-tight text-white sm:text-[2rem] leading-tight">
-          Antes de iniciar e após concluir a experiência, clique no botão
-          {' '}
-          <span className="text-orange-300">Resetar demo</span>
-          {' '}
-          para reiniciar o sistema.
+          Antes de iniciar e após concluir a experiência, clique no botão{" "}
+          <span className="text-orange-300">Resetar demo</span> para reiniciar o
+          sistema.
         </h2>
 
         <p className="mt-4 text-sm leading-relaxed text-slate-300">
-          Ao reiniciar o sistema, você garante a experiência conforme ela foi originalmente projetada. Além disso, ao realizar o reset após o uso, assegura a remoção dos dados inseridos no site.
+          Ao reiniciar o sistema, você garante a experiência conforme ela foi
+          originalmente projetada. Além disso, ao realizar o reset após o uso,
+          assegura a remoção dos dados inseridos no site.
         </p>
 
         <div className="mt-7 flex justify-end">
@@ -402,31 +474,33 @@ export default function LoginPage() {
   const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
-  const [cpf, setCpf] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [cpf, setCpf] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetting, setResetting] = useState(false);
-  const [resetMsg, setResetMsg] = useState('');
+  const [resetMsg, setResetMsg] = useState("");
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(user?.role === 'ADMIN' ? '/admin' : '/employee', { replace: true });
+      navigate(user?.role === "ADMIN" ? "/admin" : "/employee", {
+        replace: true,
+      });
     }
   }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       await login(cpf, password);
     } catch {
-      setError('CPF ou senha incorretos. Tente novamente.');
+      setError("CPF ou senha incorretos. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -434,7 +508,7 @@ export default function LoginPage() {
 
   const handleReset = async () => {
     setResetting(true);
-    setResetMsg('');
+    setResetMsg("");
 
     try {
       await demoService.reset();
@@ -442,21 +516,29 @@ export default function LoginPage() {
       const keysToRemove: string[] = [];
       for (let i = 0; i < localStorage.length; i += 1) {
         const key = localStorage.key(i);
-        if (key?.startsWith('sp_photo_') || key === 'sp_token' || key === 'sp_user') {
+        if (
+          key?.startsWith("sp_photo_") ||
+          key === "sp_token" ||
+          key === "sp_user"
+        ) {
           keysToRemove.push(key);
         }
       }
 
       keysToRemove.forEach((key) => localStorage.removeItem(key));
 
-      setCpf('');
-      setPassword('');
-      setError('');
+      setCpf("");
+      setPassword("");
+      setError("");
       setShowResetModal(false);
-      setResetMsg('✅ Demo restaurada com sucesso. Faça login novamente para testar.');
+      setResetMsg(
+        "✅ Demo restaurada com sucesso. Faça login novamente para testar.",
+      );
     } catch {
       setShowResetModal(false);
-      setResetMsg('❌ Erro ao resetar a demo. Verifique se o backend está rodando.');
+      setResetMsg(
+        "❌ Erro ao resetar a demo. Verifique se o backend está rodando.",
+      );
     } finally {
       setResetting(false);
     }
@@ -479,9 +561,9 @@ export default function LoginPage() {
               <div
                 aria-live="polite"
                 className={`w-full max-w-md rounded-2xl border px-5 py-3 text-center text-sm font-medium ${
-                  resetMsg.startsWith('✅')
-                    ? 'border-green-400/20 bg-green-400/10 text-green-200'
-                    : 'border-red-400/20 bg-red-400/10 text-red-200'
+                  resetMsg.startsWith("✅")
+                    ? "border-green-400/20 bg-green-400/10 text-green-200"
+                    : "border-red-400/20 bg-red-400/10 text-red-200"
                 }`}
               >
                 {resetMsg}
@@ -491,7 +573,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => {
-                setResetMsg('');
+                setResetMsg("");
                 setShowResetModal(true);
               }}
               className="group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl border border-white/10 bg-[#0A0A0A]/80 px-6 py-3.5 text-sm font-bold uppercase tracking-[0.18em] text-slate-300 shadow-[0_8px_28px_rgba(0,0,0,0.4)] backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-400/25 hover:shadow-[0_14px_40px_rgba(249,115,22,0.14)] hover:text-orange-200"
@@ -502,7 +584,8 @@ export default function LoginPage() {
             </button>
 
             <p className="max-w-xs text-center text-[11px] text-slate-600">
-              Restaura funcionários, agenda, faltas, fotos e histórico da demonstração.
+              Restaura funcionários, agenda, faltas, fotos e histórico da
+              demonstração.
             </p>
           </div>
 
@@ -519,7 +602,9 @@ export default function LoginPage() {
                     <p className="truncate text-[2rem] font-semibold leading-none tracking-tight text-white">
                       ShiftPizza
                     </p>
-                    <p className="mt-2 text-sm text-slate-400">Acesso ao painel da operação</p>
+                    <p className="mt-2 text-sm text-slate-400">
+                      Acesso ao painel da operação
+                    </p>
                   </div>
                 </div>
 
@@ -538,7 +623,10 @@ export default function LoginPage() {
                 </h1>
               </div>
 
-              <form onSubmit={(e) => void handleSubmit(e)} className="mt-8 space-y-5">
+              <form
+                onSubmit={(e) => void handleSubmit(e)}
+                className="mt-8 space-y-5"
+              >
                 <div className="space-y-4 rounded-[24px] border border-white/10 bg-white/[0.025] p-4 sm:p-5">
                   <InputField
                     id="cpf"
@@ -593,7 +681,8 @@ export default function LoginPage() {
                 </button>
 
                 <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-center text-sm leading-6 text-slate-400">
-                  Use uma credencial demo abaixo ou faça login com seu CPF e senha.
+                  Use uma credencial demo abaixo ou faça login com seu CPF e
+                  senha.
                 </div>
               </form>
 
@@ -624,7 +713,7 @@ export default function LoginPage() {
                         onClick={() => {
                           setCpf(account.cpf);
                           setPassword(account.pwd);
-                          setError('');
+                          setError("");
                         }}
                         className={`group relative rounded-[22px] border border-white/10 bg-[#0A0A0A]/92 p-5 pr-12 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-400/20 ${styles.shadow}`}
                       >
@@ -644,11 +733,13 @@ export default function LoginPage() {
                           <p className="break-words text-[1.05rem] font-semibold text-white">
                             {account.cpf}
                           </p>
-                          <p className="mt-2 text-sm text-slate-400">{account.pwd}</p>
+                          <p className="mt-2 text-sm text-slate-400">
+                            {account.pwd}
+                          </p>
                           <p className="mt-3 text-xs uppercase tracking-[0.16em] text-slate-500">
-                            {account.role === 'Admin'
-                              ? 'ㅤㅤㅤㅤㅤㅤㅤㅤㅤÁrea administrativa'
-                              : 'ㅤㅤㅤㅤㅤㅤㅤㅤÁrea de colaborador'}
+                            {account.role === "Admin"
+                              ? "ㅤㅤㅤㅤㅤㅤㅤㅤㅤÁrea administrativa"
+                              : "ㅤㅤㅤㅤㅤㅤㅤㅤÁrea de colaborador"}
                           </p>
                         </div>
                       </button>

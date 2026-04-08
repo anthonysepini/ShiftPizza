@@ -1,72 +1,69 @@
-import { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, BadgeCheck, Phone, IdCard } from 'lucide-react';
-import { useAuth } from '../../features/auth/useAuth';
-import PageHeader from '../../components/layout/PageHeader';
-import Spinner from '../../components/ui/Spinner';
-import EmptyState from '../../components/ui/EmptyState';
-import { employeesService } from '../../services/employees.service';
-import type { Employee } from '../../types';
+import { useEffect, useMemo, useState } from "react";
+import { CalendarDays, BadgeCheck, Phone, IdCard } from "lucide-react";
+import { useAuth } from "../../features/auth/useAuth";
+import PageHeader from "../../components/layout/PageHeader";
+import Spinner from "../../components/ui/Spinner";
+import EmptyState from "../../components/ui/EmptyState";
+import { employeesService } from "../../services/employees.service";
+import type { Employee } from "../../types";
 
 const WEEKDAYS = [
-  'Domingo',
-  'Segunda',
-  'Terça',
-  'Quarta',
-  'Quinta',
-  'Sexta',
-  'Sábado',
+  "Domingo",
+  "Segunda",
+  "Terça",
+  "Quarta",
+  "Quinta",
+  "Sexta",
+  "Sábado",
 ];
 
-const WEEKDAYS_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+const WEEKDAYS_SHORT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 const ROLE_LABEL: Record<string, string> = {
-  ADMIN: 'Administrador',
-  EMPLOYEE: 'Empregado',
+  ADMIN: "Administrador",
+  EMPLOYEE: "Empregado",
 };
 
 function formatCpf(value?: string | null) {
-  const digits = (value ?? '').replace(/\D/g, '');
+  const digits = (value ?? "").replace(/\D/g, "");
 
   if (digits.length !== 11) {
-    return value ?? '—';
+    return value ?? "—";
   }
 
-  return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
 }
 
 function formatDate(value?: string | Date | null) {
   if (!value) {
-    return '—';
+    return "—";
   }
 
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return '—';
+    return "—";
   }
 
-  return date.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
+  return date.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
   });
 }
 
 function getInitials(name?: string | null) {
   if (!name?.trim()) {
-    return '?';
+    return "?";
   }
 
-  const parts = name
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
+  const parts = name.trim().split(/\s+/).filter(Boolean);
 
   if (parts.length === 1) {
     return parts[0].slice(0, 1).toUpperCase();
   }
 
-  return `${parts[0][0] ?? ''}${parts[1][0] ?? ''}`.toUpperCase();
+  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
 }
 
 export default function MyProfilePage() {
@@ -122,7 +119,7 @@ export default function MyProfilePage() {
 
   const activeDaysCount = workDays.size;
   const roleLabel =
-    ROLE_LABEL[employee?.user?.role ?? ''] ?? employee?.user?.role ?? '—';
+    ROLE_LABEL[employee?.user?.role ?? ""] ?? employee?.user?.role ?? "—";
 
   if (isLoading) {
     return (
@@ -153,33 +150,33 @@ export default function MyProfilePage() {
 
   const infoCards = [
     {
-      label: 'ㅤCPF',
+      label: "ㅤCPF",
       value: formatCpf(employee.cpf),
       icon: IdCard,
     },
     {
-      label: 'ㅤTelefone',
-      value: employee.phone ?? '—',
+      label: "ㅤTelefone",
+      value: employee.phone ?? "—",
       icon: Phone,
     },
     {
-      label: 'ㅤCargo',
-      value: employee.position || '—',
+      label: "ㅤCargo",
+      value: employee.position || "—",
       icon: BadgeCheck,
     },
     {
-      label: 'ㅤPerfil',
+      label: "ㅤPerfil",
       value: roleLabel,
       icon: BadgeCheck,
     },
     {
-      label: 'ㅤCadastrado em',
+      label: "ㅤCadastrado em",
       value: formatDate(employee.createdAt),
       icon: CalendarDays,
     },
     {
-      label: 'ㅤ Dias fixos por semana',
-      value: `${activeDaysCount} dia${activeDaysCount === 1 ? '' : 's'}`,
+      label: "ㅤ Dias fixos por semana",
+      value: `${activeDaysCount} dia${activeDaysCount === 1 ? "" : "s"}`,
       icon: CalendarDays,
     },
   ];
@@ -237,18 +234,18 @@ export default function MyProfilePage() {
             </h2>
 
             <p className="mt-1 text-sm text-slate-400">
-              {employee.position || 'Cargo não informado'}
+              {employee.position || "Cargo não informado"}
             </p>
 
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
               <span
                 className={`inline-flex items-center rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] ${
                   employee.isActive
-                    ? 'border-emerald-500/15 bg-emerald-500/10 text-emerald-300'
-                    : 'border-white/10 bg-white/[0.04] text-zinc-300'
+                    ? "border-emerald-500/15 bg-emerald-500/10 text-emerald-300"
+                    : "border-white/10 bg-white/[0.04] text-zinc-300"
                 }`}
               >
-                {employee.isActive ? 'Ativo' : 'Inativo'}
+                {employee.isActive ? "Ativo" : "Inativo"}
               </span>
 
               <span className="inline-flex items-center rounded-full border border-orange-400/15 bg-orange-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-orange-300">
@@ -266,7 +263,8 @@ export default function MyProfilePage() {
                   ㅤDados do colaborador
                 </h3>
                 <p className="mt-1 text-sm text-slate-400">
-                  ㅤInformações principais organizadas com leitura rápida e limpa.
+                  ㅤInformações principais organizadas com leitura rápida e
+                  limpa.
                 </p>
               </div>
 
@@ -312,8 +310,8 @@ export default function MyProfilePage() {
               </div>
 
               <div className="inline-flex w-fit items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-semibold text-zinc-300">
-                {activeDaysCount} dia{activeDaysCount === 1 ? '' : 's'} ativo
-                {activeDaysCount === 1 ? '' : 's'}
+                {activeDaysCount} dia{activeDaysCount === 1 ? "" : "s"} ativo
+                {activeDaysCount === 1 ? "" : "s"}
               </div>
             </div>
 
@@ -326,13 +324,13 @@ export default function MyProfilePage() {
                     key={day}
                     className={`rounded-2xl border p-4 text-center transition-all duration-200 ${
                       enabled
-                        ? 'border-orange-500/20 bg-orange-500/10'
-                        : 'border-white/8 bg-white/[0.02]'
+                        ? "border-orange-500/20 bg-orange-500/10"
+                        : "border-white/8 bg-white/[0.02]"
                     }`}
                   >
                     <p
                       className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${
-                        enabled ? 'text-orange-300' : 'text-slate-500'
+                        enabled ? "text-orange-300" : "text-slate-500"
                       }`}
                     >
                       {WEEKDAYS_SHORT[index]}
@@ -340,7 +338,7 @@ export default function MyProfilePage() {
 
                     <p
                       className={`mt-3 text-sm font-medium ${
-                        enabled ? 'text-white' : 'text-slate-400'
+                        enabled ? "text-white" : "text-slate-400"
                       }`}
                     >
                       {day}
@@ -350,11 +348,11 @@ export default function MyProfilePage() {
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${
                           enabled
-                            ? 'border border-orange-400/15 bg-orange-500/10 text-orange-300'
-                            : 'border border-white/10 bg-white/[0.03] text-zinc-400'
+                            ? "border border-orange-400/15 bg-orange-500/10 text-orange-300"
+                            : "border border-white/10 bg-white/[0.03] text-zinc-400"
                         }`}
                       >
-                        {enabled ? 'Ativo' : 'Inoperante'}
+                        {enabled ? "Ativo" : "Inoperante"}
                       </span>
                     </div>
                   </div>

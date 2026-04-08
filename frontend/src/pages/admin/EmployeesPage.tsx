@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type FormEvent } from 'react';
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import {
   UserPlus,
   Search,
@@ -12,31 +12,48 @@ import {
   Camera,
   CalendarDays,
   ArrowRight,
-} from 'lucide-react';
-import PageHeader from '../../components/layout/PageHeader';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
-import Modal from '../../components/ui/Modal';
-import Spinner from '../../components/ui/Spinner';
-import EmptyState from '../../components/ui/EmptyState';
-import ToastContainer from '../../components/ui/Toast';
-import { useToast } from '../../hooks/useToast';
-import { employeesService } from '../../services/employees.service';
-import { schedulesService } from '../../services/schedules.service';
-import type { Employee, CreateEmployeeDto, UpdateEmployeeDto, ScheduleStatus } from '../../types';
+} from "lucide-react";
+import PageHeader from "../../components/layout/PageHeader";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import Modal from "../../components/ui/Modal";
+import Spinner from "../../components/ui/Spinner";
+import EmptyState from "../../components/ui/EmptyState";
+import ToastContainer from "../../components/ui/Toast";
+import { useToast } from "../../hooks/useToast";
+import { employeesService } from "../../services/employees.service";
+import { schedulesService } from "../../services/schedules.service";
+import type {
+  Employee,
+  CreateEmployeeDto,
+  UpdateEmployeeDto,
+  ScheduleStatus,
+} from "../../types";
 
-const WEEKDAYS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+const WEEKDAYS = [
+  "Domingo",
+  "Segunda",
+  "Terça",
+  "Quarta",
+  "Quinta",
+  "Sexta",
+  "Sábado",
+];
 
 const NOW = new Date();
 const CURRENT_YEAR = NOW.getFullYear();
 const CURRENT_MONTH = NOW.getMonth() + 1;
 
 const getPhoto = (id: string) => localStorage.getItem(`sp_photo_${id}`);
-const savePhoto = (id: string, base64: string) => localStorage.setItem(`sp_photo_${id}`, base64);
-const onlyDigits = (value: string) => value.replace(/\D/g, '');
+const savePhoto = (id: string, base64: string) =>
+  localStorage.setItem(`sp_photo_${id}`, base64);
+const onlyDigits = (value: string) => value.replace(/\D/g, "");
 
-function getApiErrorMessage(error: unknown, fallback = 'Erro ao cadastrar funcionário.'): string {
-  if (typeof error === 'object' && error !== null) {
+function getApiErrorMessage(
+  error: unknown,
+  fallback = "Erro ao cadastrar funcionário.",
+): string {
+  if (typeof error === "object" && error !== null) {
     const maybeError = error as {
       response?: {
         data?: {
@@ -50,16 +67,16 @@ function getApiErrorMessage(error: unknown, fallback = 'Erro ao cadastrar funcio
 
     if (Array.isArray(apiMessage) && apiMessage.length > 0) {
       const firstMessage = apiMessage[0];
-      if (typeof firstMessage === 'string' && firstMessage.trim()) {
+      if (typeof firstMessage === "string" && firstMessage.trim()) {
         return firstMessage;
       }
     }
 
-    if (typeof apiMessage === 'string' && apiMessage.trim()) {
+    if (typeof apiMessage === "string" && apiMessage.trim()) {
       return apiMessage;
     }
 
-    if (typeof maybeError.message === 'string' && maybeError.message.trim()) {
+    if (typeof maybeError.message === "string" && maybeError.message.trim()) {
       return maybeError.message;
     }
   }
@@ -70,20 +87,22 @@ function getApiErrorMessage(error: unknown, fallback = 'Erro ao cadastrar funcio
 // ── Avatar ────────────────────────────────────────────────────
 function Avatar({
   employee,
-  size = 'md',
+  size = "md",
   editable = false,
 }: {
   employee: Employee;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   editable?: boolean;
 }) {
-  const [photo, setPhoto] = useState<string | null>(() => getPhoto(employee.id));
+  const [photo, setPhoto] = useState<string | null>(() =>
+    getPhoto(employee.id),
+  );
   const inputRef = useRef<HTMLInputElement>(null);
 
   const dim = {
-    sm: 'h-10 w-10 text-sm',
-    md: 'h-12 w-12 text-base',
-    lg: 'h-20 w-20 text-3xl',
+    sm: "h-10 w-10 text-sm",
+    md: "h-12 w-12 text-base",
+    lg: "h-20 w-20 text-3xl",
   }[size];
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,8 +169,8 @@ function MarkAbsenceModal({
   onSuccess: () => void;
 }) {
   const { toast } = useToast();
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [note, setNote] = useState('');
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -159,29 +178,36 @@ function MarkAbsenceModal({
 
     setSaving(true);
     try {
-      const [y, m] = date.split('-').map(Number);
-      const scheduleDays = await schedulesService.getMonthSchedule(y, m, employee.id);
+      const [y, m] = date.split("-").map(Number);
+      const scheduleDays = await schedulesService.getMonthSchedule(
+        y,
+        m,
+        employee.id,
+      );
 
       const target = scheduleDays.find(
-        (d) => new Date(d.date).toISOString().split('T')[0] === date,
+        (d) => new Date(d.date).toISOString().split("T")[0] === date,
       );
 
       if (!target) {
-        toast('Este dia não está na escala. Gere a escala do mês primeiro.', 'error');
+        toast(
+          "Este dia não está na escala. Gere a escala do mês primeiro.",
+          "error",
+        );
         setSaving(false);
         return;
       }
 
       await schedulesService.updateDay(target.id, {
-        status: 'ABSENT' as ScheduleStatus,
+        status: "ABSENT" as ScheduleStatus,
         note: note || undefined,
       });
 
-      toast(`Falta registrada para ${employee.fullName}`, 'success');
+      toast(`Falta registrada para ${employee.fullName}`, "success");
       onSuccess();
       onClose();
     } catch {
-      toast('Erro ao registrar falta.', 'error');
+      toast("Erro ao registrar falta.", "error");
     } finally {
       setSaving(false);
     }
@@ -195,8 +221,12 @@ function MarkAbsenceModal({
             <div className="flex items-center gap-3">
               <Avatar employee={employee} size="sm" />
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-slate-200">{employee.fullName}</p>
-                <p className="mt-1 text-xs text-slate-500">{employee.position}</p>
+                <p className="truncate text-sm font-semibold text-slate-200">
+                  {employee.fullName}
+                </p>
+                <p className="mt-1 text-xs text-slate-500">
+                  {employee.position}
+                </p>
               </div>
             </div>
           </div>
@@ -226,7 +256,11 @@ function MarkAbsenceModal({
             <Button variant="secondary" onClick={onClose}>
               Cancelar
             </Button>
-            <Button variant="danger" onClick={() => void handleSave()} loading={saving}>
+            <Button
+              variant="danger"
+              onClick={() => void handleSave()}
+              loading={saving}
+            >
               Registrar falta
             </Button>
           </div>
@@ -258,11 +292,11 @@ function DeleteConfirmModal({
     try {
       await employeesService.remove(employee.id);
       localStorage.removeItem(`sp_photo_${employee.id}`);
-      toast(`${employee.fullName} foi removido do sistema.`, 'info');
+      toast(`${employee.fullName} foi removido do sistema.`, "info");
       onSuccess();
       onClose();
     } catch {
-      toast('Erro ao remover funcionário.', 'error');
+      toast("Erro ao remover funcionário.", "error");
     } finally {
       setDeleting(false);
     }
@@ -277,13 +311,17 @@ function DeleteConfirmModal({
               <Trash2 size={16} className="text-red-400" />
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-slate-200">{employee.fullName}</p>
+              <p className="truncate text-sm font-semibold text-slate-200">
+                {employee.fullName}
+              </p>
               <p className="mt-1 text-xs text-slate-500">{employee.position}</p>
             </div>
           </div>
 
           <div className="space-y-2 rounded-[22px] border border-white/10 bg-[#070707]/80 p-4">
-            <p className="text-sm font-medium text-slate-300">Esta ação é irreversível.</p>
+            <p className="text-sm font-medium text-slate-300">
+              Esta ação é irreversível.
+            </p>
             <p className="text-xs leading-relaxed text-slate-500">
               Ao confirmar, serão removidos permanentemente:
             </p>
@@ -308,7 +346,11 @@ function DeleteConfirmModal({
             <Button variant="secondary" onClick={onClose}>
               Cancelar
             </Button>
-            <Button variant="danger" onClick={() => void handleDelete()} loading={deleting}>
+            <Button
+              variant="danger"
+              onClick={() => void handleDelete()}
+              loading={deleting}
+            >
               Sim, excluir permanentemente
             </Button>
           </div>
@@ -323,18 +365,18 @@ export default function EmployeesPage() {
   const { toasts, toast, remove } = useToast();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [modalCreate, setModalCreate] = useState(false);
   const [modalEdit, setModalEdit] = useState<Employee | null>(null);
   const [modalAbsence, setModalAbsence] = useState<Employee | null>(null);
   const [modalDelete, setModalDelete] = useState<Employee | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<CreateEmployeeDto>({
-    fullName: '',
-    cpf: '',
-    phone: '',
-    position: '',
-    password: '',
+    fullName: "",
+    cpf: "",
+    phone: "",
+    position: "",
+    password: "",
     workDays: [],
   });
 
@@ -375,11 +417,11 @@ export default function EmployeesPage() {
 
   const resetForm = () =>
     setForm({
-      fullName: '',
-      cpf: '',
-      phone: '',
-      position: '',
-      password: '',
+      fullName: "",
+      cpf: "",
+      phone: "",
+      position: "",
+      password: "",
       workDays: [],
     });
 
@@ -409,17 +451,17 @@ export default function EmployeesPage() {
     const cpfDigits = onlyDigits(form.cpf);
 
     if (form.password.length < 6) {
-      toast('A senha deve conter no mínimo 6 caracteres.', 'error');
+      toast("A senha deve conter no mínimo 6 caracteres.", "error");
       return;
     }
 
     if (cpfDigits.length !== 11) {
-      toast('O CPF deve conter exatamente 11 dígitos.', 'error');
+      toast("O CPF deve conter exatamente 11 dígitos.", "error");
       return;
     }
 
     if (form.workDays.length === 0) {
-      toast('Selecione ao menos um dia de trabalho.', 'error');
+      toast("Selecione ao menos um dia de trabalho.", "error");
       return;
     }
 
@@ -430,14 +472,14 @@ export default function EmployeesPage() {
         cpf: cpfDigits,
       });
 
-      toast('Funcionário cadastrado! Atualizando escala...', 'success');
+      toast("Funcionário cadastrado! Atualizando escala...", "success");
       setModalCreate(false);
       resetForm();
       await load();
       await autoGenerateSchedule();
-      toast('Escala do mês atualizada com o novo funcionário.', 'info');
+      toast("Escala do mês atualizada com o novo funcionário.", "info");
     } catch (error) {
-      toast(getApiErrorMessage(error), 'error');
+      toast(getApiErrorMessage(error), "error");
     } finally {
       setSaving(false);
     }
@@ -452,18 +494,20 @@ export default function EmployeesPage() {
       fullName: modalEdit.fullName,
       phone: modalEdit.phone,
       position: modalEdit.position,
-      workDays: modalEdit.weeklyRules.filter((r) => r.shouldWork).map((r) => r.weekday),
+      workDays: modalEdit.weeklyRules
+        .filter((r) => r.shouldWork)
+        .map((r) => r.weekday),
     };
 
     try {
       await employeesService.update(modalEdit.id, dto);
-      toast('Dados atualizados! Atualizando escala...', 'success');
+      toast("Dados atualizados! Atualizando escala...", "success");
       setModalEdit(null);
       await load();
       await autoGenerateSchedule();
-      toast('Escala do mês sincronizada.', 'info');
+      toast("Escala do mês sincronizada.", "info");
     } catch (error) {
-      toast(getApiErrorMessage(error, 'Erro ao atualizar.'), 'error');
+      toast(getApiErrorMessage(error, "Erro ao atualizar."), "error");
     } finally {
       setSaving(false);
     }
@@ -473,12 +517,12 @@ export default function EmployeesPage() {
     try {
       await employeesService.toggleActive(emp.id, !emp.isActive);
       toast(
-        `${emp.fullName} ${emp.isActive ? 'desativado' : 'ativado'}.`,
-        emp.isActive ? 'info' : 'success',
+        `${emp.fullName} ${emp.isActive ? "desativado" : "ativado"}.`,
+        emp.isActive ? "info" : "success",
       );
       await load();
     } catch (error) {
-      toast(getApiErrorMessage(error, 'Erro ao alterar status.'), 'error');
+      toast(getApiErrorMessage(error, "Erro ao alterar status."), "error");
     }
   };
 
@@ -497,7 +541,11 @@ export default function EmployeesPage() {
         title="Funcionários"
         subtitle="Gerencie a equipe e as escalas semanais"
         action={
-          <Button leftIcon={<UserPlus size={14} />} size="sm" onClick={() => setModalCreate(true)}>
+          <Button
+            leftIcon={<UserPlus size={14} />}
+            size="sm"
+            onClick={() => setModalCreate(true)}
+          >
             Novo funcionário
           </Button>
         }
@@ -513,7 +561,9 @@ export default function EmployeesPage() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 ㅤEquipe
               </p>
-              <h3 className="mt-1.5 text-sm font-medium text-slate-300">ㅤTotal cadastrado</h3>
+              <h3 className="mt-1.5 text-sm font-medium text-slate-300">
+                ㅤTotal cadastrado
+              </h3>
             </div>
 
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10">
@@ -522,7 +572,9 @@ export default function EmployeesPage() {
           </div>
 
           <div className="relative mt-4">
-            <p className="text-[2.15rem] font-black tracking-tight text-white">ㅤ{employees.length}</p>
+            <p className="text-[2.15rem] font-black tracking-tight text-white">
+              ㅤ{employees.length}
+            </p>
             <p className="mt-1.5 text-sm leading-6 text-slate-500">
               ㅤFuncionários registrados no sistema
             </p>
@@ -538,7 +590,9 @@ export default function EmployeesPage() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 ㅤStatus
               </p>
-              <h3 className="mt-1.5 text-sm font-medium text-slate-300">ㅤEquipe ativa</h3>
+              <h3 className="mt-1.5 text-sm font-medium text-slate-300">
+                ㅤEquipe ativa
+              </h3>
             </div>
 
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10">
@@ -547,11 +601,13 @@ export default function EmployeesPage() {
           </div>
 
           <div className="relative mt-4">
-            <p className="text-[2.15rem] font-black tracking-tight text-white">ㅤ{activeCount}</p>
+            <p className="text-[2.15rem] font-black tracking-tight text-white">
+              ㅤ{activeCount}
+            </p>
             <p className="mt-1.5 text-sm leading-6 text-slate-500">
               {inactiveCount > 0
-                ? `${inactiveCount} ㅤinativo${inactiveCount > 1 ? 's' : ''}`
-                : 'ㅤNenhum funcionário inativo'}
+                ? `${inactiveCount} ㅤinativo${inactiveCount > 1 ? "s" : ""}`
+                : "ㅤNenhum funcionário inativo"}
             </p>
           </div>
         </div>
@@ -565,7 +621,9 @@ export default function EmployeesPage() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 ㅤPerfil
               </p>
-              <h3 className="mt-1.5 text-sm font-medium text-slate-300">ㅤFotos cadastradas</h3>
+              <h3 className="mt-1.5 text-sm font-medium text-slate-300">
+                ㅤFotos cadastradas
+              </h3>
             </div>
 
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10">
@@ -574,11 +632,14 @@ export default function EmployeesPage() {
           </div>
 
           <div className="relative mt-4">
-            <p className="text-[2.15rem] font-black tracking-tight text-white">ㅤ{photoCount}</p>
+            <p className="text-[2.15rem] font-black tracking-tight text-white">
+              ㅤ{photoCount}
+            </p>
             <p className="mt-1.5 text-sm leading-6 text-slate-500">
-              ㅤ{employees.length > 0
+              ㅤ
+              {employees.length > 0
                 ? `${employees.length - photoCount} sem foto`
-                : 'ㅤNenhum cadastro ainda'}
+                : "ㅤNenhum cadastro ainda"}
             </p>
           </div>
         </div>
@@ -616,8 +677,9 @@ export default function EmployeesPage() {
 
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-xs text-slate-500">
-                    {filtered.length} resultado{filtered.length !== 1 ? 's' : ''} encontrado
-                    {filtered.length !== 1 ? 's' : ''}
+                    {filtered.length} resultado
+                    {filtered.length !== 1 ? "s" : ""} encontrado
+                    {filtered.length !== 1 ? "s" : ""}
                   </p>
 
                   <button
@@ -664,15 +726,17 @@ export default function EmployeesPage() {
 
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="truncate text-sm font-semibold text-white">{emp.fullName}</p>
+                            <p className="truncate text-sm font-semibold text-white">
+                              {emp.fullName}
+                            </p>
                             <span
                               className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
                                 emp.isActive
-                                  ? 'bg-orange-500/14 text-orange-300'
-                                  : 'bg-white/6 text-slate-400'
+                                  ? "bg-orange-500/14 text-orange-300"
+                                  : "bg-white/6 text-slate-400"
                               }`}
                             >
-                              {emp.isActive ? '● Ativo' : '○ Inativo'}
+                              {emp.isActive ? "● Ativo" : "○ Inativo"}
                             </span>
                           </div>
 
@@ -692,8 +756,8 @@ export default function EmployeesPage() {
                                     key={d}
                                     className={`rounded-lg px-2 py-1 text-[10px] font-semibold ${
                                       works
-                                        ? 'border border-orange-500/20 bg-orange-500/12 text-orange-300'
-                                        : 'bg-[#121212] text-slate-600'
+                                        ? "border border-orange-500/20 bg-orange-500/12 text-orange-300"
+                                        : "bg-[#121212] text-slate-600"
                                     }`}
                                   >
                                     {d}
@@ -724,14 +788,18 @@ export default function EmployeesPage() {
 
                         <button
                           onClick={() => void handleToggle(emp)}
-                          title={emp.isActive ? 'Desativar' : 'Ativar'}
+                          title={emp.isActive ? "Desativar" : "Ativar"}
                           className={`rounded-xl p-2.5 transition-all ${
                             emp.isActive
-                              ? 'text-orange-300 hover:bg-orange-500/10'
-                              : 'text-slate-500 hover:bg-white/6 hover:text-slate-300'
+                              ? "text-orange-300 hover:bg-orange-500/10"
+                              : "text-slate-500 hover:bg-white/6 hover:text-slate-300"
                           }`}
                         >
-                          {emp.isActive ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
+                          {emp.isActive ? (
+                            <ToggleRight size={18} />
+                          ) : (
+                            <ToggleLeft size={18} />
+                          )}
                         </button>
 
                         <button
@@ -776,21 +844,27 @@ export default function EmployeesPage() {
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                     Total
                   </p>
-                  <p className="mt-2 text-2xl font-black tracking-tight text-white">{employees.length}</p>
+                  <p className="mt-2 text-2xl font-black tracking-tight text-white">
+                    {employees.length}
+                  </p>
                 </div>
 
                 <div className="rounded-2xl border border-white/8 bg-[#070707]/78 p-3">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                     Ativos
                   </p>
-                  <p className="mt-2 text-2xl font-black tracking-tight text-white">{activeCount}</p>
+                  <p className="mt-2 text-2xl font-black tracking-tight text-white">
+                    {activeCount}
+                  </p>
                 </div>
 
                 <div className="rounded-2xl border border-white/8 bg-[#070707]/78 p-3">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                     Inativos
                   </p>
-                  <p className="mt-2 text-2xl font-black tracking-tight text-white">{inactiveCount}</p>
+                  <p className="mt-2 text-2xl font-black tracking-tight text-white">
+                    {inactiveCount}
+                  </p>
                 </div>
               </div>
 
@@ -799,14 +873,16 @@ export default function EmployeesPage() {
                   ㅤDestaque semanal
                 </p>
                 <p className="mt-2 text-sm text-slate-200">
-                  ㅤ{strongestDay.count > 0
+                  ㅤ
+                  {strongestDay.count > 0
                     ? `${strongestDay.label} é o dia com mais funcionários trabalhando.`
-                    : 'Ainda não há dias de trabalho configurados na equipe.'}
+                    : "Ainda não há dias de trabalho configurados na equipe."}
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
-                  ㅤㅤ{strongestDay.count > 0
-                    ? `${strongestDay.count} funcionário${strongestDay.count > 1 ? 's' : ''} escalado${strongestDay.count > 1 ? 's' : ''}`
-                    : 'Configure as regras semanais para visualizar a distribuição.'}
+                  ㅤㅤ
+                  {strongestDay.count > 0
+                    ? `${strongestDay.count} funcionário${strongestDay.count > 1 ? "s" : ""} escalado${strongestDay.count > 1 ? "s" : ""}`
+                    : "Configure as regras semanais para visualizar a distribuição."}
                 </p>
               </div>
             </div>
@@ -839,9 +915,11 @@ export default function EmployeesPage() {
                     className="rounded-[20px] border border-white/8 bg-[#070707]/78 p-3.5"
                   >
                     <div className="mb-2 flex items-center justify-between gap-3">
-                      <span className="text-sm font-medium text-slate-200">{day.label}</span>
+                      <span className="text-sm font-medium text-slate-200">
+                        {day.label}
+                      </span>
                       <span className="text-xs text-slate-500">
-                        {day.count} funcionário{day.count !== 1 ? 's' : ''}
+                        {day.count} funcionário{day.count !== 1 ? "s" : ""}
                       </span>
                     </div>
 
@@ -851,7 +929,9 @@ export default function EmployeesPage() {
                         style={{
                           width: `${Math.min(
                             Math.max(
-                              employees.length > 0 ? (day.count / employees.length) * 100 : 0,
+                              employees.length > 0
+                                ? (day.count / employees.length) * 100
+                                : 0,
                               day.count > 0 ? 12 : 0,
                             ),
                             100,
@@ -879,7 +959,9 @@ export default function EmployeesPage() {
         <form onSubmit={(e) => void handleCreate(e)} className="space-y-5">
           <div className="rounded-3xl border border-white/10 bg-[#070707]/80 p-4 sm:p-5">
             <div className="mb-4">
-              <p className="text-sm font-semibold text-slate-200">Dados principais</p>
+              <p className="text-sm font-semibold text-slate-200">
+                Dados principais
+              </p>
               <p className="mt-1 text-xs text-slate-500">
                 Preencha as informações iniciais do funcionário.
               </p>
@@ -891,7 +973,9 @@ export default function EmployeesPage() {
                   label="Nome completo"
                   required
                   value={form.fullName}
-                  onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, fullName: e.target.value }))
+                  }
                   placeholder="João Silva"
                 />
               </div>
@@ -908,14 +992,18 @@ export default function EmployeesPage() {
                 label="Cargo"
                 required
                 value={form.position}
-                onChange={(e) => setForm((f) => ({ ...f, position: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, position: e.target.value }))
+                }
                 placeholder="Atendente"
               />
 
               <Input
                 label="Telefone (opcional)"
                 value={form.phone}
-                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, phone: e.target.value }))
+                }
                 placeholder="(35) 9 9999-0000"
               />
 
@@ -924,7 +1012,9 @@ export default function EmployeesPage() {
                 required
                 type="password"
                 value={form.password}
-                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, password: e.target.value }))
+                }
                 placeholder="Mín. 6 caracteres"
               />
             </div>
@@ -948,8 +1038,8 @@ export default function EmployeesPage() {
                   onClick={() => toggleDay(i)}
                   className={`rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
                     form.workDays.includes(i)
-                      ? 'border border-orange-500/30 bg-orange-500/16 text-orange-300'
-                      : 'border border-transparent bg-[#121212] text-slate-500 hover:border-white/10 hover:text-slate-300'
+                      ? "border border-orange-500/30 bg-orange-500/16 text-orange-300"
+                      : "border border-transparent bg-[#121212] text-slate-500 hover:border-white/10 hover:text-slate-300"
                   }`}
                 >
                   {d}
@@ -987,7 +1077,9 @@ export default function EmployeesPage() {
           <form onSubmit={(e) => void handleUpdate(e)} className="space-y-5">
             <div className="rounded-3xl border border-white/10 bg-[#070707]/80 p-4 sm:p-5">
               <div className="mb-4">
-                <p className="text-sm font-semibold text-slate-200">Dados do funcionário</p>
+                <p className="text-sm font-semibold text-slate-200">
+                  Dados do funcionário
+                </p>
                 <p className="mt-1 text-xs text-slate-500">
                   Atualize as informações principais do cadastro.
                 </p>
@@ -999,7 +1091,9 @@ export default function EmployeesPage() {
                     label="Nome completo"
                     value={modalEdit.fullName}
                     onChange={(e) =>
-                      setModalEdit((emp) => (emp ? { ...emp, fullName: e.target.value } : null))
+                      setModalEdit((emp) =>
+                        emp ? { ...emp, fullName: e.target.value } : null,
+                      )
                     }
                   />
                 </div>
@@ -1008,15 +1102,19 @@ export default function EmployeesPage() {
                   label="Cargo"
                   value={modalEdit.position}
                   onChange={(e) =>
-                    setModalEdit((emp) => (emp ? { ...emp, position: e.target.value } : null))
+                    setModalEdit((emp) =>
+                      emp ? { ...emp, position: e.target.value } : null,
+                    )
                   }
                 />
 
                 <Input
                   label="Telefone"
-                  value={modalEdit.phone ?? ''}
+                  value={modalEdit.phone ?? ""}
                   onChange={(e) =>
-                    setModalEdit((emp) => (emp ? { ...emp, phone: e.target.value } : null))
+                    setModalEdit((emp) =>
+                      emp ? { ...emp, phone: e.target.value } : null,
+                    )
                   }
                 />
               </div>
@@ -1024,7 +1122,9 @@ export default function EmployeesPage() {
 
             <div className="rounded-3xl border border-white/10 bg-[#070707]/80 p-4 sm:p-5">
               <div className="mb-4">
-                <p className="text-sm font-semibold text-slate-200">Dias de trabalho</p>
+                <p className="text-sm font-semibold text-slate-200">
+                  Dias de trabalho
+                </p>
                 <p className="mt-1 text-xs text-slate-500">
                   Ajuste a regra semanal utilizada na escala.
                 </p>
@@ -1046,10 +1146,17 @@ export default function EmployeesPage() {
                             ? {
                                 ...emp,
                                 weeklyRules: active
-                                  ? emp.weeklyRules.filter((r) => r.weekday !== i)
+                                  ? emp.weeklyRules.filter(
+                                      (r) => r.weekday !== i,
+                                    )
                                   : [
                                       ...emp.weeklyRules,
-                                      { id: '', employeeId: emp.id, weekday: i, shouldWork: true },
+                                      {
+                                        id: "",
+                                        employeeId: emp.id,
+                                        weekday: i,
+                                        shouldWork: true,
+                                      },
                                     ],
                               }
                             : null,
@@ -1057,8 +1164,8 @@ export default function EmployeesPage() {
                       }
                       className={`rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
                         active
-                          ? 'border border-orange-500/30 bg-orange-500/16 text-orange-300'
-                          : 'border border-transparent bg-[#121212] text-slate-500 hover:border-white/10 hover:text-slate-300'
+                          ? "border border-orange-500/30 bg-orange-500/16 text-orange-300"
+                          : "border border-transparent bg-[#121212] text-slate-500 hover:border-white/10 hover:text-slate-300"
                       }`}
                     >
                       {d}
@@ -1069,7 +1176,11 @@ export default function EmployeesPage() {
             </div>
 
             <div className="flex justify-end gap-2 pt-1">
-              <Button type="button" variant="secondary" onClick={() => setModalEdit(null)}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setModalEdit(null)}
+              >
                 Cancelar
               </Button>
 

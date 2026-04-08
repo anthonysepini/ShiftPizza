@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, type ReactNode } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -6,29 +6,29 @@ import {
   CalendarPlus,
   CalendarDays,
   Users,
-} from 'lucide-react';
-import PageHeader from '../../components/layout/PageHeader';
-import Button from '../../components/ui/Button';
-import Badge from '../../components/ui/Badge';
-import Modal from '../../components/ui/Modal';
-import Select from '../../components/ui/Select';
-import Input from '../../components/ui/Input';
-import Spinner from '../../components/ui/Spinner';
-import EmptyState from '../../components/ui/EmptyState';
-import ToastContainer from '../../components/ui/Toast';
-import { useToast } from '../../hooks/useToast';
-import { schedulesService } from '../../services/schedules.service';
-import { employeesService } from '../../services/employees.service';
-import type { ScheduleDay, ScheduleStatus, Employee } from '../../types';
+} from "lucide-react";
+import PageHeader from "../../components/layout/PageHeader";
+import Button from "../../components/ui/Button";
+import Badge from "../../components/ui/Badge";
+import Modal from "../../components/ui/Modal";
+import Select from "../../components/ui/Select";
+import Input from "../../components/ui/Input";
+import Spinner from "../../components/ui/Spinner";
+import EmptyState from "../../components/ui/EmptyState";
+import ToastContainer from "../../components/ui/Toast";
+import { useToast } from "../../hooks/useToast";
+import { schedulesService } from "../../services/schedules.service";
+import { employeesService } from "../../services/employees.service";
+import type { ScheduleDay, ScheduleStatus, Employee } from "../../types";
 
-const WEEKDAYS_SHORT = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+const WEEKDAYS_SHORT = ["D", "S", "T", "Q", "Q", "S", "S"];
 
 const STATUS_OPTIONS: { value: ScheduleStatus; label: string }[] = [
-  { value: 'SCHEDULED', label: 'ㅤ✅ Agendado' },
-  { value: 'ABSENT', label: 'ㅤ❌ Falta' },
-  { value: 'EXTRA_SHIFT', label: 'ㅤ➕ Turno Extra' },
-  { value: 'DAY_OFF', label: 'ㅤ🌴 Folga' },
-  { value: 'REMOVED_SHIFT', label: 'ㅤ🗑️ Removido' },
+  { value: "SCHEDULED", label: "ㅤ✅ Agendado" },
+  { value: "ABSENT", label: "ㅤ❌ Falta" },
+  { value: "EXTRA_SHIFT", label: "ㅤ➕ Turno Extra" },
+  { value: "DAY_OFF", label: "ㅤ🌴 Folga" },
+  { value: "REMOVED_SHIFT", label: "ㅤ🗑️ Removido" },
 ];
 
 const STATUS_COLOR: Record<
@@ -36,34 +36,34 @@ const STATUS_COLOR: Record<
   { bg: string; text: string; border: string }
 > = {
   SCHEDULED: {
-    bg: 'rgba(34,197,94,0.10)',
-    text: '#86efac',
-    border: 'rgba(34,197,94,0.22)',
+    bg: "rgba(34,197,94,0.10)",
+    text: "#86efac",
+    border: "rgba(34,197,94,0.22)",
   },
   ABSENT: {
-    bg: 'rgba(239,68,68,0.10)',
-    text: '#fca5a5',
-    border: 'rgba(239,68,68,0.22)',
+    bg: "rgba(239,68,68,0.10)",
+    text: "#fca5a5",
+    border: "rgba(239,68,68,0.22)",
   },
   EXTRA_SHIFT: {
-    bg: 'rgba(59,130,246,0.10)',
-    text: '#93c5fd',
-    border: 'rgba(59,130,246,0.22)',
+    bg: "rgba(59,130,246,0.10)",
+    text: "#93c5fd",
+    border: "rgba(59,130,246,0.22)",
   },
   DAY_OFF: {
-    bg: 'rgba(234,179,8,0.10)',
-    text: '#fde047',
-    border: 'rgba(234,179,8,0.22)',
+    bg: "rgba(234,179,8,0.10)",
+    text: "#fde047",
+    border: "rgba(234,179,8,0.22)",
   },
   REMOVED_SHIFT: {
-    bg: 'rgba(100,116,139,0.10)',
-    text: '#cbd5e1',
-    border: 'rgba(100,116,139,0.22)',
+    bg: "rgba(100,116,139,0.10)",
+    text: "#cbd5e1",
+    border: "rgba(100,116,139,0.22)",
   },
 };
 
 function getDateKey(date: string | Date) {
-  return new Date(date).toISOString().split('T')[0];
+  return new Date(date).toISOString().split("T")[0];
 }
 
 function CompactStat({
@@ -101,12 +101,12 @@ export default function SchedulePage() {
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [days, setDays] = useState<ScheduleDay[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [filterEmp, setFilterEmp] = useState('');
+  const [filterEmp, setFilterEmp] = useState("");
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [selected, setSelected] = useState<ScheduleDay | null>(null);
-  const [editStatus, setEditStatus] = useState<ScheduleStatus>('SCHEDULED');
-  const [editNote, setEditNote] = useState('');
+  const [editStatus, setEditStatus] = useState<ScheduleStatus>("SCHEDULED");
+  const [editNote, setEditNote] = useState("");
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
@@ -145,19 +145,19 @@ export default function SchedulePage() {
     setMonth((m) => m + 1);
   };
 
-  const monthLabel = new Date(year, month - 1).toLocaleDateString('pt-BR', {
-    month: 'long',
-    year: 'numeric',
+  const monthLabel = new Date(year, month - 1).toLocaleDateString("pt-BR", {
+    month: "long",
+    year: "numeric",
   });
 
   const handleGenerate = async () => {
     setGenerating(true);
     try {
       const r = await schedulesService.generateMonth({ year, month });
-      toast(`✅ ${r.created} dias criados para ${monthLabel}`, 'success');
+      toast(`✅ ${r.created} dias criados para ${monthLabel}`, "success");
       await load();
     } catch {
-      toast('Escala já gerada ou erro ao gerar.', 'info');
+      toast("Escala já gerada ou erro ao gerar.", "info");
     } finally {
       setGenerating(false);
     }
@@ -166,7 +166,7 @@ export default function SchedulePage() {
   const openEdit = (day: ScheduleDay) => {
     setSelected(day);
     setEditStatus(day.status);
-    setEditNote(day.note ?? '');
+    setEditNote(day.note ?? "");
   };
 
   const handleSave = async () => {
@@ -178,11 +178,11 @@ export default function SchedulePage() {
         status: editStatus,
         note: editNote,
       });
-      toast('Dia atualizado com sucesso!', 'success');
+      toast("Dia atualizado com sucesso!", "success");
       setSelected(null);
       await load();
     } catch {
-      toast('Erro ao atualizar dia.', 'error');
+      toast("Erro ao atualizar dia.", "error");
     } finally {
       setSaving(false);
     }
@@ -198,8 +198,8 @@ export default function SchedulePage() {
     dayMap.set(key, [...(dayMap.get(key) ?? []), d]);
   });
 
-  const totalScheduled = days.filter((d) => d.status === 'SCHEDULED').length;
-  const totalChanges = days.filter((d) => d.status !== 'SCHEDULED').length;
+  const totalScheduled = days.filter((d) => d.status === "SCHEDULED").length;
+  const totalChanges = days.filter((d) => d.status !== "SCHEDULED").length;
   const visibleEmployees = filterEmp
     ? employees.find((e) => String(e.id) === filterEmp)
       ? 1
@@ -392,21 +392,21 @@ export default function SchedulePage() {
                 <div
                   key={day}
                   className={[
-                    'group relative min-h-0 overflow-hidden px-1.5 py-1.5',
-                    'border-b border-white/8 transition-colors duration-200',
-                    !isLastCol ? 'border-r border-white/8' : '',
-                    isWeekend ? 'bg-[#060606]' : 'bg-[#080808]',
-                    'hover:bg-[#0B0B0B]',
-                  ].join(' ')}
+                    "group relative min-h-0 overflow-hidden px-1.5 py-1.5",
+                    "border-b border-white/8 transition-colors duration-200",
+                    !isLastCol ? "border-r border-white/8" : "",
+                    isWeekend ? "bg-[#060606]" : "bg-[#080808]",
+                    "hover:bg-[#0B0B0B]",
+                  ].join(" ")}
                 >
                   <div className="mb-1.5 flex items-start justify-between gap-1">
                     <div
                       className={[
-                        'flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-semibold transition-all duration-200 sm:h-7 sm:w-7 sm:text-[11px]',
+                        "flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-semibold transition-all duration-200 sm:h-7 sm:w-7 sm:text-[11px]",
                         isToday
-                          ? 'bg-orange-500 text-white shadow-[0_10px_24px_rgba(249,115,22,0.32)]'
-                          : 'bg-white/[0.03] text-slate-400 group-hover:bg-white/[0.05] group-hover:text-slate-200',
-                      ].join(' ')}
+                          ? "bg-orange-500 text-white shadow-[0_10px_24px_rgba(249,115,22,0.32)]"
+                          : "bg-white/[0.03] text-slate-400 group-hover:bg-white/[0.05] group-hover:text-slate-200",
+                      ].join(" ")}
                     >
                       {day}
                     </div>
@@ -434,7 +434,7 @@ export default function SchedulePage() {
                           }}
                         >
                           <span className="block truncate">
-                            {schedule.employee?.fullName ?? '—'}
+                            {schedule.employee?.fullName ?? "—"}
                           </span>
                         </button>
                       );
@@ -468,7 +468,12 @@ export default function SchedulePage() {
         </section>
       )}
 
-      <Modal open={!!selected} onClose={() => setSelected(null)} title="ㅤEditar dia:" size="sm">
+      <Modal
+        open={!!selected}
+        onClose={() => setSelected(null)}
+        title="ㅤEditar dia:"
+        size="sm"
+      >
         {selected && (
           <div className="space-y-4">
             <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-[#0A0A0A] p-4">
@@ -481,15 +486,15 @@ export default function SchedulePage() {
                 </p>
 
                 <p className="mt-2 text-base font-semibold text-white">
-                  {selected.employee?.fullName ?? '—'}
+                  {selected.employee?.fullName ?? "—"}
                 </p>
 
                 <p className="mt-1 text-sm leading-relaxed text-slate-400">
-                  {new Date(selected.date).toLocaleDateString('pt-BR', {
-                    weekday: 'long',
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric',
+                  {new Date(selected.date).toLocaleDateString("pt-BR", {
+                    weekday: "long",
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
                   })}
                 </p>
 

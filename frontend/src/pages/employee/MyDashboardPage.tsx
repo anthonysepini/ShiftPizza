@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
-import { Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
-import PageHeader from '../../components/layout/PageHeader.tsx';
-import Card from '../../components/ui/Card';
-import Badge from '../../components/ui/Badge';
-import Spinner from '../../components/ui/Spinner';
-import EmptyState from '../../components/ui/EmptyState';
-import { useAuth } from '../../features/auth/useAuth';
-import { schedulesService } from '../../services/schedules.service';
-import type { ScheduleDay } from '../../types';
+import { useEffect, useState } from "react";
+import { Calendar, AlertTriangle, CheckCircle } from "lucide-react";
+import PageHeader from "../../components/layout/PageHeader.tsx";
+import Card from "../../components/ui/Card";
+import Badge from "../../components/ui/Badge";
+import Spinner from "../../components/ui/Spinner";
+import EmptyState from "../../components/ui/EmptyState";
+import { useAuth } from "../../features/auth/useAuth";
+import { schedulesService } from "../../services/schedules.service";
+import type { ScheduleDay } from "../../types";
 
 const TODAY = new Date();
 const START_OF_TODAY = new Date(
@@ -17,8 +17,8 @@ const START_OF_TODAY = new Date(
 );
 
 function parseLocalDate(value: string) {
-  const normalized = value.split('T')[0];
-  const parts = normalized.split('-').map(Number);
+  const normalized = value.split("T")[0];
+  const parts = normalized.split("-").map(Number);
 
   if (parts.length === 3 && parts.every((part) => Number.isFinite(part))) {
     const [year, month, day] = parts;
@@ -62,14 +62,14 @@ export default function MyDashboardPage() {
     };
   }, []);
 
-  const scheduled = days.filter((d) => d.status === 'SCHEDULED').length;
-  const absents = days.filter((d) => d.status === 'ABSENT').length;
-  const changed = days.filter((d) => d.source === 'MANUAL').length;
+  const scheduled = days.filter((d) => d.status === "SCHEDULED").length;
+  const absents = days.filter((d) => d.status === "ABSENT").length;
+  const changed = days.filter((d) => d.source === "MANUAL").length;
 
   const upcoming = days
     .filter((d) => {
       const date = parseLocalDate(d.date);
-      return d.status === 'SCHEDULED' && date >= START_OF_TODAY;
+      return d.status === "SCHEDULED" && date >= START_OF_TODAY;
     })
     .sort(
       (a, b) =>
@@ -77,40 +77,40 @@ export default function MyDashboardPage() {
     )
     .slice(0, 5);
 
-  const monthName = TODAY.toLocaleDateString('pt-BR', {
-    month: 'long',
-    year: 'numeric',
+  const monthName = TODAY.toLocaleDateString("pt-BR", {
+    month: "long",
+    year: "numeric",
   });
 
-  const firstName = user?.fullName?.trim().split(' ')[0] ?? '';
+  const firstName = user?.fullName?.trim().split(" ")[0] ?? "";
 
   const stats = [
     {
-      label: 'ㅤDias escalados',
+      label: "ㅤDias escalados",
       value: scheduled,
       icon: CheckCircle,
-      helper: 'ㅤTurnos confirmados no mês',
-      iconClass: 'text-orange-300',
-      iconWrapClass: 'border border-orange-400/15 bg-orange-500/10',
-      glowClass: 'bg-orange-500/10',
+      helper: "ㅤTurnos confirmados no mês",
+      iconClass: "text-orange-300",
+      iconWrapClass: "border border-orange-400/15 bg-orange-500/10",
+      glowClass: "bg-orange-500/10",
     },
     {
-      label: 'ㅤFaltas',
+      label: "ㅤFaltas",
       value: absents,
       icon: AlertTriangle,
-      helper: 'ㅤRegistros de ausência',
-      iconClass: 'text-red-300',
-      iconWrapClass: 'border border-red-400/15 bg-red-500/10',
-      glowClass: 'bg-red-500/10',
+      helper: "ㅤRegistros de ausência",
+      iconClass: "text-red-300",
+      iconWrapClass: "border border-red-400/15 bg-red-500/10",
+      glowClass: "bg-red-500/10",
     },
     {
-      label: 'ㅤAlterações',
+      label: "ㅤAlterações",
       value: changed,
       icon: Calendar,
-      helper: 'ㅤAjustes feitos manualmente',
-      iconClass: 'text-amber-300',
-      iconWrapClass: 'border border-amber-400/15 bg-amber-500/10',
-      glowClass: 'bg-amber-500/10',
+      helper: "ㅤAjustes feitos manualmente",
+      iconClass: "text-amber-300",
+      iconWrapClass: "border border-amber-400/15 bg-amber-500/10",
+      glowClass: "bg-amber-500/10",
     },
   ];
 
@@ -144,7 +144,8 @@ export default function MyDashboardPage() {
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-slate-400">
-              ㅤAcompanhe os próximos turnos, faltas e alterações da sua escala diretamente aqui, de forma rápida e ㅤorganizada.
+              ㅤAcompanhe os próximos turnos, faltas e alterações da sua escala
+              diretamente aqui, de forma rápida e ㅤorganizada.
             </p>
           </div>
 
@@ -227,13 +228,12 @@ export default function MyDashboardPage() {
               Próximos dias de trabalho
             </h3>
             <p className="mt-1 text-sm text-slate-400">
-              Veja os seus primeiros 5 turnos confirmados de forma
-              organizada:
+              Veja os seus primeiros 5 turnos confirmados de forma organizada:
             </p>
           </div>
 
           <div className="inline-flex w-fit items-center rounded-full border border-orange-400/15 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-300">
-            {upcoming.length} próximo{upcoming.length === 1 ? '' : 's'}
+            {upcoming.length} próximo{upcoming.length === 1 ? "" : "s"}
           </div>
         </div>
 
@@ -255,8 +255,8 @@ export default function MyDashboardPage() {
                     key={d.id}
                     className={`relative overflow-hidden rounded-2xl border px-4 py-4 transition-all duration-200 ${
                       isToday
-                        ? 'border-orange-500/25 bg-orange-500/10'
-                        : 'border-white/8 bg-[#000000] hover:border-orange-500/15 hover:bg-[#000000]'
+                        ? "border-orange-500/25 bg-orange-500/10"
+                        : "border-white/8 bg-[#000000] hover:border-orange-500/15 hover:bg-[#000000]"
                     }`}
                   >
                     {isToday && (
@@ -267,13 +267,13 @@ export default function MyDashboardPage() {
                       <div
                         className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl border ${
                           isToday
-                            ? 'border-orange-400/20 bg-[#000000]'
-                            : 'border-white/8 bg-white/[0.02]'
+                            ? "border-orange-400/20 bg-[#000000]"
+                            : "border-white/8 bg-white/[0.02]"
                         }`}
                       >
                         <span
                           className={`text-lg font-bold leading-none ${
-                            isToday ? 'text-orange-300' : 'text-white'
+                            isToday ? "text-orange-300" : "text-white"
                           }`}
                         >
                           {date.getDate()}
@@ -281,18 +281,18 @@ export default function MyDashboardPage() {
 
                         <span className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                           {date
-                            .toLocaleDateString('pt-BR', { weekday: 'short' })
-                            .replace('.', '')}
+                            .toLocaleDateString("pt-BR", { weekday: "short" })
+                            .replace(".", "")}
                         </span>
                       </div>
 
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <p className="text-sm font-medium text-white sm:text-[15px]">
-                            {date.toLocaleDateString('pt-BR', {
-                              day: '2-digit',
-                              month: 'long',
-                              year: 'numeric',
+                            {date.toLocaleDateString("pt-BR", {
+                              day: "2-digit",
+                              month: "long",
+                              year: "numeric",
                             })}
                           </p>
 
@@ -305,7 +305,7 @@ export default function MyDashboardPage() {
 
                         <p className="mt-1 text-xs text-slate-500">
                           {d.note?.trim() ||
-                            'Turno programado na sua escala atual.'}
+                            "Turno programado na sua escala atual."}
                         </p>
                       </div>
 
