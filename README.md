@@ -30,11 +30,8 @@ Ele foi pensado para mostrar mais do que interface. A intenção aqui foi constr
 ### Acesse o projeto
 
 <p>
-  <a href="https://front.com" target="_blank">
-    <img src="https://img.shields.io/badge/Frontend-Acessar%20site-111111?style=for-the-badge" alt="Acessar frontend" />
-  </a>
-  <a href="https://api.com" target="_blank">
-    <img src="https://img.shields.io/badge/API-Backend-orange?style=for-the-badge" alt="Acessar backend" />
+  <a href="shiftpizza.vercel.app" target="_blank">
+    <img src="https://img.shields.io/badge/Frontend-Acessar%20site-111111?style=for-the-badge" alt="Acessar site DEMO" />
   </a>
 </p>
 
