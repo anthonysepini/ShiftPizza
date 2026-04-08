@@ -2,9 +2,9 @@
 
 # 🍕 ShiftPizza
 
-**Full stack employee & schedule management system for small businesses**
+**Employee and schedule management for small businesses — built because WhatsApp groups aren't systems.**
 
-[![Live Demo](https://img.shields.io/badge/🍕%20Live%20Demo-shiftpizza.vercel.app-FF6B35?style=for-the-badge)](https://shiftpizza.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-shiftpizza.vercel.app-FF6B35?style=for-the-badge&logo=vercel&logoColor=white)](https://shiftpizza.vercel.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-F7DF1E?style=for-the-badge)](LICENSE)
 
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
@@ -18,35 +18,19 @@
 
 ---
 
-## 📋 Table of Contents
+## What this is
 
-- [About](#-about)
-- [Preview](#-preview)
-- [Screenshots](#-screenshots)
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Architecture](#-architecture)
-- [Getting Started](#-getting-started)
-- [Author](#-author)
+Most small businesses still track team schedules through a WhatsApp group and a notepad. Someone doesn't show up because they saw a different message. Someone works an extra shift that nobody recorded. Vacations disappear.
 
----
+ShiftPizza replaces that. Admins manage the full team — schedules, absences, extra shifts, vacations — and each employee gets their own dashboard to check their own data. No group chat. No paper.
 
-## 🧠 About
+The demo resets on demand, so you can break it as many times as you want.
 
-ShiftPizza tackles a real, common problem in small businesses: team schedules that still live in scattered notes, WhatsApp messages, and last-minute paper changes. This system consolidates the full workflow into a single application — from employee registration and monthly schedule generation to absence tracking, overtime shifts, and vacation management.
-
-Built as a full stack portfolio project, the focus was intentional architecture: clean separation between frontend and backend, JWT authentication, Argon2 password hashing, role-based access control, DTO validation, and a demo experience that's frictionless from the first click.
-
-**Key technical decisions:**
-- NestJS modules with clear separation of concerns — `auth`, `employees`, `schedules`, `shifts`
-- Prisma ORM with PostgreSQL hosted on Neon (serverless, zero cold-start overhead)
-- JWT access tokens with role guards protecting every sensitive route
-- Argon2 for password hashing — stronger resistance to GPU attacks than bcrypt
-- Demo reset endpoint that restores seed state without re-deployment
+**[→ Try it at shiftpizza.vercel.app](https://shiftpizza.vercel.app)** — credentials are right on the login screen.
 
 ---
 
-## 🎬 Preview
+## Preview
 
 <div align="center">
 
@@ -56,158 +40,117 @@ Built as a full stack portfolio project, the focus was intentional architecture:
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 | Login | Admin Dashboard | Employee Dashboard |
 |:---:|:---:|:---:|
 | ![Login](docs/media/logindemo.png) | ![Admin](docs/media/admindashboard.png) | ![Employee](docs/media/dashboardemployee.png) |
 
-> **Login screen** — demo credentials and quick-access buttons are displayed directly, reducing friction for reviewers. **Admin panel** — shows active employees, absences, recent activity, and shortcuts to all key areas. **Employee panel** — personal schedule view focused on upcoming shifts, absences, and manual changes.
+---
+
+## What it does
+
+**Admin**
+- Register, edit, and remove employees (name, CPF, phone, role, password)
+- Generate and manage monthly schedules
+- Log absences and extra shifts
+- Control vacation periods
+- View a real-time activity feed
+- Reset the entire demo environment without redeploying
+
+**Employee**
+- See their own schedule and upcoming shifts
+- View their absence history
+- Access their own profile data
 
 ---
 
-## ✨ Features
+## Technical decisions
 
-### 🔐 Admin Panel
+**Why NestJS?** I wanted a backend with actual structure — modules, guards, decorators, dependency injection — not a flat Express app with everything in one file. NestJS forces you to organize things.
 
-| Feature | Description |
-|---|---|
-| 👤 Employee management | Register, edit, and remove employees with full profile control |
-| 📅 Schedule generation | Create and organize monthly work schedules |
-| ❌ Absence tracking | Log and monitor absences per employee |
-| ⏰ Extra shifts | Add and control overtime or replacement shifts |
-| 🏖️ Vacation control | Manage and visualize vacation periods |
-| 📊 Activity feed | Track recent actions across the system |
-| 🔄 Demo reset | Restore the demo environment to its original seeded state |
+**Why Argon2 over bcrypt?** Argon2 is more resistant to GPU-based brute-force attacks. It's what OWASP recommends now. The extra setup was worth it.
 
-### 👷 Employee Panel
+**Why Neon for PostgreSQL?** Serverless database that doesn't have cold-start problems on the free tier. I didn't want to manage a VPS just to keep a demo alive.
 
-| Feature | Description |
-|---|---|
-| 📆 Personal schedule | View own upcoming shifts and work days |
-| 🗂️ Profile data | Access own registration and contact details |
-| 📋 Absence history | See personal absence records |
-
-### 🎭 Demo Experience
-
-- One-click demo login directly from the login screen
-- Pre-loaded credentials for both **admin** and **employee** roles
-- Full environment reset available at any time — no re-deployment needed
+**Why a server-side reset button?** I didn't want to redeploy every time someone wiped the seed data while testing. The reset endpoint re-runs the seeder on demand — the admin panel has a button for it.
 
 ---
 
-## 🛠 Tech Stack
+## Tech stack
 
-### Frontend
+**Frontend** — React, Vite, TypeScript, Tailwind CSS, React Router DOM, Axios
 
-| Technology | Role |
-|---|---|
-| **React + Vite** | UI framework and lightning-fast build tool |
-| **TypeScript** | Type safety across all components and services |
-| **Tailwind CSS** | Utility-first styling system |
-| **React Router DOM** | Client-side routing with protected routes |
-| **Axios** | HTTP client with interceptors for auth headers |
+**Backend** — NestJS, TypeScript, Prisma ORM, JWT, Argon2, class-validator
 
-### Backend
-
-| Technology | Role |
-|---|---|
-| **NestJS** | Modular, decorator-based backend framework |
-| **TypeScript** | Strict typing on all layers — DTOs, services, guards |
-| **Prisma ORM** | Type-safe database access and schema migrations |
-| **JWT** | Stateless authentication with role-based guards |
-| **Argon2** | Secure password hashing |
-| **class-validator** | Automatic DTO validation on all incoming payloads |
-
-### Infrastructure
-
-| Technology | Role |
-|---|---|
-| **PostgreSQL** | Relational database |
-| **Neon** | Serverless PostgreSQL hosting |
-| **Vercel** | Frontend deployment with automatic CI from GitHub |
+**Infrastructure** — PostgreSQL, Neon, Vercel
 
 ---
 
-## 🏗 Architecture
+## Architecture
 
 ```
 shiftpizza/
-├── frontend/                 # React + Vite
+├── frontend/
 │   └── src/
-│       ├── components/       # Reusable UI components
-│       ├── pages/            # Route-level views (Login, Dashboard, etc.)
-│       ├── services/         # Axios API calls per domain
-│       └── context/          # Global auth context
+│       ├── components/     # Reusable UI components
+│       ├── pages/          # Route-level views
+│       ├── services/       # Axios API calls per domain
+│       └── context/        # Auth context with role awareness
 │
-└── backend/                  # NestJS
+└── backend/
     ├── src/
-    │   ├── auth/             # JWT strategy, guards, login logic
-    │   ├── employees/        # Employee CRUD + DTO validation
-    │   ├── schedules/        # Monthly schedule generation
-    │   ├── shifts/           # Shift and absence management
-    │   └── prisma/           # PrismaService (shared DB client)
+    │   ├── auth/           # JWT strategy, login, role guards
+    │   ├── employees/      # CRUD + DTO validation
+    │   ├── schedules/      # Monthly schedule generation
+    │   ├── shifts/         # Shift and absence management
+    │   └── prisma/         # Shared PrismaService
     └── prisma/
-        ├── schema.prisma     # Database schema
-        └── seed.ts           # Demo data seeder
+        ├── schema.prisma
+        └── seed.ts
 ```
 
 ---
 
-## 🚀 Getting Started
+## Running locally
 
-### Prerequisites
-
-- Node.js 18+
-- PostgreSQL database (or a [Neon](https://neon.tech) connection string)
-
-### Backend
+**Backend**
 
 ```bash
 cd backend
 npm install
-cp .env.example .env        # Set DATABASE_URL and JWT_SECRET
+cp .env.example .env     # DATABASE_URL and JWT_SECRET
 npx prisma migrate dev
 npx prisma db seed
 npm run start:dev
 ```
 
-### Frontend
+**Frontend**
 
 ```bash
 cd frontend
 npm install
-cp .env.example .env        # Set VITE_API_URL
+cp .env.example .env     # VITE_API_URL
 npm run dev
 ```
 
-> **Don't want to run locally?** Visit [shiftpizza.vercel.app](https://shiftpizza.vercel.app) — demo credentials are displayed right on the login screen.
-
 ---
 
-## 👤 Author
+## Author
 
 <table>
   <tr>
     <td>
       <strong>Anthony Diniz Sepini Azevedo</strong><br/>
-      Full stack developer focused on clean architecture, real business problems, and strong visual and technical presentation.
+      Full stack developer. I like real problems, clean architecture, and code that still works when someone actually uses it.
       <br/><br/>
-      <a href="https://github.com/anthonysepini" target="_blank">
+      <a href="https://github.com/anthonysepini">
         <img src="https://img.shields.io/badge/GitHub-anthonysepini-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
       </a>
       &nbsp;
-      <a href="https://www.linkedin.com/in/anthonysepini" target="_blank">
+      <a href="https://www.linkedin.com/in/anthonysepini">
         <img src="https://img.shields.io/badge/LinkedIn-anthonysepini-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
       </a>
     </td>
   </tr>
 </table>
-
----
-
-<div align="center">
-
-Built with focus on architecture, not just code.
-
-</div>
