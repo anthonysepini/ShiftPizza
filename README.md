@@ -4,7 +4,6 @@
 
 **Employee and schedule management for small businesses — built because WhatsApp groups aren't systems.**
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-shiftpizza.vercel.app-FF6B35?style=for-the-badge&logo=vercel&logoColor=white)](https://shiftpizza.vercel.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-F7DF1E?style=for-the-badge)](LICENSE)
 
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
@@ -25,8 +24,6 @@ Most small businesses still track team schedules through a WhatsApp group and a 
 ShiftPizza replaces that. Admins manage the full team — schedules, absences, extra shifts, vacations — and each employee gets their own dashboard to check their own data. No group chat. No paper.
 
 The demo resets on demand, so you can break it as many times as you want.
-
-**[→ Try it at shiftpizza.vercel.app](https://shiftpizza.vercel.app)** — credentials are right on the login screen.
 
 ---
 
