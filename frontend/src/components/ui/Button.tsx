@@ -10,7 +10,7 @@ interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants = {
-  primary:   'bg-orange-500 hover:bg-orange-400 text-white shadow-lg shadow-orange-500/20',
+  primary:   'bg-orange-700 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20',
   secondary: 'bg-[#1E293B] hover:bg-[#273549] text-slate-200 border border-[#2D3F55]',
   ghost:     'bg-transparent hover:bg-[#1E293B] text-slate-400 hover:text-slate-200',
   danger:    'bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20',
@@ -26,7 +26,7 @@ export default function Button({ variant = 'primary', size = 'md', loading, left
     <button
       {...props}
       disabled={disabled || loading}
-      className={`inline-flex items-center gap-2 rounded-lg font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex items-center gap-2 rounded-lg font-medium transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070C18] disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
     >
       {loading ? <Spinner size="sm" /> : leftIcon}
       {children}

@@ -1,98 +1,146 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# ShiftPizza backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+The backend is a NestJS 11 REST API using TypeScript, Prisma ORM, PostgreSQL, JWT bearer authentication, Argon2 password hashing, DTO validation, role guards, login throttling, CORS allowlisting, and HTTP security headers.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Supported runtime
 
-## Description
+The package engine accepts Node.js `^20.19`, `^22.12`, or `>=24.0`. Install dependencies with the committed npm lockfile:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ npm install
+```powershell
+npm ci
 ```
 
-## Compile and run the project
+## Module boundaries
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```text
+src/
+├── common/              Guards, decorators, filters, pipes, types, civil dates
+├── config/              Startup environment validation
+├── modules/
+│   ├── auth/            Login use case and JWT strategy
+│   ├── employees/       Employee, user, and weekly-rule operations
+│   ├── schedules/       Monthly generation and day changes
+│   ├── audit/           Schedule audit queries and writes
+│   ├── demo/            Disabled-by-default destructive demo reset
+│   └── health/          Public liveness response
+├── prisma/              Prisma client lifecycle
+├── app.module.ts        Application composition
+├── configure-app.ts     Shared runtime and HTTP test configuration
+└── main.ts              Process bootstrap
 ```
 
-## Run tests
+Prisma schema, migrations, and seed logic live in `prisma/`.
 
-```bash
-# unit tests
-$ npm run test
+## Environment contract
 
-# e2e tests
-$ npm run test:e2e
+Copy the tracked placeholder and replace its values locally:
 
-# test coverage
-$ npm run test:cov
+```powershell
+Copy-Item .env.example .env
 ```
 
-## Deployment
+| Variable | Requirement |
+|---|---|
+| `DATABASE_URL` | Required PostgreSQL connection string. Treat it as a secret. |
+| `JWT_SECRET` | Required and at least 32 characters. Generate a random value per environment. |
+| `CORS_ORIGIN` | Comma-separated allowed browser origins. Required in production; local Vite origins are the development default. |
+| `BUSINESS_TIME_ZONE` | IANA timezone used to determine the current business day; defaults to `America/Sao_Paulo`. |
+| `APP_MODE` | `standard` by default. Use `isolated-demo` only with a disposable demo database. |
+| `DEMO_RESET_ENABLED` | `true` or `false`; defaults to `false`. |
+| `PORT` | Integer from 1 to 65535; defaults to `3000`. |
+| `NODE_ENV` | Runtime mode; production tightens the CORS requirement. |
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Do not commit `.env`, connection strings, tokens, or real secrets. The example file contains placeholders only.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Local database setup
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+Use a disposable local PostgreSQL database. Confirm the hostname and database name in `DATABASE_URL` before every Prisma command that can write data.
+
+```powershell
+npx prisma validate
+npx prisma generate
+npx prisma migrate deploy
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+To load the known demo users into a disposable database only:
 
-## Resources
+```powershell
+npx prisma db seed
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Do not run the seed, `prisma migrate reset`, or the demo reset endpoint against a shared, staging, or production database. Remote database work requires an explicit review and deployment decision; local setup does not imply permission to modify a configured remote database.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Run the API
 
-## Support
+```powershell
+npm run start:dev
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Other runtime commands:
 
-## Stay in touch
+| Command | Purpose |
+|---|---|
+| `npm run start` | Start Nest once from source configuration. |
+| `npm run start:dev` | Start Nest in watch mode. |
+| `npm run build` | Compile the production output. |
+| `npm run start:prod` | Run the compiled `dist/src/main.js`. |
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+With the default port:
 
-## License
+- health: `http://localhost:3000/health`
+- Swagger UI outside production: `http://localhost:3000/api`
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## API and authorization
+
+| Route | Access | Purpose |
+|---|---|---|
+| `GET /health` | Public | Liveness response. |
+| `POST /auth/login` | Public, rate-limited | Exchange CPF and password for an 8-hour JWT. |
+| `GET /demo/status` | Public | Report whether demo reset is enabled. |
+| `POST /demo/reset` | Public only when explicitly enabled | Destructively restore the demo dataset. |
+| `GET /employees/:id` | Authenticated self or administrator | Read one employee profile. |
+| `/employees` management routes | Administrator | Create, list, update, activate/deactivate, and delete employees. |
+| `GET /schedules/my/:year/:month` | Authenticated user | Read the signed-in employee's schedule. |
+| Other `/schedules` routes | Administrator | Generate/read monthly schedules and update a day. |
+| `GET /audit` | Administrator | Read bounded schedule audit history. |
+
+The JWT strategy loads the current user for each authenticated request and rejects missing users or inactive employees. The role in the database is used for authorization. Unknown DTO properties are rejected rather than silently stripped.
+
+## Demo reset boundary
+
+`APP_MODE=standard` and `DEMO_RESET_ENABLED=false` are the defaults. In that state, `POST /demo/reset` returns `404` and the reset service is not called.
+
+Startup rejects `DEMO_RESET_ENABLED=true` unless `APP_MODE=isolated-demo` is also explicit. In that isolated mode the endpoint is unauthenticated and deletes every application audit log, schedule day, weekly rule, user, and employee inside a transaction, then creates known seed accounts. Never use that mode with shared or durable data.
+
+## Verification
+
+Read-only lint check:
+
+```powershell
+npm run lint
+```
+
+Use `npm run lint:fix` only when automatic formatting and safe lint rewrites are intended.
+
+Complete local checks:
+
+```powershell
+npm test -- --runInBand
+npm run test:e2e -- --runInBand
+npm run lint
+npm run build
+npx prisma validate
+npx prisma generate
+```
+
+Coverage can be collected with `npm run test:cov`. HTTP integration tests override Prisma and do not need or mutate a database. They verify the health contract, validation policy, baseline security headers, login throttling, and the disabled reset boundary.
+
+## Database evolution
+
+- Add schema changes through reviewed migrations in `prisma/migrations/`.
+- Test migration SQL against a disposable local database first.
+- Keep civil calendar dates timezone-independent in application code.
+- Keep schedule writes and their audit entry in the same database transaction.
+- Keep monthly generation and weekly-rule synchronization behind the shared PostgreSQL transaction advisory lock.
+- Review query plans and indexes when list or schedule workloads change.
+- Apply migrations to shared environments only through a separately authorized deployment process.

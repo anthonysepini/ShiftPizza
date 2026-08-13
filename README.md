@@ -1,8 +1,8 @@
 <div align="center">
 
-# 🍕 ShiftPizza
+# ShiftPizza
 
-**Employee and schedule management for small businesses — built because WhatsApp groups aren't systems.**
+**Role-aware employee and monthly schedule management for small teams.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-F7DF1E?style=for-the-badge)](LICENSE)
 
@@ -11,163 +11,187 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 
 </div>
 
----
+ShiftPizza replaces informal schedule tracking with an authenticated web application. Administrators maintain employees, weekly work rules, monthly schedules, and schedule exceptions. Employees can access only their own profile and schedule.
 
-## What this is
+The repository contains two independently installed applications. There is no root package runner.
 
-Most small businesses still track team schedules through a WhatsApp group and a notepad. Someone doesn't show up because they saw a different message. Someone works an extra shift that nobody recorded. Vacations disappear.
+## Product scope
 
-ShiftPizza replaces that. Admins manage the full team — schedules, absences, extra shifts, vacations — and each employee gets their own dashboard to check their own data. No group chat. No paper.
+Administrators can:
 
-The demo resets on demand, so you can break it as many times as you want.
+- create, edit, activate, deactivate, and delete employees;
+- define recurring weekdays for each employee;
+- generate a month from the active employees' weekly rules;
+- mark a generated day as scheduled, absent, extra shift, day off, or removed;
+- inspect audit entries produced by schedule generation and manual day changes.
 
----
+Employees can:
+
+- see their own monthly schedule and summary;
+- see their own profile;
+- use the employee routes without receiving access to administrator data.
+
+ShiftPizza does not currently model payroll, clock-in/clock-out attendance, or vacation as separate domain concepts. A past scheduled day must not be interpreted as proof of attendance.
 
 ## Preview
 
 <div align="center">
 
-![ShiftPizza Demo](docs/media/apresentation.gif)
+![ShiftPizza demo](docs/media/apresentation.gif)
 
 </div>
 
----
-
-## Screenshots
-
-| Login | Admin Dashboard | Employee Dashboard |
+| Login | Administrator dashboard | Employee dashboard |
 |:---:|:---:|:---:|
-| ![Login](docs/media/logindemo.png) | ![Admin](docs/media/admindashboard.png) | ![Employee](docs/media/dashboardemployee.png) |
-
----
-
-## What it does
-
-**Admin**
-- Register, edit, and remove employees (name, CPF, phone, role, password)
-- Generate and manage monthly schedules
-- Log absences and extra shifts
-- Control vacation periods
-- View a real-time activity feed
-- Reset the entire demo environment without redeploying
-
-**Employee**
-- See their own schedule and upcoming shifts
-- View their absence history
-- Access their own profile data
-
----
-
-## Technical decisions
-
-**Why NestJS?** I wanted a backend with actual structure — modules, guards, decorators, dependency injection — not a flat Express app with everything in one file. NestJS forces you to organize things.
-
-**Why Argon2 over bcrypt?** Argon2 is more resistant to GPU-based brute-force attacks. It's what OWASP recommends now. The extra setup was worth it.
-
-**Why Neon for PostgreSQL?** Serverless database that doesn't have cold-start problems on the free tier. I didn't want to manage a VPS just to keep a demo alive.
-
-**Why a server-side reset button?** I didn't want to redeploy every time someone wiped the seed data while testing. The reset endpoint re-runs the seeder on demand — the admin panel has a button for it.
-
----
-
-## Tech stack
-
-**Frontend**
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="18" alt="React" /> React
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg" width="18" alt="Vite" /> Vite
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="18" alt="TypeScript" /> TypeScript
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg" width="18" alt="Tailwind CSS" /> Tailwind CSS
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="18" alt="CSS" /> CSS
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/axios/axios-plain.svg" width="18" alt="Axios" /> Axios
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/reactrouter/reactrouter-original.svg" width="18" alt="React Router DOM" /> React Router DOM
-
-**Backend**
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nestjs/nestjs-original.svg" width="18" alt="NestJS" /> NestJS
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="18" alt="TypeScript" /> TypeScript
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/prisma/prisma-original.svg" width="18" alt="Prisma ORM" /> Prisma ORM
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" width="18" alt="Node.js" /> Node.js
-- <img src="https://jwt.io/img/pic_logo.svg" width="18" alt="JWT" /> JWT
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="18" alt="class-validator" /> class-validator
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="18" alt="Argon2" /> Argon2
-
-**Infrastructure**
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="18" alt="PostgreSQL" /> PostgreSQL
-- <img src="https://neon.com/brand/neon-logomark-dark-color.svg" width="18" alt="Neon" /> Neon
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="18" alt="HTML" /> HTML
-- <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg" width="18" alt="npm" /> npm
-
-
-
----
+| ![Login](docs/media/logindemo.png) | ![Administrator dashboard](docs/media/admindashboard.png) | ![Employee dashboard](docs/media/dashboardemployee.png) |
 
 ## Architecture
 
-```
+```text
 shiftpizza/
-├── frontend/
+├── frontend/                         React 19 + Vite 8 SPA
+│   ├── e2e/                          Playwright browser checks
 │   └── src/
-│       ├── components/     # Reusable UI components
-│       ├── pages/          # Route-level views
-│       ├── services/       # Axios API calls per domain
-│       └── context/        # Auth context with role awareness
-│
-└── backend/
-    ├── src/
-    │   ├── auth/           # JWT strategy, login, role guards
-    │   ├── employees/      # CRUD + DTO validation
-    │   ├── schedules/      # Monthly schedule generation
-    │   ├── shifts/         # Shift and absence management
-    │   └── prisma/         # Shared PrismaService
-    └── prisma/
-        ├── schema.prisma
-        └── seed.ts
+│       ├── app/                      Route composition
+│       ├── components/               Layout and reusable UI primitives
+│       ├── features/                 Authentication and schedule policies
+│       ├── pages/                    Administrator and employee screens
+│       ├── services/                 Typed Axios API adapters
+│       ├── types/                    Shared frontend domain types
+│       └── utils/                    Civil-date handling
+├── backend/                          NestJS 11 REST API
+│   ├── prisma/                       Prisma schema, migrations, and demo seed
+│   ├── src/
+│   │   ├── common/                   Guards, filters, pipes, and date helpers
+│   │   ├── config/                   Environment validation
+│   │   ├── modules/                  Auth, employees, schedules, audit, demo, health
+│   │   └── prisma/                   Shared Prisma client lifecycle
+│   └── test/                         HTTP integration tests
+└── docs/superpowers/                 Refactor design and execution plan
 ```
 
----
+The browser uses bearer JWT authentication. The API revalidates the user and active-employee state for authenticated requests, and administrator operations are protected by server-side role guards. Client-side route guards improve navigation but are not the authorization boundary.
 
-## Running locally
+## Prerequisites
 
-**Backend**
+- Node.js `20.19+`, `22.12+`, or `24+` (the supported backend engine ranges)
+- npm, using the committed lockfiles
+- PostgreSQL reachable from the backend
 
-```bash
+Use a local, disposable database while developing. Before any Prisma migration or seed command, verify that `DATABASE_URL` does not point to a shared, staging, or production database.
+
+## Safe local setup
+
+### 1. Backend
+
+```powershell
 cd backend
-npm install
-cp .env.example .env     # DATABASE_URL and JWT_SECRET
-npx prisma migrate dev
+npm ci
+Copy-Item .env.example .env
+```
+
+Edit `backend/.env` locally. Never commit it. On a new disposable local database, apply the existing migrations and optionally load the demo records:
+
+```powershell
+npx prisma validate
+npx prisma generate
+npx prisma migrate deploy
 npx prisma db seed
 npm run start:dev
 ```
 
-**Frontend**
+The seed is intended only for a disposable demo database and creates known demonstration credentials. Do not use those accounts in a shared or production environment.
 
-```bash
+The API defaults to `http://localhost:3000`; its health endpoint is `/health`, and Swagger UI is available at `/api` while the application is running.
+
+### 2. Frontend
+
+In another terminal:
+
+```powershell
 cd frontend
-npm install
-cp .env.example .env     # VITE_API_URL
+npm ci
+npx playwright install chromium
+Copy-Item .env.example .env.local
 npm run dev
 ```
 
----
+Vite prints the local application URL. `VITE_API_URL` must identify the backend origin and must not contain credentials or secrets.
 
-## Author
+## Environment contract
 
-<table>
-  <tr>
-    <td>
-      <strong>Anthony Diniz Sepini Azevedo</strong><br/>
-      Full stack developer. I like real problems, clean architecture, and code that still works when someone actually uses it.
-      <br/><br/>
-      <a href="https://github.com/anthonysepini">
-        <img src="https://img.shields.io/badge/GitHub-anthonysepini-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
-      </a>
-      &nbsp;
-      <a href="https://www.linkedin.com/in/anthonysepini">
-        <img src="https://img.shields.io/badge/LinkedIn-anthonysepini-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
-      </a>
-    </td>
-  </tr>
-</table>
+| Application | Variable | Requirement |
+|---|---|---|
+| Backend | `DATABASE_URL` | Required PostgreSQL connection string; keep it secret. |
+| Backend | `JWT_SECRET` | Required, at least 32 characters; use a cryptographically random secret. |
+| Backend | `CORS_ORIGIN` | Comma-separated browser origins; required in production and restricted to local Vite origins by default in development. |
+| Backend | `BUSINESS_TIME_ZONE` | IANA timezone used for the current business day; defaults to `America/Sao_Paulo`. |
+| Backend | `APP_MODE` | `standard` by default. `isolated-demo` explicitly marks a disposable demo deployment. |
+| Backend | `DEMO_RESET_ENABLED` | Optional boolean. It is `false` unless explicitly enabled. |
+| Backend | `PORT` | Optional API port; defaults to `3000`. |
+| Frontend | `VITE_API_URL` | Public backend base URL. Vite exposes this value to the browser. |
+
+Only placeholder values belong in `.env.example` files. Any variable prefixed with `VITE_` is bundled into browser code and cannot be treated as a secret.
+
+## Demo reset safety
+
+`GET /demo/status` reports whether reset is available. `POST /demo/reset` is hidden with a `404` while `DEMO_RESET_ENABLED=false`, which is the default.
+
+Startup accepts `DEMO_RESET_ENABLED=true` only together with `APP_MODE=isolated-demo`. That explicit combination makes a destructive, unauthenticated demo endpoint available: it deletes all application employees, users, rules, schedules, and audit entries before restoring the known seed records. Use it only with an isolated, disposable database, never with shared or durable data.
+
+## Authorization summary
+
+| Capability | Public | Employee | Administrator |
+|---|:---:|:---:|:---:|
+| Health, login, and demo-status checks | Yes | Yes | Yes |
+| Read own employee profile | No | Yes | Yes |
+| Read own monthly schedule | No | Yes | Yes |
+| Manage employees | No | No | Yes |
+| Generate/read all schedules and update days | No | No | Yes |
+| Read audit history | No | No | Yes |
+
+Login attempts are rate-limited, passwords are hashed with Argon2, request DTOs reject unknown fields, CORS uses an allowlist, and baseline HTTP security headers are applied by the API.
+
+## Quality checks
+
+Run each group from its own application directory.
+
+Frontend:
+
+```powershell
+npm run lint
+npm run test:run
+npm run build
+npm run test:e2e
+```
+
+The Playwright suite starts an isolated Vite server and mocks the API for its route-authorization checks. A dedicated automated accessibility script is not present yet; accessibility remains a required manual browser gate. Check keyboard-only operation, visible focus, labels and dialog semantics, contrast, overflow, and reduced-motion behavior at `390x844`, `768x1024`, and `1440x900`.
+
+Backend:
+
+```powershell
+npx eslint "{src,apps,libs,test}/**/*.ts"
+npm test -- --runInBand
+npm run test:e2e -- --runInBand
+npm run build
+npx prisma validate
+npx prisma generate
+```
+
+Both applications run read-only lint checks with `npm run lint`. The backend exposes `npm run lint:fix` separately for explicitly authorized rewrites.
+
+Tests do not authorize a real database reset. The backend HTTP tests replace the Prisma provider and verify health, validation, security headers, login throttling, and the disabled-by-default reset boundary without mutating database data.
+
+## Database change policy
+
+- Develop and verify migrations against a disposable local PostgreSQL database first.
+- Review generated SQL before applying it anywhere outside local development.
+- Never run `prisma migrate reset`, the demo reset endpoint, or the seed against shared data.
+- Treat deployment and remote database changes as separate, explicitly approved operations.
+
+## License
+
+[MIT](LICENSE)

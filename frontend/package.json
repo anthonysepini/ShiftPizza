@@ -2,12 +2,19 @@
   "name": "frontend",
   "private": true,
   "version": "0.0.0",
+  "engines": {
+    "node": "^20.19 || ^22.12 || >=24.0"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test accessibility-responsive.spec.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
@@ -18,7 +25,9 @@
     "react-router-dom": "^7.14.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
     "@eslint/js": "^9.39.4",
+    "@playwright/test": "1.62.1",
     "@types/node": "^24.12.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -29,6 +38,7 @@
     "globals": "^17.4.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.57.0",
-    "vite": "^8.0.1"
+    "vite": "^8.0.1",
+    "vitest": "4.1.10"
   }
 }

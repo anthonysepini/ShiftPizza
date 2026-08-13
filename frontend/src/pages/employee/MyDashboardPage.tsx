@@ -1,83 +1,61 @@
-import { useEffect, useState } from "react";
+﻿import { useCallback, useEffect, useState } from "react";
 import { Calendar, AlertTriangle, CheckCircle } from "lucide-react";
 import PageHeader from "../../components/layout/PageHeader.tsx";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 import Spinner from "../../components/ui/Spinner";
 import EmptyState from "../../components/ui/EmptyState";
+import RequestError from "../../components/ui/RequestError";
 import { useAuth } from "../../features/auth/useAuth";
 import { schedulesService } from "../../services/schedules.service";
 import type { ScheduleDay } from "../../types";
-
-const TODAY = new Date();
-const START_OF_TODAY = new Date(
-  TODAY.getFullYear(),
-  TODAY.getMonth(),
-  TODAY.getDate(),
-);
-
-function parseLocalDate(value: string) {
-  const normalized = value.split("T")[0];
-  const parts = normalized.split("-").map(Number);
-
-  if (parts.length === 3 && parts.every((part) => Number.isFinite(part))) {
-    const [year, month, day] = parts;
-    return new Date(year, month - 1, day);
-  }
-
-  return new Date(value);
-}
-
-function isSameDay(a: Date, b: Date) {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-}
+import {
+  getCivilDateKey,
+  getLocalDateInputValue,
+  parseCivilDate,
+} from "../../utils/civil-date";
 
 export default function MyDashboardPage() {
   const { user } = useAuth();
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth() + 1;
+  const todayKey = getLocalDateInputValue(today);
   const [days, setDays] = useState<ScheduleDay[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      setDays(await schedulesService.getMySchedule(currentYear, currentMonth));
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentYear, currentMonth]);
 
   useEffect(() => {
-    let cancelled = false;
-
-    schedulesService
-      .getMySchedule(TODAY.getFullYear(), TODAY.getMonth() + 1)
-      .then((data) => {
-        if (!cancelled) {
-          setDays(data);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    void load();
+  }, [load]);
 
   const scheduled = days.filter((d) => d.status === "SCHEDULED").length;
   const absents = days.filter((d) => d.status === "ABSENT").length;
   const changed = days.filter((d) => d.source === "MANUAL").length;
 
   const upcoming = days
-    .filter((d) => {
-      const date = parseLocalDate(d.date);
-      return d.status === "SCHEDULED" && date >= START_OF_TODAY;
-    })
-    .sort(
-      (a, b) =>
-        parseLocalDate(a.date).getTime() - parseLocalDate(b.date).getTime(),
+    .filter(
+      (d) =>
+        d.status === "SCHEDULED" && getCivilDateKey(d.date) >= todayKey,
+    )
+    .sort((a, b) =>
+      getCivilDateKey(a.date).localeCompare(getCivilDateKey(b.date)),
     )
     .slice(0, 5);
 
-  const monthName = TODAY.toLocaleDateString("pt-BR", {
+  const monthName = today.toLocaleDateString("pt-BR", {
     month: "long",
     year: "numeric",
   });
@@ -86,28 +64,28 @@ export default function MyDashboardPage() {
 
   const stats = [
     {
-      label: "ㅤDias escalados",
+      label: "Dias escalados",
       value: scheduled,
       icon: CheckCircle,
-      helper: "ㅤTurnos confirmados no mês",
+      helper: "Turnos confirmados no mês",
       iconClass: "text-orange-300",
       iconWrapClass: "border border-orange-400/15 bg-orange-500/10",
       glowClass: "bg-orange-500/10",
     },
     {
-      label: "ㅤFaltas",
+      label: "Faltas",
       value: absents,
       icon: AlertTriangle,
-      helper: "ㅤRegistros de ausência",
+      helper: "Registros de ausência",
       iconClass: "text-red-300",
       iconWrapClass: "border border-red-400/15 bg-red-500/10",
       glowClass: "bg-red-500/10",
     },
     {
-      label: "ㅤAlterações",
+      label: "Alterações",
       value: changed,
       icon: Calendar,
-      helper: "ㅤAjustes feitos manualmente",
+      helper: "Ajustes feitos manualmente",
       iconClass: "text-amber-300",
       iconWrapClass: "border border-amber-400/15 bg-amber-500/10",
       glowClass: "bg-amber-500/10",
@@ -118,6 +96,18 @@ export default function MyDashboardPage() {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
         <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="animate-in space-y-6">
+        <PageHeader title={`Seja Bem-Vindo, ${firstName} 👋`} />
+        <RequestError
+          title="Não foi possível carregar seu dashboard"
+          onRetry={() => void load()}
+        />
       </div>
     );
   }
@@ -136,7 +126,7 @@ export default function MyDashboardPage() {
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <span className="inline-flex items-center rounded-full border border-orange-400/15 bg-orange-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
-              ㅤMeu painel
+              Meu painel
             </span>
 
             <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white sm:text-[28px]">
@@ -144,8 +134,8 @@ export default function MyDashboardPage() {
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-slate-400">
-              ㅤAcompanhe os próximos turnos, faltas e alterações da sua escala
-              diretamente aqui, de forma rápida e ㅤㅤorganizada.
+              Acompanhe os próximos turnos, faltas e alterações da sua escala
+              diretamente aqui, de forma rápida e organizada.
             </p>
           </div>
 
@@ -247,8 +237,8 @@ export default function MyDashboardPage() {
           ) : (
             <div className="space-y-3">
               {upcoming.map((d) => {
-                const date = parseLocalDate(d.date);
-                const isToday = isSameDay(date, TODAY);
+                const date = parseCivilDate(d.date);
+                const isToday = getCivilDateKey(d.date) === todayKey;
 
                 return (
                   <div

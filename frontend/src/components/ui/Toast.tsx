@@ -10,11 +10,11 @@ const cfg = {
 
 export default function ToastContainer({ toasts, remove }: { toasts: ToastItem[]; remove: (id: string) => void }) {
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 w-72">
+    <div aria-live="polite" aria-relevant="additions" className="fixed bottom-4 left-4 right-4 z-50 flex flex-col gap-2 sm:bottom-5 sm:left-auto sm:right-5 sm:w-72">
       {toasts.map((t) => (
-        <div key={t.id} className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium shadow-xl animate-in ${cfg[t.type]}`}>
+        <div key={t.id} role={t.type === 'error' ? 'alert' : 'status'} className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm font-medium shadow-xl animate-in ${cfg[t.type]}`}>
           <span className="flex-1">{t.message}</span>
-          <button onClick={() => remove(t.id)} className="opacity-60 hover:opacity-100"><X size={14} /></button>
+          <button type="button" aria-label="Fechar notificação" onClick={() => remove(t.id)} className="rounded-md p-1 opacity-80 hover:opacity-100"><X aria-hidden="true" size={14} /></button>
         </div>
       ))}
     </div>

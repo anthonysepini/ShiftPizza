@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import {
   UserPlus,
   Search,
@@ -19,34 +19,26 @@ import Input from "../../components/ui/Input";
 import Modal from "../../components/ui/Modal";
 import Spinner from "../../components/ui/Spinner";
 import EmptyState from "../../components/ui/EmptyState";
+import RequestError from "../../components/ui/RequestError";
 import ToastContainer from "../../components/ui/Toast";
 import { useToast } from "../../hooks/useToast";
+import {
+  Avatar,
+  DeleteConfirmModal,
+  MarkAbsenceModal,
+} from "../../features/employees/EmployeeDialogs";
+import {
+  getEmployeePhoto,
+  WEEKDAYS,
+} from "../../features/employees/employee-data";
 import { employeesService } from "../../services/employees.service";
 import { schedulesService } from "../../services/schedules.service";
 import type {
   Employee,
   CreateEmployeeDto,
   UpdateEmployeeDto,
-  ScheduleStatus,
 } from "../../types";
 
-const WEEKDAYS = [
-  "Domingo",
-  "Segunda",
-  "Terça",
-  "Quarta",
-  "Quinta",
-  "Sexta",
-  "Sábado",
-];
-
-const NOW = new Date();
-const CURRENT_YEAR = NOW.getFullYear();
-const CURRENT_MONTH = NOW.getMonth() + 1;
-
-const getPhoto = (id: string) => localStorage.getItem(`sp_photo_${id}`);
-const savePhoto = (id: string, base64: string) =>
-  localStorage.setItem(`sp_photo_${id}`, base64);
 const onlyDigits = (value: string) => value.replace(/\D/g, "");
 
 function getApiErrorMessage(
@@ -84,287 +76,13 @@ function getApiErrorMessage(
   return fallback;
 }
 
-// ── Avatar ────────────────────────────────────────────────────
-function Avatar({
-  employee,
-  size = "md",
-  editable = false,
-}: {
-  employee: Employee;
-  size?: "sm" | "md" | "lg";
-  editable?: boolean;
-}) {
-  const [photo, setPhoto] = useState<string | null>(() =>
-    getPhoto(employee.id),
-  );
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const dim = {
-    sm: "h-10 w-10 text-sm",
-    md: "h-12 w-12 text-base",
-    lg: "h-20 w-20 text-3xl",
-  }[size];
-
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      savePhoto(employee.id, base64);
-      setPhoto(base64);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  return (
-    <div className={`relative shrink-0 ${dim}`}>
-      {photo ? (
-        <img
-          src={photo}
-          alt={employee.fullName}
-          className={`${dim} rounded-full border-2 border-orange-500/25 object-cover shadow-[0_10px_25px_rgba(0,0,0,0.18)]`}
-        />
-      ) : (
-        <div
-          className={`${dim} flex items-center justify-center rounded-full border-2 border-orange-500/25 bg-orange-500/12 font-bold text-orange-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]`}
-        >
-          {employee.fullName.charAt(0).toUpperCase()}
-        </div>
-      )}
-
-      {editable && (
-        <>
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            className="absolute inset-0 flex items-center justify-center rounded-full bg-black/55 text-[10px] font-bold uppercase tracking-[0.14em] text-white opacity-0 transition-opacity hover:opacity-100"
-          >
-            foto
-          </button>
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFile}
-          />
-        </>
-      )}
-    </div>
-  );
-}
-
-// ── Marcar falta ──────────────────────────────────────────────
-function MarkAbsenceModal({
-  employee,
-  open,
-  onClose,
-  onSuccess,
-}: {
-  employee: Employee | null;
-  open: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-}) {
-  const { toast } = useToast();
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [note, setNote] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  const handleSave = async () => {
-    if (!employee) return;
-
-    setSaving(true);
-    try {
-      const [y, m] = date.split("-").map(Number);
-      const scheduleDays = await schedulesService.getMonthSchedule(
-        y,
-        m,
-        employee.id,
-      );
-
-      const target = scheduleDays.find(
-        (d) => new Date(d.date).toISOString().split("T")[0] === date,
-      );
-
-      if (!target) {
-        toast(
-          "Este dia não está na escala. Gere a escala do mês primeiro.",
-          "error",
-        );
-        setSaving(false);
-        return;
-      }
-
-      await schedulesService.updateDay(target.id, {
-        status: "ABSENT" as ScheduleStatus,
-        note: note || undefined,
-      });
-
-      toast(`Falta registrada para ${employee.fullName}`, "success");
-      onSuccess();
-      onClose();
-    } catch {
-      toast("Erro ao registrar falta.", "error");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <Modal open={open} onClose={onClose} title="Marcar falta" size="sm">
-      {employee && (
-        <div className="space-y-4">
-          <div className="rounded-[22px] border border-white/10 bg-[#070707]/80 p-4">
-            <div className="flex items-center gap-3">
-              <Avatar employee={employee} size="sm" />
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-slate-200">
-                  {employee.fullName}
-                </p>
-                <p className="mt-1 text-xs text-slate-500">
-                  {employee.position}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-[22px] border border-white/10 bg-[#070707]/80 p-4 sm:p-5">
-            <div className="space-y-4">
-              <Input
-                label="Data da falta"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
-              <Input
-                label="Observação (opcional)"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Ex: atestado médico"
-              />
-            </div>
-          </div>
-
-          <p className="rounded-xl border border-orange-500/15 bg-orange-500/8 px-3 py-2.5 text-xs text-slate-400">
-            ⚠️ A escala do mês selecionado precisa ter sido gerada.
-          </p>
-
-          <div className="flex justify-end gap-2">
-            <Button variant="secondary" onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button
-              variant="danger"
-              onClick={() => void handleSave()}
-              loading={saving}
-            >
-              Registrar falta
-            </Button>
-          </div>
-        </div>
-      )}
-    </Modal>
-  );
-}
-
-// ── Confirmar exclusão ────────────────────────────────────────
-function DeleteConfirmModal({
-  employee,
-  open,
-  onClose,
-  onSuccess,
-}: {
-  employee: Employee | null;
-  open: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-}) {
-  const { toast } = useToast();
-  const [deleting, setDeleting] = useState(false);
-
-  const handleDelete = async () => {
-    if (!employee) return;
-
-    setDeleting(true);
-    try {
-      await employeesService.remove(employee.id);
-      localStorage.removeItem(`sp_photo_${employee.id}`);
-      toast(`${employee.fullName} foi removido do sistema.`, "info");
-      onSuccess();
-      onClose();
-    } catch {
-      toast("Erro ao remover funcionário.", "error");
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  return (
-    <Modal open={open} onClose={onClose} title="Confirmar exclusão" size="sm">
-      {employee && (
-        <div className="space-y-5">
-          <div className="flex items-center gap-3 rounded-[22px] border border-red-500/20 bg-red-500/6 p-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500/15">
-              <Trash2 size={16} className="text-red-400" />
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-slate-200">
-                {employee.fullName}
-              </p>
-              <p className="mt-1 text-xs text-slate-500">{employee.position}</p>
-            </div>
-          </div>
-
-          <div className="space-y-2 rounded-[22px] border border-white/10 bg-[#070707]/80 p-4">
-            <p className="text-sm font-medium text-slate-300">
-              Esta ação é irreversível.
-            </p>
-            <p className="text-xs leading-relaxed text-slate-500">
-              Ao confirmar, serão removidos permanentemente:
-            </p>
-
-            <ul className="ml-1 space-y-1.5 text-xs text-slate-500">
-              <li className="flex items-center gap-2">
-                <span className="text-red-400">✕</span> Credenciais de acesso
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-red-400">✕</span> Todos os dias de escala
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-red-400">✕</span> Regras de escala semanal
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-red-400">✕</span> Histórico de ações
-              </li>
-            </ul>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-1">
-            <Button variant="secondary" onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button
-              variant="danger"
-              onClick={() => void handleDelete()}
-              loading={deleting}
-            >
-              Sim, excluir permanentemente
-            </Button>
-          </div>
-        </div>
-      )}
-    </Modal>
-  );
-}
 
 // ── Página principal ──────────────────────────────────────────
 export default function EmployeesPage() {
   const { toasts, toast, remove } = useToast();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [search, setSearch] = useState("");
   const [modalCreate, setModalCreate] = useState(false);
   const [modalEdit, setModalEdit] = useState<Employee | null>(null);
@@ -381,9 +99,13 @@ export default function EmployeesPage() {
   });
 
   const load = async () => {
+    setLoading(true);
+    setLoadError(false);
     try {
       const data = await employeesService.findAll();
       setEmployees(data);
+    } catch {
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -401,7 +123,7 @@ export default function EmployeesPage() {
 
   const activeCount = employees.filter((e) => e.isActive).length;
   const inactiveCount = employees.length - activeCount;
-  const photoCount = employees.filter((e) => Boolean(getPhoto(e.id))).length;
+  const photoCount = employees.filter((e) => Boolean(getEmployeePhoto(e.id))).length;
 
   const weekdayLoad = WEEKDAYS.map((label, weekday) => ({
     label,
@@ -426,14 +148,11 @@ export default function EmployeesPage() {
     });
 
   const autoGenerateSchedule = async () => {
-    try {
-      await schedulesService.generateMonth({
-        year: CURRENT_YEAR,
-        month: CURRENT_MONTH,
-      });
-    } catch {
-      // silencioso por intenção
-    }
+    const now = new Date();
+    await schedulesService.generateMonth({
+      year: now.getFullYear(),
+      month: now.getMonth() + 1,
+    });
   };
 
   const handleCpfChange = (value: string) => {
@@ -472,12 +191,21 @@ export default function EmployeesPage() {
         cpf: cpfDigits,
       });
 
-      toast("Funcionário cadastrado! Atualizando escala...", "success");
       setModalCreate(false);
       resetForm();
       await load();
-      await autoGenerateSchedule();
-      toast("Escala do mês atualizada com o novo funcionário.", "info");
+      try {
+        await autoGenerateSchedule();
+        toast(
+          "Funcionário cadastrado e escala do mês atualizada.",
+          "success",
+        );
+      } catch {
+        toast(
+          "Funcionário cadastrado, mas não foi possível sincronizar a escala do mês.",
+          "error",
+        );
+      }
     } catch (error) {
       toast(getApiErrorMessage(error), "error");
     } finally {
@@ -501,11 +229,17 @@ export default function EmployeesPage() {
 
     try {
       await employeesService.update(modalEdit.id, dto);
-      toast("Dados atualizados! Atualizando escala...", "success");
       setModalEdit(null);
       await load();
-      await autoGenerateSchedule();
-      toast("Escala do mês sincronizada.", "info");
+      try {
+        await autoGenerateSchedule();
+        toast("Dados atualizados e escala do mês sincronizada.", "success");
+      } catch {
+        toast(
+          "Dados atualizados, mas não foi possível sincronizar a escala do mês.",
+          "error",
+        );
+      }
     } catch (error) {
       toast(getApiErrorMessage(error, "Erro ao atualizar."), "error");
     } finally {
@@ -535,6 +269,29 @@ export default function EmployeesPage() {
     }));
   };
 
+  if (loading) {
+    return (
+      <div className="animate-in w-full space-y-6">
+        <PageHeader title="Funcionários" subtitle="Gerencie a equipe e as escalas semanais" />
+        <div className="flex min-h-64 items-center justify-center">
+          <Spinner size="lg" />
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="animate-in w-full space-y-6">
+        <PageHeader title="Funcionários" subtitle="Gerencie a equipe e as escalas semanais" />
+        <RequestError
+          title="Não foi possível carregar os funcionários"
+          onRetry={() => void load()}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="animate-in mx-auto flex min-h-[calc(100vh-8rem)] w-full max-w-385 flex-col space-y-6 2xl:max-w-420]">
       <PageHeader
@@ -559,11 +316,11 @@ export default function EmployeesPage() {
           <div className="relative flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                ㅤEquipe
+                Equipe
               </p>
-              <h3 className="mt-1.5 text-sm font-medium text-slate-300">
-                ㅤTotal cadastrado
-              </h3>
+              <h2 className="mt-1.5 text-sm font-medium text-slate-300">
+                Total cadastrado
+              </h2>
             </div>
 
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10">
@@ -573,10 +330,10 @@ export default function EmployeesPage() {
 
           <div className="relative mt-4">
             <p className="text-[2.15rem] font-black tracking-tight text-white">
-              ㅤ{employees.length}
+              {employees.length}
             </p>
             <p className="mt-1.5 text-sm leading-6 text-slate-500">
-              ㅤFuncionários registrados no sistema
+              Funcionários registrados no sistema
             </p>
           </div>
         </div>
@@ -588,11 +345,11 @@ export default function EmployeesPage() {
           <div className="relative flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                ㅤStatus
+                Status
               </p>
-              <h3 className="mt-1.5 text-sm font-medium text-slate-300">
-                ㅤEquipe ativa
-              </h3>
+              <h2 className="mt-1.5 text-sm font-medium text-slate-300">
+                Equipe ativa
+              </h2>
             </div>
 
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10">
@@ -602,12 +359,12 @@ export default function EmployeesPage() {
 
           <div className="relative mt-4">
             <p className="text-[2.15rem] font-black tracking-tight text-white">
-              ㅤ{activeCount}
+              {activeCount}
             </p>
             <p className="mt-1.5 text-sm leading-6 text-slate-500">
               {inactiveCount > 0
-                ? `${inactiveCount} ㅤinativo${inactiveCount > 1 ? "s" : ""}`
-                : "ㅤNenhum funcionário inativo"}
+                ? `${inactiveCount} inativo${inactiveCount > 1 ? "s" : ""}`
+                : "Nenhum funcionário inativo"}
             </p>
           </div>
         </div>
@@ -619,11 +376,11 @@ export default function EmployeesPage() {
           <div className="relative flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                ㅤPerfil
+                Perfil
               </p>
-              <h3 className="mt-1.5 text-sm font-medium text-slate-300">
-                ㅤFotos cadastradas
-              </h3>
+              <h2 className="mt-1.5 text-sm font-medium text-slate-300">
+                Fotos cadastradas
+              </h2>
             </div>
 
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10">
@@ -633,13 +390,12 @@ export default function EmployeesPage() {
 
           <div className="relative mt-4">
             <p className="text-[2.15rem] font-black tracking-tight text-white">
-              ㅤ{photoCount}
+              {photoCount}
             </p>
             <p className="mt-1.5 text-sm leading-6 text-slate-500">
-              ㅤ
               {employees.length > 0
                 ? `${employees.length - photoCount} sem foto`
-                : "ㅤNenhum cadastro ainda"}
+                : "Nenhum cadastro ainda"}
             </p>
           </div>
         </div>
@@ -654,7 +410,7 @@ export default function EmployeesPage() {
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                  ㅤGestão da equipe
+                  Gestão da equipe
                 </p>
                 <h2 className="mt-2 text-xl font-semibold tracking-tight text-white">
                   Funcionários cadastrados
@@ -696,11 +452,7 @@ export default function EmployeesPage() {
           </div>
 
           <div className="relative flex-1 px-5 py-5 sm:px-6">
-            {loading ? (
-              <div className="flex h-full min-h-65 items-center justify-center">
-                <Spinner size="lg" />
-              </div>
-            ) : filtered.length === 0 ? (
+            {filtered.length === 0 ? (
               <div className="flex h-full min-h-80 items-center justify-center rounded-3xl border border-white/8 bg-[#070707]/70 px-6 py-10">
                 <EmptyState
                   icon="👥"
@@ -722,7 +474,12 @@ export default function EmployeesPage() {
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
                       <div className="flex min-w-0 flex-1 items-start gap-4">
-                        <Avatar employee={emp} size="md" editable />
+                        <Avatar
+                          employee={emp}
+                          size="md"
+                          editable
+                          onPhotoError={(message) => toast(message, "error")}
+                        />
 
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
@@ -771,24 +528,32 @@ export default function EmployeesPage() {
 
                       <div className="flex shrink-0 items-center gap-1 self-end lg:self-center">
                         <button
+                          type="button"
                           onClick={() => setModalAbsence(emp)}
                           title="Marcar falta"
+                          aria-label={`Marcar falta de ${emp.fullName}`}
                           className="rounded-xl p-2.5 text-slate-500 transition-all hover:bg-red-500/10 hover:text-red-400"
                         >
                           <AlertTriangle size={15} />
                         </button>
 
                         <button
+                          type="button"
                           onClick={() => setModalEdit(emp)}
                           title="Editar"
+                          aria-label={`Editar ${emp.fullName}`}
                           className="rounded-xl p-2.5 text-slate-500 transition-all hover:bg-white/6 hover:text-slate-200"
                         >
                           <Edit2 size={15} />
                         </button>
 
                         <button
+                          type="button"
                           onClick={() => void handleToggle(emp)}
                           title={emp.isActive ? "Desativar" : "Ativar"}
+                          role="switch"
+                          aria-checked={emp.isActive}
+                          aria-label={`${emp.isActive ? "Desativar" : "Ativar"} ${emp.fullName}`}
                           className={`rounded-xl p-2.5 transition-all ${
                             emp.isActive
                               ? "text-orange-300 hover:bg-orange-500/10"
@@ -803,8 +568,10 @@ export default function EmployeesPage() {
                         </button>
 
                         <button
+                          type="button"
                           onClick={() => setModalDelete(emp)}
                           title="Excluir funcionário"
+                          aria-label={`Excluir ${emp.fullName}`}
                           className="rounded-xl p-2.5 text-slate-600 transition-all hover:bg-red-500/10 hover:text-red-400"
                         >
                           <Trash2 size={15} />
@@ -830,9 +597,9 @@ export default function EmployeesPage() {
                 </div>
 
                 <div className="min-w-0">
-                  <h3 className="text-base font-semibold tracking-tight text-white">
+                  <h2 className="text-base font-semibold tracking-tight text-white">
                     Resumo da equipe
-                  </h3>
+                  </h2>
                   <p className="mt-1 text-sm text-slate-500">
                     Estado atual dos cadastros e da operação
                   </p>
@@ -870,16 +637,14 @@ export default function EmployeesPage() {
 
               <div className="mt-5 rounded-[22px] border border-orange-500/15 bg-orange-500/8 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-300">
-                  ㅤDestaque semanal
+                  Destaque semanal
                 </p>
                 <p className="mt-2 text-sm text-slate-200">
-                  ㅤ
                   {strongestDay.count > 0
                     ? `${strongestDay.label} é o dia com mais funcionários trabalhando.`
                     : "Ainda não há dias de trabalho configurados na equipe."}
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
-                  ㅤㅤ
                   {strongestDay.count > 0
                     ? `${strongestDay.count} funcionário${strongestDay.count > 1 ? "s" : ""} escalado${strongestDay.count > 1 ? "s" : ""}`
                     : "Configure as regras semanais para visualizar a distribuição."}
@@ -899,9 +664,9 @@ export default function EmployeesPage() {
                 </div>
 
                 <div className="min-w-0">
-                  <h3 className="text-base font-semibold tracking-tight text-white">
+                  <h2 className="text-base font-semibold tracking-tight text-white">
                     Cobertura semanal
-                  </h3>
+                  </h2>
                   <p className="mt-1 text-sm text-slate-500">
                     Distribuição dos dias de trabalho da equipe
                   </p>
@@ -1035,6 +800,7 @@ export default function EmployeesPage() {
                 <button
                   key={d}
                   type="button"
+                  aria-pressed={form.workDays.includes(i)}
                   onClick={() => toggleDay(i)}
                   className={`rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
                     form.workDays.includes(i)
@@ -1140,6 +906,7 @@ export default function EmployeesPage() {
                     <button
                       key={d}
                       type="button"
+                      aria-pressed={active}
                       onClick={() =>
                         setModalEdit((emp) =>
                           emp
@@ -1197,6 +964,7 @@ export default function EmployeesPage() {
         open={!!modalAbsence}
         onClose={() => setModalAbsence(null)}
         onSuccess={() => void load()}
+        toast={toast}
       />
 
       <DeleteConfirmModal
@@ -1204,6 +972,7 @@ export default function EmployeesPage() {
         open={!!modalDelete}
         onClose={() => setModalDelete(null)}
         onSuccess={() => void load()}
+        toast={toast}
       />
 
       <ToastContainer toasts={toasts} remove={remove} />

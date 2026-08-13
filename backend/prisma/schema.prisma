@@ -87,19 +87,23 @@ model ScheduleDay {
   changedBy User?    @relation("ChangedBy", fields: [changedByUserId], references: [id])
 
   @@unique([employeeId, date])
+  @@index([date, employeeId])
+  @@index([changedByUserId])
   @@map("schedule_days")
 }
 
 model AuditLog {
   id          String   @id @default(cuid())
-  actorUserId String
+  actorUserId String?
   action      String
   entity      String
   entityId    String
   metadata    Json?
   createdAt   DateTime @default(now())
 
-  actor User @relation(fields: [actorUserId], references: [id])
+  actor User? @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
 
+  @@index([actorUserId])
+  @@index([createdAt(sort: Desc)])
   @@map("audit_logs")
 }

@@ -14,11 +14,13 @@ coverage/
 !.env.example
 frontend/.env
 frontend/.env.*
+!frontend/.env.example
 frontend/.env.local
 frontend/.env.development.local
 frontend/.env.production.local
 backend/.env
 backend/.env.*
+!backend/.env.example
 backend/.env.local
 logs/
 *.log

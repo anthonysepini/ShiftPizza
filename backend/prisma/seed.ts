@@ -95,9 +95,12 @@ async function main() {
   console.log('  Maria  → CPF: 000.000.000-03 | senha: maria123');
 }
 
-main()
-  .catch(console.error)
+void main()
+  .catch((error: unknown) => {
+    console.error(error);
+    process.exitCode = 1;
+  })
   .finally(async () => {
-    await pool.end();
     await prisma.$disconnect();
+    await pool.end();
   });

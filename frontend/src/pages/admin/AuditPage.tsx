@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useState } from "react";
 import PageHeader from "../../components/layout/PageHeader";
 import Card from "../../components/ui/Card";
 import Spinner from "../../components/ui/Spinner";
 import EmptyState from "../../components/ui/EmptyState";
+import RequestError from "../../components/ui/RequestError";
 import { auditService } from "../../services/audit.service";
 import type { AuditLog } from "../../types";
 
@@ -83,6 +84,47 @@ const ACTION_CONFIG: Record<string, ActionConfig> = {
     iconClass: "border-emerald-500/15 bg-emerald-500/10 text-emerald-200",
     description: () => "Novo funcionário adicionado ao sistema",
   },
+  UPDATE_EMPLOYEE: {
+    label: "Funcionário atualizado",
+    icon: "✏️",
+    color: "text-amber-300",
+    pillClass: "border-amber-500/20 bg-amber-500/10 text-amber-200",
+    iconClass: "border-amber-500/15 bg-amber-500/10 text-amber-200",
+    description: (log) => {
+      const metadata = log.metadata as { changedFields?: string[] } | null;
+      return metadata?.changedFields?.length
+        ? `Campos atualizados: ${metadata.changedFields.join(", ")}`
+        : "Dados do funcionário atualizados";
+    },
+  },
+  TOGGLE_EMPLOYEE_ACTIVE: {
+    label: "Status do funcionário alterado",
+    icon: "🔄",
+    color: "text-orange-300",
+    pillClass: "border-orange-500/20 bg-orange-500/10 text-orange-200",
+    iconClass: "border-orange-500/15 bg-orange-500/10 text-orange-200",
+    description: (log) => {
+      const metadata = log.metadata as { isActive?: boolean } | null;
+      return metadata?.isActive === true
+        ? "Funcionário ativado"
+        : metadata?.isActive === false
+          ? "Funcionário desativado"
+          : "Status de acesso do funcionário alterado";
+    },
+  },
+  DELETE_EMPLOYEE: {
+    label: "Funcionário removido",
+    icon: "🗑️",
+    color: "text-red-300",
+    pillClass: "border-red-500/20 bg-red-500/10 text-red-200",
+    iconClass: "border-red-500/15 bg-red-500/10 text-red-200",
+    description: (log) => {
+      const metadata = log.metadata as { fullName?: string } | null;
+      return metadata?.fullName
+        ? `${metadata.fullName} foi removido do sistema`
+        : "Funcionário removido do sistema";
+    },
+  },
 };
 
 const FALLBACK_ACTION_CONFIG: ActionConfig = {
@@ -132,13 +174,23 @@ function isToday(value: string) {
 export default function AuditPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      setLogs(await auditService.findAll(100));
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    auditService
-      .findAll(100)
-      .then(setLogs)
-      .finally(() => setLoading(false));
-  }, []);
+    void load();
+  }, [load]);
 
   const metrics = useMemo(() => {
     const total = logs.length;
@@ -179,6 +231,11 @@ export default function AuditPage() {
               <Spinner size="lg" />
             </div>
           </Card>
+        ) : error ? (
+          <RequestError
+            title="Não foi possível carregar o histórico"
+            onRetry={() => void load()}
+          />
         ) : logs.length === 0 ? (
           <Card className="relative overflow-hidden border border-white/10 bg-[#000000] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_22px_70px_rgba(0,0,0,0.45)]">
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
@@ -197,12 +254,12 @@ export default function AuditPage() {
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
                 <div className="p-4 sm:p-5">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                    ㅤTotal de registros
+                    Total de registros
                   </p>
                   <div className="mt-3 flex items-end justify-between gap-3">
-                    <h3 className="text-3xl font-semibold tracking-tight text-white">
-                      ㅤ{metrics.total}
-                    </h3>
+                    <p className="text-3xl font-semibold tracking-tight text-white">
+                      {metrics.total}
+                    </p>
                     <span className="rounded-full border border-orange-500/20 bg-orange-500/10 px-2.5 py-1 text-[11px] font-medium text-orange-200">
                       Últimos 100
                     </span>
@@ -214,12 +271,12 @@ export default function AuditPage() {
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
                 <div className="p-4 sm:p-5">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                    ㅤAções de hoje
+                    Ações de hoje
                   </p>
                   <div className="mt-3 flex items-end justify-between gap-3">
-                    <h3 className="text-3xl font-semibold tracking-tight text-white">
-                      ㅤ{metrics.today}
-                    </h3>
+                    <p className="text-3xl font-semibold tracking-tight text-white">
+                      {metrics.today}
+                    </p>
                     <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium text-slate-300">
                       Tempo real
                     </span>
@@ -231,12 +288,12 @@ export default function AuditPage() {
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
                 <div className="p-4 sm:p-5">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                    ㅤEscalas geradas
+                    Escalas geradas
                   </p>
                   <div className="mt-3 flex items-end justify-between gap-3">
-                    <h3 className="text-3xl font-semibold tracking-tight text-white">
-                      ㅤ{metrics.generatedMonths}
-                    </h3>
+                    <p className="text-3xl font-semibold tracking-tight text-white">
+                      {metrics.generatedMonths}
+                    </p>
                     <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium text-slate-300">
                       Histórico
                     </span>
@@ -304,7 +361,8 @@ export default function AuditPage() {
                                   </span>
 
                                   <p className="truncate text-sm font-medium text-slate-200">
-                                    {log.actor?.employee?.fullName ?? "Sistema"}
+                                    {log.actor?.employee?.fullName ??
+                                      "Usuário removido"}
                                   </p>
                                 </div>
 
@@ -337,14 +395,13 @@ export default function AuditPage() {
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
                   <div className="p-4 sm:p-5">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                      ㅤÚltima movimentação
+                      Última movimentação
                     </p>
 
                     {metrics.latest ? (
                       <div className="mt-3 space-y-3">
                         <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
                           <p className="text-sm font-medium text-white">
-                            ㅤ
                             {
                               (
                                 ACTION_CONFIG[metrics.latest.action] ??
@@ -353,7 +410,7 @@ export default function AuditPage() {
                             }
                           </p>
                           <p className="mt-1 text-sm text-slate-400">
-                            ㅤ{formatFullDateTime(metrics.latest.createdAt)}
+                            {formatFullDateTime(metrics.latest.createdAt)}
                           </p>
                           <p className="mt-3 text-xs leading-relaxed text-slate-500">
                             {(
@@ -365,7 +422,7 @@ export default function AuditPage() {
                       </div>
                     ) : (
                       <p className="mt-3 text-sm text-slate-400">
-                        ㅤNenhuma movimentação recente.
+                        Nenhuma movimentação recente.
                       </p>
                     )}
                   </div>
@@ -375,7 +432,7 @@ export default function AuditPage() {
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
                   <div className="p-4 sm:p-5">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                      ㅤTipos de ação
+                      Tipos de ação
                     </p>
 
                     <div className="mt-4 space-y-3">

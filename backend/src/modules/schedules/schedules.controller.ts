@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -23,6 +22,8 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { SchedulesService } from './schedules.service';
 import { GenerateMonthDto } from './dto/generate-month.dto';
 import { UpdateDayDto } from './dto/update-day.dto';
+import { ParseBoundedIntPipe } from '../../common/pipes/parse-bounded-int.pipe';
+import { AuthenticatedUser } from '../../common/types/authenticated-user';
 
 @ApiTags('schedules')
 @ApiBearerAuth()
@@ -36,7 +37,7 @@ export class SchedulesController {
   @ApiOperation({ summary: 'Gerar escala do mês (Admin)' })
   generateMonth(
     @Body() dto: GenerateMonthDto,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.schedulesService.generateMonth(dto, user.id);
   }
@@ -48,8 +49,8 @@ export class SchedulesController {
   @ApiQuery({ name: 'month', type: Number })
   @ApiQuery({ name: 'employeeId', required: false })
   getMonthSchedule(
-    @Query('year', ParseIntPipe) year: number,
-    @Query('month', ParseIntPipe) month: number,
+    @Query('year', new ParseBoundedIntPipe(2020, 2100, 'year')) year: number,
+    @Query('month', new ParseBoundedIntPipe(1, 12, 'month')) month: number,
     @Query('employeeId') employeeId?: string,
   ) {
     return this.schedulesService.getMonthSchedule(year, month, employeeId);
@@ -61,7 +62,7 @@ export class SchedulesController {
   updateDay(
     @Param('id') id: string,
     @Body() dto: UpdateDayDto,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.schedulesService.updateDay(id, dto, user.id);
   }
@@ -69,9 +70,9 @@ export class SchedulesController {
   @Get('my/:year/:month')
   @ApiOperation({ summary: 'Ver minha escala do mês (Funcionário)' })
   getMySchedule(
-    @Param('year', ParseIntPipe) year: number,
-    @Param('month', ParseIntPipe) month: number,
-    @CurrentUser() user: { employeeId: string },
+    @Param('year', new ParseBoundedIntPipe(2020, 2100, 'year')) year: number,
+    @Param('month', new ParseBoundedIntPipe(1, 12, 'month')) month: number,
+    @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.schedulesService.getEmployeeSchedule(
       user.employeeId,
@@ -80,4 +81,3 @@ export class SchedulesController {
     );
   }
 }
-//```

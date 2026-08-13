@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+﻿import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Users,
@@ -13,19 +13,15 @@ import PageHeader from "../../components/layout/PageHeader";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Spinner from "../../components/ui/Spinner";
+import RequestError from "../../components/ui/RequestError";
 import { employeesService } from "../../services/employees.service";
 import { schedulesService } from "../../services/schedules.service";
 import { auditService } from "../../services/audit.service";
 import type { Employee, AuditLog, ScheduleDay } from "../../types";
-
-// Definido fora do componente — não muda entre renders
-const NOW = new Date();
-const CURRENT_YEAR = NOW.getFullYear();
-const CURRENT_MONTH = NOW.getMonth() + 1;
-const MONTH_NAME = NOW.toLocaleDateString("pt-BR", {
-  month: "long",
-  year: "numeric",
-});
+import {
+  getCivilDateKey,
+  getLocalDateInputValue,
+} from "../../utils/civil-date";
 
 const ACTION_LABEL: Record<string, { label: string; icon: string }> = {
   GENERATE_MONTH: { label: "Escala gerada", icon: "📅" },
@@ -35,27 +31,40 @@ const ACTION_LABEL: Record<string, { label: string; icon: string }> = {
 
 export default function AdminDashboardPage() {
   const navigate = useNavigate();
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const monthName = now.toLocaleDateString("pt-BR", {
+    month: "long",
+    year: "numeric",
+  });
+  const todayKey = getLocalDateInputValue(now);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [days, setDays] = useState<ScheduleDay[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [genMsg, setGenMsg] = useState("");
 
   const loadData = useCallback(async () => {
+    setLoading(true);
+    setError(false);
     try {
       const [e, l, d] = await Promise.all([
         employeesService.findAll(),
         auditService.findAll(6),
-        schedulesService.getMonthSchedule(CURRENT_YEAR, CURRENT_MONTH),
+        schedulesService.getMonthSchedule(currentYear, currentMonth),
       ]);
       setEmployees(e);
       setLogs(l);
       setDays(d);
+    } catch {
+      setError(true);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentYear, currentMonth]);
 
   useEffect(() => {
     void loadData();
@@ -66,14 +75,14 @@ export default function AdminDashboardPage() {
     setGenMsg("");
     try {
       const r = await schedulesService.generateMonth({
-        year: CURRENT_YEAR,
-        month: CURRENT_MONTH,
+        year: currentYear,
+        month: currentMonth,
       });
       setGenMsg(
-        `✅ ${r.created} dias criados para ${NOW.toLocaleDateString("pt-BR", { month: "long" })}`,
+        `✅ ${r.created} dias criados para ${now.toLocaleDateString("pt-BR", { month: "long" })}`,
       );
       const [d, l] = await Promise.all([
-        schedulesService.getMonthSchedule(CURRENT_YEAR, CURRENT_MONTH),
+        schedulesService.getMonthSchedule(currentYear, currentMonth),
         auditService.findAll(6),
       ]);
       setDays(d);
@@ -88,14 +97,10 @@ export default function AdminDashboardPage() {
   const active = employees.filter((e) => e.isActive).length;
   const inactive = employees.filter((e) => !e.isActive).length;
   const absents = days.filter((d) => d.status === "ABSENT").length;
-  const today = days.filter((d) => {
-    const dt = new Date(d.date);
-    return (
-      dt.getUTCDate() === NOW.getDate() &&
-      dt.getUTCMonth() === NOW.getMonth() &&
-      d.status === "SCHEDULED"
-    );
-  }).length;
+  const today = days.filter(
+    (d) =>
+      getCivilDateKey(d.date) === todayKey && d.status === "SCHEDULED",
+  ).length;
 
   const activePercent =
     employees.length > 0 ? (active / employees.length) * 100 : 0;
@@ -113,11 +118,24 @@ export default function AdminDashboardPage() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="animate-in w-full space-y-6">
+        <PageHeader title="Dashboard" subtitle={`Visão geral — ${monthName}`} />
+        <RequestError
+          title="Não foi possível carregar o dashboard"
+          description="Os indicadores não foram substituídos por valores vazios. Tente carregar os dados novamente."
+          onRetry={() => void loadData()}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="animate-in w-full space-y-8">
       <PageHeader
         title="Dashboard"
-        subtitle={`Visão geral — ${MONTH_NAME}`}
+        subtitle={`Visão geral — ${monthName}`}
         action={
           <Button
             onClick={() => void handleGenerate()}
@@ -144,11 +162,11 @@ export default function AdminDashboardPage() {
           <div className="relative flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                ㅤEquipe
+                Equipe
               </p>
-              <h3 className="mt-2 text-sm font-medium text-slate-300">
-                ㅤFuncionários ativos
-              </h3>
+              <h2 className="mt-2 text-sm font-medium text-slate-300">
+                Funcionários ativos
+              </h2>
             </div>
 
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10">
@@ -158,12 +176,12 @@ export default function AdminDashboardPage() {
 
           <div className="relative mt-6">
             <p className="text-4xl font-black tracking-tight text-white">
-              ㅤ{active}
+              {active}
             </p>
             <p className="mt-2 text-sm leading-6 text-slate-500">
               {inactive > 0
                 ? `${inactive} inativo${inactive > 1 ? "s" : ""} • ${employees.length} total`
-                : `ㅤTodos ativos • ${employees.length} total`}
+                : `Todos ativos • ${employees.length} total`}
             </p>
           </div>
 
@@ -184,11 +202,11 @@ export default function AdminDashboardPage() {
           <div className="relative flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                ㅤOcorrências
+                Ocorrências
               </p>
-              <h3 className="mt-2 text-sm font-medium text-slate-300">
-                ㅤFaltas no mês
-              </h3>
+              <h2 className="mt-2 text-sm font-medium text-slate-300">
+                Faltas no mês
+              </h2>
             </div>
 
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10">
@@ -198,10 +216,10 @@ export default function AdminDashboardPage() {
 
           <div className="relative mt-6">
             <p className="text-4xl font-black tracking-tight text-white">
-              ㅤ{absents}
+              {absents}
             </p>
             <p className="mt-2 text-sm capitalize leading-6 text-slate-500">
-              ㅤ{MONTH_NAME}
+              {monthName}
             </p>
           </div>
 
@@ -222,11 +240,11 @@ export default function AdminDashboardPage() {
           <div className="relative flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                ㅤHoje
+                Hoje
               </p>
-              <h3 className="mt-2 text-sm font-medium text-slate-300">
-                ㅤTrabalhando hoje
-              </h3>
+              <h2 className="mt-2 text-sm font-medium text-slate-300">
+                Trabalhando hoje
+              </h2>
             </div>
 
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-orange-500/20 bg-orange-500/10">
@@ -236,10 +254,10 @@ export default function AdminDashboardPage() {
 
           <div className="relative mt-6">
             <p className="text-4xl font-black tracking-tight text-white">
-              ㅤ{today}
+              {today}
             </p>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              ㅤTurnos agendados para o dia
+              Turnos agendados para o dia
             </p>
           </div>
 
@@ -264,9 +282,9 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="min-w-0">
-                  <h3 className="text-base font-semibold tracking-tight text-white">
+                  <h2 className="text-base font-semibold tracking-tight text-white">
                     Atividade recente
-                  </h3>
+                  </h2>
                   <p className="mt-1 text-sm text-slate-500">
                     Últimas ações registradas no sistema
                   </p>
@@ -340,9 +358,9 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="min-w-0">
-                <h3 className="text-base font-semibold tracking-tight text-white">
+                <h2 className="text-base font-semibold tracking-tight text-white">
                   Acesso rápido
-                </h3>
+                </h2>
                 <p className="mt-1 text-sm text-slate-500">
                   Navegação direta para as áreas mais usadas
                 </p>

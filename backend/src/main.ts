@@ -1,40 +1,24 @@
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { configureApp } from './configure-app';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  configureApp(app);
 
-  // Permite requisições do frontend
-  app.enableCors();
-
-  // Valida automaticamente todos os campos recebidos na API
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
-
-  // Documentação automática da API
-  const config = new DocumentBuilder()
-    .setTitle('ShiftPizza API')
-    .setDescription('API de gestão de escalas para pequenas equipes')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
-
-  const port = process.env.PORT ?? 3000;
+  const configService = app.get(ConfigService);
+  const port = configService.getOrThrow<number>('PORT');
   await app.listen(port);
 
-  console.log(`\n🍕 ShiftPizza API rodando em: http://localhost:${port}`);
-  console.log(`📖 Swagger (docs): http://localhost:${port}/api\n`);
+  console.log(`\nShiftPizza API: http://localhost:${port}`);
+  if (configService.get<string>('NODE_ENV') !== 'production') {
+    console.log(`Swagger: http://localhost:${port}/api`);
+  }
+  console.log();
 }
-void bootstrap().catch((error) => {
+
+void bootstrap().catch((error: unknown) => {
   console.error(error);
   process.exit(1);
 });

@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ScheduleStatus } from '@prisma/client';
 
@@ -10,5 +10,6 @@ export class UpdateDayDto {
   @ApiPropertyOptional({ example: 'Falta justificada por atestado' })
   @IsOptional()
   @IsString()
+  @MaxLength(500)
   note?: string;
 }

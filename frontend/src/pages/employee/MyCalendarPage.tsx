@@ -1,19 +1,27 @@
-import { useEffect, useMemo, useReducer, useState } from "react";
+﻿import { useEffect, useMemo, useReducer, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import PageHeader from "../../components/layout/PageHeader";
 import Spinner from "../../components/ui/Spinner";
 import EmptyState from "../../components/ui/EmptyState";
+import RequestError from "../../components/ui/RequestError";
 import { schedulesService } from "../../services/schedules.service";
+import {
+  getScheduleStatusPresentation,
+  SCHEDULE_STATUS_VALUES,
+} from "../../features/schedules/status";
+import {
+  getCivilDateKey,
+  getLocalDateInputValue,
+  parseCivilDate,
+} from "../../utils/civil-date";
 import type { ScheduleDay } from "../../types";
 
 const WEEKDAYS_SHORT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-const TODAY = new Date();
-TODAY.setHours(0, 0, 0, 0);
-
 type State = {
   loading: boolean;
   days: ScheduleDay[];
+  error: boolean;
 };
 
 type Action =
@@ -21,174 +29,29 @@ type Action =
   | { type: "success"; payload: ScheduleDay[] }
   | { type: "error" };
 
-type DisplayStatusKey =
-  | "PRESENT"
-  | "SCHEDULED"
-  | "ABSENT"
-  | "EXTRA"
-  | "DAY_OFF";
-
-type DisplayStatus = {
-  key: DisplayStatusKey;
-  label: string;
-  shortLabel: string;
-  dotClass: string;
-  badgeClass: string;
-  chipClass: string;
-};
-
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "loading":
-      return { ...state, loading: true };
+      return { ...state, loading: true, error: false };
     case "success":
-      return { loading: false, days: action.payload };
+      return { loading: false, days: action.payload, error: false };
     case "error":
-      return { loading: false, days: [] };
+      return { loading: false, days: [], error: true };
     default:
       return state;
   }
 }
 
-function parseLocalDate(value: string) {
-  const normalized = value.split("T")[0];
-  const [year, month, day] = normalized.split("-").map(Number);
-
-  if (Number.isFinite(year) && Number.isFinite(month) && Number.isFinite(day)) {
-    return new Date(year, month - 1, day);
-  }
-
-  const fallback = new Date(value);
-  fallback.setHours(0, 0, 0, 0);
-  return fallback;
-}
-
-function getDateKey(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function isSameDay(a: Date, b: Date) {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-}
-
-function normalizeText(value?: string | null) {
-  return (value ?? "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-function hasVacationSignal(day: ScheduleDay) {
-  const rawStatus = String(day.status).toUpperCase();
-  const note = normalizeText(day.note);
-
-  return (
-    rawStatus.includes("VACATION") ||
-    rawStatus.includes("VACATIONS") ||
-    rawStatus.includes("VACACAO") ||
-    rawStatus.includes("FERIAS") ||
-    note.includes("ferias") ||
-    note.includes("vacation")
-  );
-}
-
-function getDisplayStatus(day: ScheduleDay): DisplayStatus {
-  const dayDate = parseLocalDate(day.date);
-  const isPast = dayDate < TODAY;
-  const rawStatus = String(day.status).toUpperCase();
-
-  if (
-    rawStatus === "ABSENT" ||
-    rawStatus === "REMOVED_SHIFT" ||
-    hasVacationSignal(day)
-  ) {
-    return {
-      key: "ABSENT",
-      label: "Ausente",
-      shortLabel: "Aus.",
-      dotClass: "bg-red-400",
-      badgeClass: "border-red-500/20 bg-red-500/10 text-red-300",
-      chipClass: "border-red-500/15 bg-red-500/8 text-red-300",
-    };
-  }
-
-  if (rawStatus === "DAY_OFF") {
-    return {
-      key: "DAY_OFF",
-      label: "Folga",
-      shortLabel: "Folga",
-      dotClass: "bg-zinc-400",
-      badgeClass: "border-white/10 bg-white/[0.04] text-zinc-300",
-      chipClass: "border-white/10 bg-white/[0.03] text-zinc-300",
-    };
-  }
-
-  if (rawStatus === "EXTRA_SHIFT") {
-    return {
-      key: "EXTRA",
-      label: "Extra",
-      shortLabel: "Extra",
-      dotClass: "bg-amber-300",
-      badgeClass: "border-amber-500/20 bg-amber-500/10 text-amber-300",
-      chipClass: "border-amber-500/15 bg-amber-500/8 text-amber-300",
-    };
-  }
-
-  if (isPast && rawStatus === "SCHEDULED") {
-    return {
-      key: "PRESENT",
-      label: "Presente",
-      shortLabel: "Pres.",
-      dotClass: "bg-emerald-400",
-      badgeClass: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300",
-      chipClass: "border-emerald-500/15 bg-emerald-500/8 text-emerald-300",
-    };
-  }
-
-  return {
-    key: "SCHEDULED",
-    label: "Escalado",
-    shortLabel: "Ag.",
-    dotClass: "bg-orange-400",
-    badgeClass: "border-orange-500/20 bg-orange-500/10 text-orange-300",
-    chipClass: "border-orange-500/15 bg-orange-500/8 text-orange-300",
-  };
-}
-
-function getDefaultNote(day: ScheduleDay, display: DisplayStatus) {
-  if (day.note?.trim()) {
-    return day.note.trim();
-  }
-
-  switch (display.key) {
-    case "PRESENT":
-      return "Turno concluído com presença registrada.";
-    case "ABSENT":
-      return "Registro de ausência, remoção ou férias neste dia.";
-    case "EXTRA":
-      return "Turno extra registrado na sua escala.";
-    case "DAY_OFF":
-      return "Dia livre sem turno programado.";
-    case "SCHEDULED":
-    default:
-      return "Turno programado na sua escala atual.";
-  }
-}
-
 export default function MyCalendarPage() {
-  const [year, setYear] = useState(TODAY.getFullYear());
-  const [month, setMonth] = useState(TODAY.getMonth() + 1);
-  const [{ loading, days }, dispatch] = useReducer(reducer, {
+  const [year, setYear] = useState(() => new Date().getFullYear());
+  const [month, setMonth] = useState(() => new Date().getMonth() + 1);
+  const todayKey = getLocalDateInputValue();
+  const [{ loading, days, error }, dispatch] = useReducer(reducer, {
     loading: true,
     days: [],
+    error: false,
   });
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -211,7 +74,7 @@ export default function MyCalendarPage() {
     return () => {
       cancelled = true;
     };
-  }, [year, month]);
+  }, [year, month, reloadKey]);
 
   const prevMonth = () => {
     if (month === 1) {
@@ -241,71 +104,62 @@ export default function MyCalendarPage() {
   });
 
   const sortedDays = useMemo(() => {
-    return [...days].sort(
-      (a, b) =>
-        parseLocalDate(a.date).getTime() - parseLocalDate(b.date).getTime(),
+    return [...days].sort((a, b) =>
+      getCivilDateKey(a.date).localeCompare(getCivilDateKey(b.date)),
     );
   }, [days]);
 
   const dayMap = useMemo(() => {
     return new Map(
-      sortedDays.map((day) => [getDateKey(parseLocalDate(day.date)), day]),
+      sortedDays.map((day) => [getCivilDateKey(day.date), day]),
     );
   }, [sortedDays]);
 
   const summary = useMemo(() => {
     return sortedDays.reduce(
       (acc, day) => {
-        const display = getDisplayStatus(day);
-        const date = parseLocalDate(day.date);
-
-        if (display.key === "PRESENT") {
-          acc.present += 1;
+        if (day.status === "SCHEDULED") {
+          acc.scheduled += 1;
         }
 
-        if (display.key === "ABSENT") {
+        if (day.status === "ABSENT") {
           acc.absent += 1;
         }
 
-        if (display.key === "EXTRA") {
-          acc.extra += 1;
-        }
-
         if (
-          date >= TODAY &&
-          (display.key === "SCHEDULED" || display.key === "EXTRA")
+          getCivilDateKey(day.date) >= todayKey &&
+          (day.status === "SCHEDULED" || day.status === "EXTRA_SHIFT")
         ) {
           acc.upcoming += 1;
         }
 
         return acc;
       },
-      { present: 0, absent: 0, upcoming: 0, extra: 0 },
+      { scheduled: 0, absent: 0, upcoming: 0 },
     );
-  }, [sortedDays]);
+  }, [sortedDays, todayKey]);
 
   return (
     <div className="animate-in w-full space-y-6">
       <PageHeader title="Minha Escala" subtitle="Visualize seu mês aqui." />
 
-      <section className="relative overflow-hidden rounded-[28px] border border-white/8 bg-[#070707] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.42)] sm:p-6">
+      {!loading && !error && <section className="relative overflow-hidden rounded-[28px] border border-white/8 bg-[#070707] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.42)] sm:p-6">
         <div className="pointer-events-none absolute -right-16 top-[-88px] h-44 w-44 rounded-full bg-orange-500/10 blur-3xl" />
         <div className="pointer-events-none absolute bottom-[-72px] left-[-36px] h-32 w-32 rounded-full bg-amber-500/6 blur-3xl" />
 
         <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-2xl">
             <span className="inline-flex items-center rounded-full border border-orange-400/15 bg-orange-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
-              ㅤEscala mensal
+              Escala mensal
             </span>
 
             <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white sm:text-[28px]">
-              Acompanhe seus turnos, presenças e ausências.
+              Acompanhe seus turnos, faltas e alterações.
             </h2>
 
             <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">
-              ㅤDias concluídos aparecem como presente apenas quando o turno foi
-              concluído.ㅤㅤㅤㅤㅤ Falta, remoção e férias são exibidos como
-              ausente.
+              Os status abaixo refletem exatamente os registros da sua escala:
+              escalado, falta, turno extra, folga ou removido.
             </p>
           </div>
 
@@ -321,16 +175,16 @@ export default function MyCalendarPage() {
 
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] px-4 py-3">
               <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
-                Presentes
+                Escalados
               </p>
               <p className="mt-2 text-2xl font-bold text-white">
-                {summary.present}
+                {summary.scheduled}
               </p>
             </div>
 
             <div className="rounded-2xl border border-white/8 bg-white/[0.02] px-4 py-3">
               <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
-                Ausências
+                Faltas
               </p>
               <p className="mt-2 text-2xl font-bold text-white">
                 {summary.absent}
@@ -347,12 +201,14 @@ export default function MyCalendarPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section>}
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="inline-flex w-fit items-center gap-1 rounded-2xl border border-white/8 bg-[#090909] p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.35)]">
           <button
+            type="button"
             onClick={prevMonth}
+            aria-label="Mês anterior"
             className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 transition-all hover:bg-white/[0.04] hover:text-orange-300"
           >
             <ChevronLeft size={16} />
@@ -363,7 +219,9 @@ export default function MyCalendarPage() {
           </span>
 
           <button
+            type="button"
             onClick={nextMonth}
+            aria-label="Próximo mês"
             className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 transition-all hover:bg-white/[0.04] hover:text-orange-300"
           >
             <ChevronRight size={16} />
@@ -371,42 +229,18 @@ export default function MyCalendarPage() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {[
-            {
-              label: "Presente",
-              dotClass: "bg-emerald-400",
-              chipClass:
-                "border-emerald-500/15 bg-emerald-500/8 text-emerald-300",
-            },
-            {
-              label: "Escalado",
-              dotClass: "bg-orange-400",
-              chipClass: "border-orange-500/15 bg-orange-500/8 text-orange-300",
-            },
-            {
-              label: "Ausente",
-              dotClass: "bg-red-400",
-              chipClass: "border-red-500/15 bg-red-500/8 text-red-300",
-            },
-            {
-              label: "Extra",
-              dotClass: "bg-amber-300",
-              chipClass: "border-amber-500/15 bg-amber-500/8 text-amber-300",
-            },
-            {
-              label: "Folga",
-              dotClass: "bg-zinc-400",
-              chipClass: "border-white/10 bg-white/[0.03] text-zinc-300",
-            },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${item.chipClass}`}
-            >
-              <span className={`h-2 w-2 rounded-full ${item.dotClass}`} />
-              {item.label}
-            </div>
-          ))}
+          {SCHEDULE_STATUS_VALUES.map((status) => {
+            const item = getScheduleStatusPresentation(status);
+            return (
+              <div
+                key={status}
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${item.chipClass}`}
+              >
+                <span className={`h-2 w-2 rounded-full ${item.dotClass}`} />
+                {item.label}
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -414,6 +248,11 @@ export default function MyCalendarPage() {
         <div className="flex min-h-[280px] items-center justify-center rounded-[28px] border border-white/8 bg-[#090909]">
           <Spinner size="lg" />
         </div>
+      ) : error ? (
+        <RequestError
+          title="Não foi possível carregar sua escala"
+          onRetry={() => setReloadKey((key) => key + 1)}
+        />
       ) : days.length === 0 ? (
         <div className="rounded-[28px] border border-white/8 bg-[#090909] p-4 sm:p-6">
           <EmptyState
@@ -447,10 +286,13 @@ export default function MyCalendarPage() {
               {Array.from({ length: daysInMonth }).map((_, index) => {
                 const day = index + 1;
                 const date = new Date(year, month - 1, day);
-                const entry = dayMap.get(getDateKey(date));
-                const isToday = isSameDay(date, TODAY);
+                const dateKey = getLocalDateInputValue(date);
+                const entry = dayMap.get(dateKey);
+                const isToday = dateKey === todayKey;
                 const column = (firstWeekday + index) % 7;
-                const display = entry ? getDisplayStatus(entry) : null;
+                const display = entry
+                  ? getScheduleStatusPresentation(entry.status)
+                  : null;
 
                 return (
                   <div
@@ -466,7 +308,7 @@ export default function MyCalendarPage() {
                     <div
                       className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold sm:h-9 sm:w-9 ${
                         isToday
-                          ? "bg-orange-500 text-white shadow-[0_10px_24px_rgba(249,115,22,0.25)]"
+                          ? "bg-orange-700 text-white shadow-[0_10px_24px_rgba(249,115,22,0.25)]"
                           : "text-slate-400"
                       }`}
                     >
@@ -498,7 +340,7 @@ export default function MyCalendarPage() {
             <div className="flex flex-col gap-3 border-b border-white/8 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
               <div>
                 <h3 className="text-base font-semibold text-white">
-                  ㅤDetalhamento do mês
+                  Detalhamento do mês
                 </h3>
                 <p className="mt-1 text-sm text-slate-400">
                   Lista completa dos dias registrados na sua escala.
@@ -513,10 +355,10 @@ export default function MyCalendarPage() {
             <div className="p-2 sm:p-3">
               <div className="space-y-2">
                 {sortedDays.map((day) => {
-                  const date = parseLocalDate(day.date);
-                  const isToday = isSameDay(date, TODAY);
-                  const display = getDisplayStatus(day);
-                  const note = getDefaultNote(day, display);
+                  const date = parseCivilDate(day.date);
+                  const isToday = getCivilDateKey(day.date) === todayKey;
+                  const display = getScheduleStatusPresentation(day.status);
+                  const note = day.note?.trim() || display.defaultNote;
 
                   return (
                     <div

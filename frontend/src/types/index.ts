@@ -61,13 +61,13 @@ export interface ScheduleDay {
 
 export interface AuditLog {
   id: string;
-  actorUserId: string;
+  actorUserId: string | null;
   action: string;
   entity: string;
   entityId: string;
   metadata?: Record<string, unknown>;
   createdAt: string;
-  actor: { employee: { fullName: string } };
+  actor: { employee: { fullName: string } } | null;
 }
 
 export interface CreateEmployeeDto {

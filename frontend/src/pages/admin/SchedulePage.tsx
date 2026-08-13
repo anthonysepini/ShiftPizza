@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type ReactNode } from "react";
+﻿import { useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -15,56 +15,32 @@ import Select from "../../components/ui/Select";
 import Input from "../../components/ui/Input";
 import Spinner from "../../components/ui/Spinner";
 import EmptyState from "../../components/ui/EmptyState";
+import RequestError from "../../components/ui/RequestError";
 import ToastContainer from "../../components/ui/Toast";
 import { useToast } from "../../hooks/useToast";
 import { schedulesService } from "../../services/schedules.service";
 import { employeesService } from "../../services/employees.service";
 import type { ScheduleDay, ScheduleStatus, Employee } from "../../types";
+import {
+  getScheduleStatusPresentation,
+  parseScheduleStatus,
+  SCHEDULE_STATUS_VALUES,
+} from "../../features/schedules/status";
+import {
+  formatCivilDate,
+  getCivilDateKey,
+  getLocalDateInputValue,
+} from "../../utils/civil-date";
 
 const WEEKDAYS_SHORT = ["D", "S", "T", "Q", "Q", "S", "S"];
 
-const STATUS_OPTIONS: { value: ScheduleStatus; label: string }[] = [
-  { value: "SCHEDULED", label: "ㅤ✅ Agendado" },
-  { value: "ABSENT", label: "ㅤ❌ Falta" },
-  { value: "EXTRA_SHIFT", label: "ㅤ➕ Turno Extra" },
-  { value: "DAY_OFF", label: "ㅤ🌴 Folga" },
-  { value: "REMOVED_SHIFT", label: "ㅤ🗑️ Removido" },
-];
-
-const STATUS_COLOR: Record<
-  ScheduleStatus,
-  { bg: string; text: string; border: string }
-> = {
-  SCHEDULED: {
-    bg: "rgba(34,197,94,0.10)",
-    text: "#86efac",
-    border: "rgba(34,197,94,0.22)",
-  },
-  ABSENT: {
-    bg: "rgba(239,68,68,0.10)",
-    text: "#fca5a5",
-    border: "rgba(239,68,68,0.22)",
-  },
-  EXTRA_SHIFT: {
-    bg: "rgba(59,130,246,0.10)",
-    text: "#93c5fd",
-    border: "rgba(59,130,246,0.22)",
-  },
-  DAY_OFF: {
-    bg: "rgba(234,179,8,0.10)",
-    text: "#fde047",
-    border: "rgba(234,179,8,0.22)",
-  },
-  REMOVED_SHIFT: {
-    bg: "rgba(100,116,139,0.10)",
-    text: "#cbd5e1",
-    border: "rgba(100,116,139,0.22)",
-  },
-};
-
-function getDateKey(date: string | Date) {
-  return new Date(date).toISOString().split("T")[0];
-}
+const STATUS_OPTIONS = SCHEDULE_STATUS_VALUES.map((status) => {
+  const presentation = getScheduleStatusPresentation(status);
+  return {
+    value: status,
+    label: `${presentation.icon} ${presentation.label}`,
+  };
+});
 
 function CompactStat({
   icon,
@@ -103,28 +79,39 @@ export default function SchedulePage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [filterEmp, setFilterEmp] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [selected, setSelected] = useState<ScheduleDay | null>(null);
   const [editStatus, setEditStatus] = useState<ScheduleStatus>("SCHEDULED");
   const [editNote, setEditNote] = useState("");
   const [saving, setSaving] = useState(false);
+  const requestIdRef = useRef(0);
 
   const load = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
     setLoading(true);
+    setError(false);
     try {
       const [d, e] = await Promise.all([
         schedulesService.getMonthSchedule(year, month, filterEmp || undefined),
         employeesService.findAll(),
       ]);
-      setDays(d);
-      setEmployees(e);
+      if (requestId === requestIdRef.current) {
+        setDays(d);
+        setEmployees(e);
+      }
+    } catch {
+      if (requestId === requestIdRef.current) setError(true);
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) setLoading(false);
     }
   }, [year, month, filterEmp]);
 
   useEffect(() => {
     void load();
+    return () => {
+      requestIdRef.current += 1;
+    };
   }, [load]);
 
   const prevMonth = () => {
@@ -157,7 +144,7 @@ export default function SchedulePage() {
       toast(`✅ ${r.created} dias criados para ${monthLabel}`, "success");
       await load();
     } catch {
-      toast("Escala já gerada ou erro ao gerar.", "info");
+      toast("Não foi possível gerar a escala. Tente novamente.", "error");
     } finally {
       setGenerating(false);
     }
@@ -194,7 +181,7 @@ export default function SchedulePage() {
 
   const dayMap = new Map<string, ScheduleDay[]>();
   days.forEach((d) => {
-    const key = getDateKey(d.date);
+    const key = getCivilDateKey(d.date);
     dayMap.set(key, [...(dayMap.get(key) ?? []), d]);
   });
 
@@ -248,6 +235,7 @@ export default function SchedulePage() {
               </div>
 
               <select
+                aria-label="Filtrar funcionário"
                 value={filterEmp}
                 onChange={(e) => setFilterEmp(e.target.value)}
                 className="h-11 min-w-[230px] rounded-2xl border border-white/10 bg-[#0A0A0A] px-4 text-sm text-slate-200 outline-none transition-all hover:border-white/15 focus:border-orange-500/40 focus:ring-2 focus:ring-orange-500/15"
@@ -271,18 +259,18 @@ export default function SchedulePage() {
                 Atualizar
               </Button>
 
-              <Button
+              {!error && <Button
                 size="sm"
                 leftIcon={<CalendarPlus size={13} />}
                 onClick={() => void handleGenerate()}
                 loading={generating}
               >
                 Gerar escala
-              </Button>
+              </Button>}
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
+          {!loading && !error && <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
             <CompactStat
               icon={<CalendarDays size={15} />}
               label="Registros"
@@ -303,7 +291,7 @@ export default function SchedulePage() {
               label="Alterações"
               value={totalChanges}
             />
-          </div>
+          </div>}
         </div>
       </section>
 
@@ -312,6 +300,12 @@ export default function SchedulePage() {
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/50 to-transparent" />
           <Spinner size="lg" />
         </div>
+      ) : error ? (
+        <RequestError
+          title="Não foi possível carregar a escala"
+          description="Não foi possível confirmar se existe uma escala para este período. Tente novamente antes de gerar ou editar dados."
+          onRetry={() => void load()}
+        />
       ) : days.length === 0 ? (
         <div className="relative flex min-h-0 flex-1 overflow-hidden rounded-[26px] border border-white/10 bg-[#070707]/90 shadow-[0_18px_70px_rgba(0,0,0,0.38)]">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/50 to-transparent" />
@@ -342,7 +336,7 @@ export default function SchedulePage() {
           <div className="relative flex items-center justify-between gap-3 border-b border-white/8 px-4 py-2.5">
             <div>
               <p className="text-[9px] uppercase tracking-[0.22em] text-orange-300">
-                ㅤㅤAgenda operacional
+                Agenda operacional
               </p>
               <h2 className="mt-0.5 text-base font-semibold leading-none text-white sm:text-lg">
                 Calendário de escala
@@ -351,7 +345,7 @@ export default function SchedulePage() {
 
             <div className="rounded-2xl border border-white/10 bg-[#0A0A0A] px-3 py-1.5 text-right">
               <p className="text-[9px] uppercase tracking-[0.2em] text-slate-500">
-                Períodoㅤ
+                Período
               </p>
               <p className="mt-0.5 text-sm font-semibold capitalize leading-none text-white">
                 {monthLabel}
@@ -381,7 +375,7 @@ export default function SchedulePage() {
             {Array.from({ length: daysInMonth }).map((_, i) => {
               const day = i + 1;
               const date = new Date(year, month - 1, day);
-              const key = getDateKey(date);
+              const key = getLocalDateInputValue(date);
               const cellDays = dayMap.get(key) ?? [];
               const isToday = date.toDateString() === now.toDateString();
               const col = (firstWeekday + i) % 7;
@@ -404,7 +398,7 @@ export default function SchedulePage() {
                       className={[
                         "flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-semibold transition-all duration-200 sm:h-7 sm:w-7 sm:text-[11px]",
                         isToday
-                          ? "bg-orange-500 text-white shadow-[0_10px_24px_rgba(249,115,22,0.32)]"
+                          ? "bg-orange-700 text-white shadow-[0_10px_24px_rgba(249,115,22,0.32)]"
                           : "bg-white/[0.03] text-slate-400 group-hover:bg-white/[0.05] group-hover:text-slate-200",
                       ].join(" ")}
                     >
@@ -420,7 +414,9 @@ export default function SchedulePage() {
 
                   <div className="space-y-1">
                     {cellDays.slice(0, 3).map((schedule) => {
-                      const sc = STATUS_COLOR[schedule.status];
+                      const sc = getScheduleStatusPresentation(
+                        schedule.status,
+                      ).calendar;
 
                       return (
                         <button
@@ -428,8 +424,8 @@ export default function SchedulePage() {
                           onClick={() => openEdit(schedule)}
                           className="block w-full overflow-hidden rounded-lg px-1.5 py-1 text-left text-[9px] font-medium leading-tight transition-all duration-200 hover:opacity-95 sm:rounded-xl sm:text-[10px]"
                           style={{
-                            background: sc.bg,
-                            color: sc.text,
+                            background: sc.background,
+                            color: sc.color,
                             boxShadow: `inset 0 0 0 1px ${sc.border}`,
                           }}
                         >
@@ -471,7 +467,7 @@ export default function SchedulePage() {
       <Modal
         open={!!selected}
         onClose={() => setSelected(null)}
-        title="ㅤEditar dia:"
+        title="Editar dia:"
         size="sm"
       >
         {selected && (
@@ -482,7 +478,7 @@ export default function SchedulePage() {
 
               <div className="relative">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-orange-300">
-                  ㅤㅤRegistro selecionado
+                  Registro selecionado
                 </p>
 
                 <p className="mt-2 text-base font-semibold text-white">
@@ -490,7 +486,7 @@ export default function SchedulePage() {
                 </p>
 
                 <p className="mt-1 text-sm leading-relaxed text-slate-400">
-                  {new Date(selected.date).toLocaleDateString("pt-BR", {
+                  {formatCivilDate(selected.date, {
                     weekday: "long",
                     day: "2-digit",
                     month: "long",
@@ -507,7 +503,10 @@ export default function SchedulePage() {
             <Select
               label="Novo status"
               value={editStatus}
-              onChange={(e) => setEditStatus(e.target.value as ScheduleStatus)}
+              onChange={(e) => {
+                const status = parseScheduleStatus(e.target.value);
+                if (status) setEditStatus(status);
+              }}
               options={STATUS_OPTIONS}
             />
 

@@ -2,7 +2,6 @@ import {
   Controller,
   DefaultValuePipe,
   Get,
-  ParseIntPipe,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +16,7 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Role } from '../../common/enums/role.enum';
 import { AuditService } from './audit.service';
+import { ParseBoundedIntPipe } from '../../common/pipes/parse-bounded-int.pipe';
 
 @ApiTags('audit')
 @ApiBearerAuth()
@@ -30,7 +30,12 @@ export class AuditController {
   @ApiOperation({ summary: 'Ver histórico de ações (Admin)' })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   findAll(
-    @Query('limit', new DefaultValuePipe(50), ParseIntPipe) limit: number,
+    @Query(
+      'limit',
+      new DefaultValuePipe(50),
+      new ParseBoundedIntPipe(1, 100, 'limit'),
+    )
+    limit: number,
   ) {
     return this.auditService.findAll(limit);
   }

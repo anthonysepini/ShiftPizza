@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 
-interface LogParams {
+export interface AuditLogParams {
   actorUserId: string;
   action: string;
   entity: string;
@@ -14,8 +14,11 @@ interface LogParams {
 export class AuditService {
   constructor(private prisma: PrismaService) {}
 
-  async log(params: LogParams) {
-    return this.prisma.auditLog.create({
+  async log(
+    params: AuditLogParams,
+    client: Pick<Prisma.TransactionClient, 'auditLog'> = this.prisma,
+  ) {
+    return client.auditLog.create({
       data: {
         actorUserId: params.actorUserId,
         action: params.action,
@@ -30,9 +33,20 @@ export class AuditService {
     return this.prisma.auditLog.findMany({
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: {
+      select: {
+        id: true,
+        actorUserId: true,
+        action: true,
+        entity: true,
+        entityId: true,
+        metadata: true,
+        createdAt: true,
         actor: {
-          include: { employee: { select: { fullName: true } } },
+          select: {
+            id: true,
+            role: true,
+            employee: { select: { fullName: true } },
+          },
         },
       },
     });

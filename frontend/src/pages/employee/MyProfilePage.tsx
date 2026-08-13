@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, BadgeCheck, Phone, IdCard } from "lucide-react";
 import { useAuth } from "../../features/auth/useAuth";
 import PageHeader from "../../components/layout/PageHeader";
 import Spinner from "../../components/ui/Spinner";
 import EmptyState from "../../components/ui/EmptyState";
+import RequestError from "../../components/ui/RequestError";
 import { employeesService } from "../../services/employees.service";
 import type { Employee } from "../../types";
 
@@ -75,6 +76,8 @@ export default function MyProfilePage() {
   const [resolvedEmployeeId, setResolvedEmployeeId] = useState<
     number | string | null
   >(null);
+  const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!employeeId) {
@@ -82,7 +85,6 @@ export default function MyProfilePage() {
     }
 
     let cancelled = false;
-
     employeesService
       .findOne(employeeId)
       .then((emp) => {
@@ -99,13 +101,14 @@ export default function MyProfilePage() {
 
         setEmployee(null);
         setPhoto(null);
+        setError(true);
         setResolvedEmployeeId(employeeId);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [employeeId]);
+  }, [employeeId, reloadKey]);
 
   const isLoading = Boolean(employeeId) && resolvedEmployeeId !== employeeId;
 
@@ -137,45 +140,56 @@ export default function MyProfilePage() {
           subtitle="Suas informações pessoais e rotina de trabalho."
         />
 
-        <div className="rounded-[28px] border border-white/8 bg-[#090909] p-4 sm:p-6">
-          <EmptyState
-            icon="👤"
-            title="Perfil indisponível"
-            description="Não foi possível carregar suas informações no momento."
+        {error ? (
+          <RequestError
+            title="Não foi possível carregar seu perfil"
+            onRetry={() => {
+              setError(false);
+              setResolvedEmployeeId(null);
+              setReloadKey((key) => key + 1);
+            }}
           />
-        </div>
+        ) : (
+          <div className="rounded-[28px] border border-white/8 bg-[#090909] p-4 sm:p-6">
+            <EmptyState
+              icon="👤"
+              title="Perfil indisponível"
+              description="Seu usuário não está vinculado a um perfil de funcionário."
+            />
+          </div>
+        )}
       </div>
     );
   }
 
   const infoCards = [
     {
-      label: "ㅤCPF",
+      label: "CPF",
       value: formatCpf(employee.cpf),
       icon: IdCard,
     },
     {
-      label: "ㅤTelefone",
+      label: "Telefone",
       value: employee.phone ?? "—",
       icon: Phone,
     },
     {
-      label: "ㅤCargo",
+      label: "Cargo",
       value: employee.position || "—",
       icon: BadgeCheck,
     },
     {
-      label: "ㅤPerfil",
+      label: "Perfil",
       value: roleLabel,
       icon: BadgeCheck,
     },
     {
-      label: "ㅤCadastrado em",
+      label: "Cadastrado em",
       value: formatDate(employee.createdAt),
       icon: CalendarDays,
     },
     {
-      label: "ㅤ Dias fixos por semana",
+      label: " Dias fixos por semana",
       value: `${activeDaysCount} dia${activeDaysCount === 1 ? "" : "s"}`,
       icon: CalendarDays,
     },
@@ -194,7 +208,7 @@ export default function MyProfilePage() {
 
         <div className="relative max-w-2xl">
           <span className="inline-flex items-center rounded-full border border-orange-400/15 bg-orange-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
-            ㅤÁrea do funcionário
+            Área do funcionário
           </span>
 
           <h2 className="mt-4 text-2xl font-semibold tracking-tight text-white sm:text-[28px]">
@@ -203,7 +217,7 @@ export default function MyProfilePage() {
 
           <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">
             Consulte rapidamente seus dados principais, cargo, status e dias
-            fixos da sua rotina ㅤㅤㅤsemanal.
+            fixos da sua rotina semanal.
           </p>
         </div>
       </section>
@@ -260,10 +274,10 @@ export default function MyProfilePage() {
             <div className="flex flex-col gap-3 border-b border-white/8 px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-base font-semibold text-white">
-                  ㅤDados do colaborador
+                  Dados do colaborador
                 </h3>
                 <p className="mt-1 text-sm text-slate-400">
-                  ㅤInformações principais organizadas com leitura rápida e
+                  Informações principais organizadas com leitura rápida e
                   limpa.
                 </p>
               </div>
@@ -302,10 +316,10 @@ export default function MyProfilePage() {
             <div className="flex flex-col gap-3 border-b border-white/8 px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-base font-semibold text-white">
-                  ㅤEscala semanal fixa
+                  Escala semanal fixa
                 </h3>
                 <p className="mt-1 text-sm text-slate-400">
-                  ㅤDias da semana em que você está escalado para trabalhar.
+                  Dias da semana em que você está escalado para trabalhar.
                 </p>
               </div>
 

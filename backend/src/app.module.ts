@@ -7,10 +7,11 @@ import { SchedulesModule } from './modules/schedules/schedules.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { HealthModule } from './modules/health/health.module';
 import { DemoModule } from './modules/demo/demo.module';
+import { validateEnvironment } from './config/environment';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     PrismaModule,
     AuthModule,
     EmployeesModule,

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as argon2 from 'argon2';
+import { acquireScheduleMutationLock } from '../../common/database/schedule-mutation-lock';
 
 @Injectable()
 export class DemoService {
@@ -47,6 +48,8 @@ export class DemoService {
 
     await this.prisma.$transaction(
       async (tx) => {
+        await acquireScheduleMutationLock(tx);
+
         await tx.auditLog.deleteMany();
         await tx.scheduleDay.deleteMany();
         await tx.weeklyScheduleRule.deleteMany();

@@ -1,26 +1,31 @@
 import { useState, useCallback, type ReactNode } from 'react';
 import { AuthContext } from './AuthContext';
 import { authService } from '../../services/auth.service';
-import type { AuthUser } from '../../types';
+import {
+  clearStoredSession,
+  loadStoredSession,
+  storeSession,
+  type AuthSession,
+} from './session';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(() => {
-    const raw = localStorage.getItem('sp_user');
-    return raw ? (JSON.parse(raw) as AuthUser) : null;
-  });
+  const [session, setSession] = useState<AuthSession | null>(() =>
+    loadStoredSession(localStorage),
+  );
 
   const login = useCallback(async (cpf: string, password: string) => {
     const res = await authService.login(cpf, password);
-    setUser(res.user);
-    localStorage.setItem('sp_token', res.accessToken);
-    localStorage.setItem('sp_user', JSON.stringify(res.user));
+    const nextSession = { token: res.accessToken, user: res.user };
+    storeSession(localStorage, nextSession);
+    setSession(nextSession);
   }, []);
 
   const logout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem('sp_token');
-    localStorage.removeItem('sp_user');
+    clearStoredSession(localStorage);
+    setSession(null);
   }, []);
+
+  const user = session?.user ?? null;
 
   return (
     <AuthContext.Provider
@@ -28,8 +33,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         login,
         logout,
-        isAuthenticated: !!localStorage.getItem('sp_token'),
-        isAdmin: user?.role === 'ADMIN',
+        isAuthenticated: session !== null,
+        isAdmin: session?.user.role === 'ADMIN',
       }}
     >
       {children}
