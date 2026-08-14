@@ -1,6 +1,7 @@
 <div align="center">
 
-[![CI](https://github.com/anthonysepini/ShiftPizza/actions/workflows/ci.yml/badge.svg)](https://github.com/anthonysepini/ShiftPizza/actions/workflows/ci.yml)
+[![CI](https://github.com/anthonysepini/ShiftPizza/actions/workflows/main.yml/badge.svg)](https://github.com/anthonysepini/ShiftPizza/actions/workflows/main.yml)
+[![CodeQL](https://github.com/anthonysepini/ShiftPizza/actions/workflows/codeql.yml/badge.svg)](https://github.com/anthonysepini/ShiftPizza/actions/workflows/codeql.yml)
 
 # ShiftPizza
 
@@ -72,16 +73,18 @@ shiftpizza/
 │   │   ├── modules/                  Auth, employees, schedules, audit, demo, health
 │   │   └── prisma/                   Shared Prisma client lifecycle
 │   └── test/                         HTTP integration tests
-└── docs/superpowers/                 Refactor design and execution plan
+└── .github/                          CI, security scanning, and dependency automation
 ```
 
 The browser uses bearer JWT authentication. The API revalidates the user and active-employee state for authenticated requests, and administrator operations are protected by server-side role guards. Client-side route guards improve navigation but are not the authorization boundary.
 
 ## Prerequisites
 
-- Node.js `20.19+`, `22.12+`, or `24+` (the supported backend engine ranges)
+- Node.js `24.18.1` LTS is the reference development and CI runtime (pinned in `.nvmrc`)
 - npm, using the committed lockfiles
 - PostgreSQL reachable from the backend
+
+With `nvm`, run `nvm use` from the repository root before installing dependencies.
 
 Use a local, disposable database while developing. Before any Prisma migration or seed command, verify that `DATABASE_URL` does not point to a shared, staging, or production database.
 
@@ -107,7 +110,7 @@ npm run start:dev
 
 The seed is intended only for a disposable demo database and creates known demonstration credentials. Do not use those accounts in a shared or production environment.
 
-The API defaults to `http://localhost:3000`; its health endpoint is `/health`, and Swagger UI is available at `/api` while the application is running.
+The API defaults to `http://localhost:3000`; its health endpoint is `/health`, and Swagger UI is available at `/api` outside production.
 
 ### 2. Frontend
 
@@ -170,35 +173,37 @@ npm run build
 npm run test:e2e
 ```
 
-Dedicated automated accessibility; The Playwright suite includes automated accessibility and responsive checks
-with axe-core across desktop, tablet, and mobile viewports. Manual keyboard
-and visual review remains part of release validation:
+The Playwright suite includes automated accessibility and responsive checks with axe-core across desktop, tablet, and mobile viewports. Manual keyboard and visual review remains part of release validation:
 
 ```powershell
-cd frontend
-
-npm ci
-npm run lint
-npm run test:run
-npm run build
 npm run test:a11y
-npm run test:e2e
 ```
 
 Backend:
 
 ```powershell
-npx eslint "{src,apps,libs,test}/**/*.ts"
+npm run lint
+npx prisma validate
+npx prisma generate
 npm test -- --runInBand
 npm run test:e2e -- --runInBand
 npm run build
-npx prisma validate
-npx prisma generate
 ```
 
-Both applications run read-only lint checks with `npm run lint`. The backend exposes `npm run lint:fix` separately for explicitly authorized rewrites.
+Both applications run read-only lint checks with `npm run lint`. The backend exposes `npm run lint:fix` separately for explicitly requested rewrites.
 
 Tests do not authorize a real database reset. The backend HTTP tests replace the Prisma provider and verify health, validation, security headers, login throttling, and the disabled-by-default reset boundary without mutating database data.
+
+### Automated repository gates
+
+Pull requests and pushes to `main` are checked by GitHub Actions. The main CI validates both applications independently. Additional repository automation includes:
+
+- CodeQL analysis for JavaScript/TypeScript;
+- dependency review on pull requests, failing on newly introduced vulnerabilities of moderate severity or higher;
+- monthly Dependabot checks for backend, frontend, and GitHub Actions dependencies;
+- Vercel preview/production builds for the frontend deployment.
+
+Security reports should follow [SECURITY.md](SECURITY.md).
 
 ## Database change policy
 
