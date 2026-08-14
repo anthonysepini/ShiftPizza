@@ -487,7 +487,7 @@ export default function EmployeesPage() {
                               {emp.fullName}
                             </p>
                             <span
-                              className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
+                              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                                 emp.isActive
                                   ? "bg-orange-500/14 text-orange-300"
                                   : "bg-white/6 text-slate-400"
@@ -511,7 +511,7 @@ export default function EmployeesPage() {
                                 return (
                                   <span
                                     key={d}
-                                    className={`rounded-lg px-2 py-1 text-[10px] font-semibold ${
+                                    className={`rounded-lg px-2 py-1 text-[11px] font-semibold ${
                                       works
                                         ? "border border-orange-500/20 bg-orange-500/12 text-orange-300"
                                         : "bg-[#121212] text-slate-600"
@@ -608,7 +608,7 @@ export default function EmployeesPage() {
 
               <div className="mt-5 grid grid-cols-3 gap-3">
                 <div className="rounded-2xl border border-white/8 bg-[#070707]/78 p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                     Total
                   </p>
                   <p className="mt-2 text-2xl font-black tracking-tight text-white">
@@ -617,7 +617,7 @@ export default function EmployeesPage() {
                 </div>
 
                 <div className="rounded-2xl border border-white/8 bg-[#070707]/78 p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                     Ativos
                   </p>
                   <p className="mt-2 text-2xl font-black tracking-tight text-white">
@@ -626,7 +626,7 @@ export default function EmployeesPage() {
                 </div>
 
                 <div className="rounded-2xl border border-white/8 bg-[#070707]/78 p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                     Inativos
                   </p>
                   <p className="mt-2 text-2xl font-black tracking-tight text-white">
