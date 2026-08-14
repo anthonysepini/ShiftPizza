@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/anthonysepini/ShiftPizza/actions/workflows/main.yml/badge.svg)](https://github.com/anthonysepini/ShiftPizza/actions/workflows/main.yml)
 [![CodeQL](https://github.com/anthonysepini/ShiftPizza/actions/workflows/codeql.yml/badge.svg)](https://github.com/anthonysepini/ShiftPizza/actions/workflows/codeql.yml)
+[![Dependency Review](https://github.com/anthonysepini/ShiftPizza/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/anthonysepini/ShiftPizza/actions/workflows/dependency-review.yml)
 
 # ShiftPizza
 
@@ -77,6 +78,8 @@ shiftpizza/
 ```
 
 The browser uses bearer JWT authentication. The API revalidates the user and active-employee state for authenticated requests, and administrator operations are protected by server-side role guards. Client-side route guards improve navigation but are not the authorization boundary.
+
+The deeper design rationale, scheduling invariants, civil-date strategy, transaction boundaries, and explicit non-goals are documented in [`docs/architecture.md`](docs/architecture.md).
 
 ## Prerequisites
 
@@ -158,7 +161,7 @@ Startup accepts `DEMO_RESET_ENABLED=true` only together with `APP_MODE=isolated-
 | Generate/read all schedules and update days | No | No | Yes |
 | Read audit history | No | No | Yes |
 
-Login attempts are rate-limited, passwords are hashed with Argon2, request DTOs reject unknown fields, CORS uses an allowlist, and baseline HTTP security headers are applied by the API.
+Login attempts are rate-limited, passwords are hashed with Argon2, request DTOs reject unknown fields, CORS uses an allowlist, and baseline HTTP security headers are applied by the API. The Vercel frontend deployment also applies defensive CSP, framing, MIME-sniffing, referrer, and browser-permission headers.
 
 ## Quality checks
 
@@ -198,8 +201,11 @@ Tests do not authorize a real database reset. The backend HTTP tests replace the
 
 Pull requests and pushes to `main` are checked by GitHub Actions. The main CI validates both applications independently. Additional repository automation includes:
 
-- CodeQL analysis for JavaScript/TypeScript;
+- CodeQL analysis for JavaScript/TypeScript using the `security-extended` query suite;
+- pull-request Dependency Review that rejects newly introduced dependencies with known vulnerabilities at moderate severity or higher;
 - monthly Dependabot checks for backend, frontend, and GitHub Actions dependencies;
+- immutable commit-SHA references for security-sensitive GitHub Actions;
+- retained Playwright trace/screenshot artifacts when browser tests fail in CI;
 - Vercel preview/production builds for the frontend deployment.
 
 Security reports should follow [SECURITY.md](SECURITY.md).
@@ -210,6 +216,10 @@ Security reports should follow [SECURITY.md](SECURITY.md).
 - Review generated SQL before applying it anywhere outside local development.
 - Never run `prisma migrate reset`, the demo reset endpoint, or the seed against shared data.
 - Treat deployment and remote database changes as separate, explicitly approved operations.
+
+## Contributing
+
+Development workflow, validation expectations, dependency policy, and pull-request guidance are documented in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

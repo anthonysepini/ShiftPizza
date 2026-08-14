@@ -3,6 +3,9 @@ import { join } from 'node:path';
 import { defineConfig } from '@playwright/test';
 
 const appUrl = 'http://127.0.0.1:4173';
+const outputDir = process.env.CI
+  ? 'test-results'
+  : join(tmpdir(), 'shiftpizza-playwright-results');
 
 export default defineConfig({
   testDir: './e2e',
@@ -11,12 +14,11 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: 1,
   reporter: 'list',
-  outputDir:
-    process.env.PLAYWRIGHT_OUTPUT_DIR ??
-    join(tmpdir(), 'shiftpizza-playwright-results'),
+  outputDir: process.env.PLAYWRIGHT_OUTPUT_DIR ?? outputDir,
   use: {
     baseURL: appUrl,
     browserName: 'chromium',
+    screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
   },
   webServer: {
