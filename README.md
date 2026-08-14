@@ -1,3 +1,5 @@
+[![CI](https://github.com/anthonysepini/ShiftPizza/actions/workflows/ci.yml/badge.svg)](https://github.com/anthonysepini/ShiftPizza/actions/workflows/ci.yml)
+
 <div align="center">
 
 # ShiftPizza
@@ -168,7 +170,20 @@ npm run build
 npm run test:e2e
 ```
 
-The Playwright suite starts an isolated Vite server and mocks the API for its route-authorization checks. A dedicated automated accessibility script is not present yet; accessibility remains a required manual browser gate. Check keyboard-only operation, visible focus, labels and dialog semantics, contrast, overflow, and reduced-motion behavior at `390x844`, `768x1024`, and `1440x900`.
+Dedicated automated accessibility; The Playwright suite includes automated accessibility and responsive checks
+with axe-core across desktop, tablet, and mobile viewports. Manual keyboard
+and visual review remains part of release validation:
+
+```powershell
+cd frontend
+
+npm ci
+npm run lint
+npm run test:run
+npm run build
+npm run test:a11y
+npm run test:e2e
+```
 
 Backend:
 

@@ -70,7 +70,9 @@ Useful scripts:
 | `npm run test:run` | Run the deterministic Vitest suite once. |
 | `npm run test:e2e` | Run Playwright browser checks. |
 
-## Tests
+## Tests and Scripts
+
+| `npm run test:a11y` | Runs the automated accessibility and responsive Playwright suite |
 
 ```powershell
 npm run lint
