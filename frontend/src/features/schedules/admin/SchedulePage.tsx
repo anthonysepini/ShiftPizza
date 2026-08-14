@@ -1,4 +1,4 @@
-﻿import { CalendarPlus } from "lucide-react";
+import { CalendarPlus } from "lucide-react";
 import PageHeader from "../../components/layout/PageHeader";
 import Button from "../../components/ui/Button";
 import EmptyState from "../../components/ui/EmptyState";
