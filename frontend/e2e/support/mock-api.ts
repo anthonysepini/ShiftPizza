@@ -86,7 +86,7 @@ export function scheduleFixture(
   employeeName = employeeFixture.fullName,
 ) {
   return {
-    id: `schedule-${year}-${month}-${employeeName}`,
+    id: `schedule-${year}-${month}-${encodeURIComponent(employeeName)}`,
     employeeId: employeeFixture.id,
     date: civilDate(year, month),
     status: 'SCHEDULED',

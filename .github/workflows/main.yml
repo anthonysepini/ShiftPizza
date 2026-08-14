@@ -35,7 +35,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22.12.0
+          node-version: 22.14.0
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
@@ -68,6 +68,9 @@ jobs:
       run:
         working-directory: frontend
 
+    env:
+      VITE_API_URL: http://127.0.0.1:3000
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -75,7 +78,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22.12.0
+          node-version: 22.14.0
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -96,4 +99,3 @@ jobs:
 
       - name: E2E tests
         run: npm run test:e2e
-        
