@@ -293,7 +293,7 @@ export default function EmployeesPage() {
   }
 
   return (
-    <div className="animate-in mx-auto flex min-h-[calc(100vh-8rem)] w-full max-w-385 flex-col space-y-6 2xl:max-w-420]">
+    <div className="animate-in mx-auto flex min-h-[calc(100vh-8rem)] w-full max-w-385 flex-col space-y-6 2xl:max-w-420">
       <PageHeader
         title="Funcionários"
         subtitle="Gerencie a equipe e as escalas semanais"
