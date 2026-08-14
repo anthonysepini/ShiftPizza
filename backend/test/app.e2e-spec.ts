@@ -13,8 +13,11 @@ import { HealthController } from './../src/modules/health/presentation/controlle
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
+  let queryRawMock: jest.Mock;
 
   beforeEach(async () => {
+    queryRawMock = jest.fn().mockResolvedValue([{ result: 1 }]);
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
@@ -22,6 +25,7 @@ describe('AppController (e2e)', () => {
       .useValue({
         $connect: jest.fn(),
         $disconnect: jest.fn(),
+        $queryRaw: queryRawMock,
       })
       .compile();
 
@@ -48,6 +52,37 @@ describe('AppController (e2e)', () => {
         ? typeof body.timestamp
         : 'missing',
     ).toBe('string');
+  });
+
+  it('/health/ready reports database readiness', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/health/ready')
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      status: 'ok',
+      service: 'ShiftPizza API',
+      database: 'reachable',
+    });
+    expect(queryRawMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('/health/ready returns 503 without leaking database errors', async () => {
+    queryRawMock.mockRejectedValueOnce(
+      new Error('postgresql://user:secret@private-host/database'),
+    );
+
+    const response = await request(app.getHttpServer())
+      .get('/health/ready')
+      .expect(503);
+
+    expect(response.body).toMatchObject({
+      status: 'error',
+      service: 'ShiftPizza API',
+      database: 'unreachable',
+    });
+    expect(JSON.stringify(response.body)).not.toContain('private-host');
+    expect(JSON.stringify(response.body)).not.toContain('secret');
   });
 
   it('sets baseline security headers', async () => {

@@ -22,7 +22,7 @@ src/
 │   ├── schedules/       Monthly generation and day changes
 │   ├── audit/           Schedule audit queries and writes
 │   ├── demo/            Disabled-by-default destructive demo reset
-│   └── health/          Public liveness response
+│   └── health/          Public liveness and database readiness probes
 ├── prisma/              Prisma client lifecycle
 ├── app.module.ts        Application composition
 ├── configure-app.ts     Shared runtime and HTTP test configuration
@@ -87,14 +87,18 @@ Other runtime commands:
 
 With the default port:
 
-- health: `http://localhost:3000/health`
+- liveness: `http://localhost:3000/health`
+- readiness: `http://localhost:3000/health/ready`
 - Swagger UI outside production: `http://localhost:3000/api`
+
+`GET /health` confirms that the API process is alive and intentionally does not depend on PostgreSQL. `GET /health/ready` performs a minimal read-only database query and returns `503 Service Unavailable` with a sanitized response when PostgreSQL cannot be reached. Deployment infrastructure can therefore use liveness and readiness independently.
 
 ## API and authorization
 
 | Route | Access | Purpose |
 |---|---|---|
-| `GET /health` | Public | Liveness response. |
+| `GET /health` | Public | Process liveness response; does not depend on PostgreSQL. |
+| `GET /health/ready` | Public | Readiness response; confirms PostgreSQL is reachable. |
 | `POST /auth/login` | Public, rate-limited | Exchange CPF and password for an 8-hour JWT. |
 | `GET /demo/status` | Public | Report whether demo reset is enabled. |
 | `POST /demo/reset` | Public only when explicitly enabled | Destructively restore the demo dataset. |
@@ -133,7 +137,7 @@ npx prisma validate
 npx prisma generate
 ```
 
-Coverage can be collected with `npm run test:cov`. HTTP integration tests override Prisma and do not need or mutate a database. They verify the health contract, validation policy, baseline security headers, login throttling, and the disabled reset boundary.
+Coverage can be collected with `npm run test:cov`. HTTP integration tests override Prisma and do not need or mutate a database. They verify liveness, database readiness success/failure, validation policy, baseline security headers, login throttling, and the disabled reset boundary.
 
 ## Database evolution
 
