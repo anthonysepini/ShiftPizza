@@ -1,6 +1,6 @@
-[![CI](https://github.com/anthonysepini/ShiftPizza/actions/workflows/ci.yml/badge.svg)](https://github.com/anthonysepini/ShiftPizza/actions/workflows/ci.yml)
-
 <div align="center">
+
+[![CI](https://github.com/anthonysepini/ShiftPizza/actions/workflows/ci.yml/badge.svg)](https://github.com/anthonysepini/ShiftPizza/actions/workflows/ci.yml)
 
 # ShiftPizza
 
