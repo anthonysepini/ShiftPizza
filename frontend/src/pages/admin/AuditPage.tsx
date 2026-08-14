@@ -1,223 +1,118 @@
-﻿import { useCallback, useEffect, useMemo, useState } from "react";
+﻿import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import PageHeader from "../../components/layout/PageHeader";
 import Card from "../../components/ui/Card";
-import Spinner from "../../components/ui/Spinner";
 import EmptyState from "../../components/ui/EmptyState";
 import RequestError from "../../components/ui/RequestError";
+import Spinner from "../../components/ui/Spinner";
+import AuditMetrics from "../../features/audit/AuditMetrics";
+import AuditTimeline from "../../features/audit/AuditTimeline";
+import {
+  ACTION_CONFIG,
+  formatFullDateTime,
+  getAuditActionConfig,
+  isAuditToday,
+} from "../../features/audit/audit-presentation";
 import { auditService } from "../../services/audit.service";
 import type { AuditLog } from "../../types";
 
-type ActionConfig = {
-  label: string;
-  icon: string;
-  color: string;
-  pillClass: string;
-  iconClass: string;
-  description: (log: AuditLog) => string;
-};
-
-const ACTION_CONFIG: Record<string, ActionConfig> = {
-  GENERATE_MONTH: {
-    label: "Escala gerada",
-    icon: "📅",
-    color: "text-orange-300",
-    pillClass: "border-orange-500/20 bg-orange-500/10 text-orange-200",
-    iconClass: "border-orange-500/15 bg-orange-500/10 text-orange-200",
-    description: (log) => {
-      const meta = log.metadata as {
-        year?: number;
-        month?: number;
-        created?: number;
-      } | null;
-
-      if (meta?.year && meta?.month) {
-        const monthName = new Date(
-          meta.year,
-          meta.month - 1,
-        ).toLocaleDateString("pt-BR", {
-          month: "long",
-          year: "numeric",
-        });
-
-        return `${meta.created ?? 0} dias criados para ${monthName}`;
-      }
-
-      return "Escala mensal gerada automaticamente";
-    },
-  },
-  UPDATE_DAY: {
-    label: "Dia alterado",
-    icon: "✏️",
-    color: "text-amber-300",
-    pillClass: "border-amber-500/20 bg-amber-500/10 text-amber-200",
-    iconClass: "border-amber-500/15 bg-amber-500/10 text-amber-200",
-    description: (log) => {
-      const meta = log.metadata as {
-        from?: string;
-        to?: string;
-        note?: string;
-      } | null;
-
-      const statusLabel: Record<string, string> = {
-        SCHEDULED: "Agendado",
-        ABSENT: "Falta",
-        EXTRA_SHIFT: "Turno Extra",
-        DAY_OFF: "Folga",
-        REMOVED_SHIFT: "Removido",
-      };
-
-      if (meta?.from && meta?.to) {
-        const from = statusLabel[meta.from] ?? meta.from;
-        const to = statusLabel[meta.to] ?? meta.to;
-
-        return `Status alterado de ${from} para ${to}${meta.note ? ` · ${meta.note}` : ""}`;
-      }
-
-      return "Status de um dia foi alterado";
-    },
-  },
-  CREATE_EMPLOYEE: {
-    label: "Funcionário cadastrado",
-    icon: "👤",
-    color: "text-emerald-300",
-    pillClass: "border-emerald-500/20 bg-emerald-500/10 text-emerald-200",
-    iconClass: "border-emerald-500/15 bg-emerald-500/10 text-emerald-200",
-    description: () => "Novo funcionário adicionado ao sistema",
-  },
-  UPDATE_EMPLOYEE: {
-    label: "Funcionário atualizado",
-    icon: "✏️",
-    color: "text-amber-300",
-    pillClass: "border-amber-500/20 bg-amber-500/10 text-amber-200",
-    iconClass: "border-amber-500/15 bg-amber-500/10 text-amber-200",
-    description: (log) => {
-      const metadata = log.metadata as { changedFields?: string[] } | null;
-      return metadata?.changedFields?.length
-        ? `Campos atualizados: ${metadata.changedFields.join(", ")}`
-        : "Dados do funcionário atualizados";
-    },
-  },
-  TOGGLE_EMPLOYEE_ACTIVE: {
-    label: "Status do funcionário alterado",
-    icon: "🔄",
-    color: "text-orange-300",
-    pillClass: "border-orange-500/20 bg-orange-500/10 text-orange-200",
-    iconClass: "border-orange-500/15 bg-orange-500/10 text-orange-200",
-    description: (log) => {
-      const metadata = log.metadata as { isActive?: boolean } | null;
-      return metadata?.isActive === true
-        ? "Funcionário ativado"
-        : metadata?.isActive === false
-          ? "Funcionário desativado"
-          : "Status de acesso do funcionário alterado";
-    },
-  },
-  DELETE_EMPLOYEE: {
-    label: "Funcionário removido",
-    icon: "🗑️",
-    color: "text-red-300",
-    pillClass: "border-red-500/20 bg-red-500/10 text-red-200",
-    iconClass: "border-red-500/15 bg-red-500/10 text-red-200",
-    description: (log) => {
-      const metadata = log.metadata as { fullName?: string } | null;
-      return metadata?.fullName
-        ? `${metadata.fullName} foi removido do sistema`
-        : "Funcionário removido do sistema";
-    },
-  },
-};
-
-const FALLBACK_ACTION_CONFIG: ActionConfig = {
-  label: "Ação do sistema",
-  icon: "⚙️",
-  color: "text-slate-300",
-  pillClass: "border-white/10 bg-white/[0.04] text-slate-200",
-  iconClass: "border-white/10 bg-white/[0.04] text-slate-200",
-  description: () => "Ação do sistema",
-};
-
-function formatShortDate(value: string) {
-  return new Date(value).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "short",
-  });
-}
-
-function formatTime(value: string) {
-  return new Date(value).toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatFullDateTime(value: string) {
-  return new Date(value).toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function isToday(value: string) {
-  const date = new Date(value);
-  const now = new Date();
-
-  return (
-    date.getDate() === now.getDate() &&
-    date.getMonth() === now.getMonth() &&
-    date.getFullYear() === now.getFullYear()
-  );
-}
-
 export default function AuditPage() {
-  const [logs, setLogs] = useState<AuditLog[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [logs, setLogs] =
+    useState<AuditLog[]>([]);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(false);
-    try {
-      setLogs(await auditService.findAll(100));
-    } catch {
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState(false);
+
+  const load =
+    useCallback(async () => {
+      setLoading(true);
+      setError(false);
+
+      try {
+        const data =
+          await auditService.findAll(
+            100,
+          );
+
+        setLogs(data);
+      } catch {
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    }, []);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  const metrics = useMemo(() => {
-    const total = logs.length;
-    const today = logs.filter((log) => isToday(log.createdAt)).length;
-    const generatedMonths = logs.filter(
-      (log) => log.action === "GENERATE_MONTH",
-    ).length;
+  const metrics =
+    useMemo(() => {
+      const total =
+        logs.length;
 
-    const latest = logs.reduce<AuditLog | null>((latestLog, currentLog) => {
-      if (!latestLog) return currentLog;
+      const today =
+        logs.filter((log) =>
+          isAuditToday(
+            log.createdAt,
+          ),
+        ).length;
 
-      return new Date(currentLog.createdAt).getTime() >
-        new Date(latestLog.createdAt).getTime()
-        ? currentLog
-        : latestLog;
-    }, null);
+      const generatedMonths =
+        logs.filter(
+          (log) =>
+            log.action ===
+            "GENERATE_MONTH",
+        ).length;
 
-    return {
-      total,
-      today,
-      generatedMonths,
-      latest,
-    };
-  }, [logs]);
+      const latest =
+        logs.reduce<
+          AuditLog | null
+        >(
+          (
+            latestLog,
+            currentLog,
+          ) => {
+            if (!latestLog) {
+              return currentLog;
+            }
+
+            return new Date(
+              currentLog.createdAt,
+            ).getTime() >
+              new Date(
+                latestLog.createdAt,
+              ).getTime()
+              ? currentLog
+              : latestLog;
+          },
+          null,
+        );
+
+      return {
+        total,
+        today,
+        generatedMonths,
+        latest,
+      };
+    }, [logs]);
+
+  const latestConfig =
+    metrics.latest
+      ? getAuditActionConfig(
+          metrics.latest,
+        )
+      : null;
 
   return (
-    <div className="animate-in w-full min-h-full bg-[#000000] text-white">
+    <div className="animate-in min-h-full w-full bg-[#000000] text-white">
       <div className="space-y-6 rounded-[28px] border border-white/6 bg-[#000000] p-0">
         <PageHeader
           title="Histórico"
@@ -225,21 +120,20 @@ export default function AuditPage() {
         />
 
         {loading ? (
-          <Card className="relative overflow-hidden border border-white/10 bg-[#000000] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_22px_70px_rgba(0,0,0,0.45)]">
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
-            <div className="flex justify-center py-20">
-              <Spinner size="lg" />
-            </div>
-          </Card>
+          <div className="flex min-h-[300px] items-center justify-center">
+            <Spinner size="lg" />
+          </div>
         ) : error ? (
           <RequestError
             title="Não foi possível carregar o histórico"
-            onRetry={() => void load()}
+            onRetry={() =>
+              void load()
+            }
           />
-        ) : logs.length === 0 ? (
-          <Card className="relative overflow-hidden border border-white/10 bg-[#000000] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_22px_70px_rgba(0,0,0,0.45)]">
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
-            <div className="p-3 sm:p-5">
+        ) : logs.length ===
+          0 ? (
+          <Card>
+            <div className="flex min-h-[260px] items-center justify-center">
               <EmptyState
                 icon="📋"
                 title="Nenhuma ação registrada"
@@ -249,180 +143,62 @@ export default function AuditPage() {
           </Card>
         ) : (
           <>
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card className="relative overflow-hidden border border-white/10 bg-[#000000] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_18px_50px_rgba(0,0,0,0.35)]">
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
-                <div className="p-4 sm:p-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                    Total de registros
-                  </p>
-                  <div className="mt-3 flex items-end justify-between gap-3">
-                    <p className="text-3xl font-semibold tracking-tight text-white">
-                      {metrics.total}
-                    </p>
-                    <span className="rounded-full border border-orange-500/20 bg-orange-500/10 px-2.5 py-1 text-[11px] font-medium text-orange-200">
-                      Últimos 100
-                    </span>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="relative overflow-hidden border border-white/10 bg-[#080808] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_18px_50px_rgba(0,0,0,0.35)]">
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
-                <div className="p-4 sm:p-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                    Ações de hoje
-                  </p>
-                  <div className="mt-3 flex items-end justify-between gap-3">
-                    <p className="text-3xl font-semibold tracking-tight text-white">
-                      {metrics.today}
-                    </p>
-                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium text-slate-300">
-                      Tempo real
-                    </span>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="relative overflow-hidden border border-white/10 bg-[#080808] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_18px_50px_rgba(0,0,0,0.35)]">
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
-                <div className="p-4 sm:p-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                    Escalas geradas
-                  </p>
-                  <div className="mt-3 flex items-end justify-between gap-3">
-                    <p className="text-3xl font-semibold tracking-tight text-white">
-                      {metrics.generatedMonths}
-                    </p>
-                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium text-slate-300">
-                      Histórico
-                    </span>
-                  </div>
-                </div>
-              </Card>
-            </div>
+            <AuditMetrics
+              total={
+                metrics.total
+              }
+              today={
+                metrics.today
+              }
+              generatedMonths={
+                metrics.generatedMonths
+              }
+            />
 
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-              <Card className="relative overflow-hidden border border-white/10 bg-[#070707] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_24px_80px_rgba(0,0,0,0.42)]">
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
-
-                <div className="border-b border-white/8 px-4 py-4 sm:px-5">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                        Timeline do sistema
-                      </p>
-                      <h2 className="mt-1 text-lg font-semibold tracking-tight text-white sm:text-xl">
-                        Últimas ações registradas
-                      </h2>
-                    </div>
-
-                    <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-slate-300">
-                      <span className="h-2 w-2 rounded-full bg-orange-400 shadow-[0_0_12px_rgba(251,146,60,0.45)]" />
-                      {logs.length} evento{logs.length > 1 ? "s" : ""} carregado
-                      {logs.length > 1 ? "s" : ""}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-3 p-3 sm:p-4">
-                  {logs.map((log) => {
-                    const cfg = ACTION_CONFIG[log.action] ?? {
-                      ...FALLBACK_ACTION_CONFIG,
-                      label: log.action,
-                    };
-
-                    return (
-                      <div
-                        key={log.id}
-                        className="group relative overflow-hidden rounded-[22px] border border-white/10 bg-[#000000] px-4 py-4 transition-all duration-200 hover:border-orange-500/20 hover:bg-[#000000]"
-                      >
-                        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent transition-all duration-200 group-hover:via-orange-500/30" />
-
-                        <div className="flex items-start gap-4">
-                          <div
-                            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border text-lg shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] ${cfg.iconClass}`}
-                          >
-                            {cfg.icon}
-                          </div>
-
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                              <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <span
-                                    className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-medium ${cfg.pillClass}`}
-                                  >
-                                    {cfg.label}
-                                  </span>
-
-                                  <span className="hidden text-slate-600 sm:inline">
-                                    •
-                                  </span>
-
-                                  <p className="truncate text-sm font-medium text-slate-200">
-                                    {log.actor?.employee?.fullName ??
-                                      "Usuário removido"}
-                                  </p>
-                                </div>
-
-                                <p className="mt-2 text-sm leading-relaxed text-slate-400">
-                                  {cfg.description(log)}
-                                </p>
-                              </div>
-
-                              <div className="shrink-0">
-                                <div className="rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-right">
-                                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                                    {formatShortDate(log.createdAt)}
-                                  </p>
-                                  <p className="mt-1 text-sm font-medium text-slate-300">
-                                    {formatTime(log.createdAt)}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </Card>
+              <AuditTimeline
+                logs={logs}
+              />
 
               <div className="space-y-4">
                 <Card className="relative overflow-hidden border border-white/10 bg-[#000000] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_18px_55px_rgba(0,0,0,0.34)]">
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
+
                   <div className="p-4 sm:p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                       Última movimentação
                     </p>
 
-                    {metrics.latest ? (
+                    {metrics.latest &&
+                    latestConfig ? (
                       <div className="mt-3 space-y-3">
                         <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
                           <p className="text-sm font-medium text-white">
                             {
-                              (
-                                ACTION_CONFIG[metrics.latest.action] ??
-                                FALLBACK_ACTION_CONFIG
-                              ).label
+                              latestConfig.label
                             }
                           </p>
+
                           <p className="mt-1 text-sm text-slate-400">
-                            {formatFullDateTime(metrics.latest.createdAt)}
+                            {formatFullDateTime(
+                              metrics
+                                .latest
+                                .createdAt,
+                            )}
                           </p>
+
                           <p className="mt-3 text-xs leading-relaxed text-slate-500">
-                            {(
-                              ACTION_CONFIG[metrics.latest.action] ??
-                              FALLBACK_ACTION_CONFIG
-                            ).description(metrics.latest)}
+                            {latestConfig.description(
+                              metrics.latest,
+                            )}
                           </p>
                         </div>
                       </div>
                     ) : (
                       <p className="mt-3 text-sm text-slate-400">
-                        Nenhuma movimentação recente.
+                        Nenhuma
+                        movimentação
+                        recente.
                       </p>
                     )}
                   </div>
@@ -430,30 +206,46 @@ export default function AuditPage() {
 
                 <Card className="relative overflow-hidden border border-white/10 bg-[#000000] shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_18px_55px_rgba(0,0,0,0.34)]">
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-500/35 to-transparent" />
+
                   <div className="p-4 sm:p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
                       Tipos de ação
                     </p>
 
                     <div className="mt-4 space-y-3">
-                      {Object.entries(ACTION_CONFIG).map(([key, cfg]) => (
-                        <div
-                          key={key}
-                          className="flex items-center gap-3 rounded-[18px] border border-white/10 bg-white/[0.03] p-3"
-                        >
+                      {Object.entries(
+                        ACTION_CONFIG,
+                      ).map(
+                        ([
+                          key,
+                          config,
+                        ]) => (
                           <div
-                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border text-base ${cfg.iconClass}`}
+                            key={
+                              key
+                            }
+                            className="flex items-center gap-3 rounded-[18px] border border-white/10 bg-white/[0.03] p-3"
                           >
-                            {cfg.icon}
-                          </div>
+                            <div
+                              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border text-base ${config.iconClass}`}
+                            >
+                              {
+                                config.icon
+                              }
+                            </div>
 
-                          <div className="min-w-0">
-                            <p className={`text-sm font-medium ${cfg.color}`}>
-                              {cfg.label}
-                            </p>
+                            <div className="min-w-0">
+                              <p
+                                className={`text-sm font-medium ${config.color}`}
+                              >
+                                {
+                                  config.label
+                                }
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ),
+                      )}
                     </div>
                   </div>
                 </Card>
