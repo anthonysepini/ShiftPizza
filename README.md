@@ -199,7 +199,6 @@ Tests do not authorize a real database reset. The backend HTTP tests replace the
 Pull requests and pushes to `main` are checked by GitHub Actions. The main CI validates both applications independently. Additional repository automation includes:
 
 - CodeQL analysis for JavaScript/TypeScript;
-- dependency review on pull requests, failing on newly introduced vulnerabilities of moderate severity or higher;
 - monthly Dependabot checks for backend, frontend, and GitHub Actions dependencies;
 - Vercel preview/production builds for the frontend deployment.
 
