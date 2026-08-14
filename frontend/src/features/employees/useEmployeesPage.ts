@@ -94,11 +94,7 @@ export function useEmployeesPage(toast: Toast) {
   }, [load]);
 
   const filtered = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase();
-
-    if (!normalizedSearch) {
-      return employees;
-    }
+    const normalizedSearch = search.toLowerCase();
 
     return employees.filter(
       (employee) =>
