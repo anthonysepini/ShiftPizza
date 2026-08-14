@@ -144,16 +144,41 @@ function ArrowUpRightIcon({ className = "" }: { className?: string }) {
   );
 }
 
+function PizzaIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      className={className}
+      aria-hidden="true"
+    >
+      <path
+        d="M12 4 19 19Q12 22 5 19Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8.4 15Q12 17.4 15.6 15"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <circle cx="12" cy="9.4" r="0.95" fill="currentColor" />
+      <circle cx="9.4" cy="13" r="0.95" fill="currentColor" />
+      <circle cx="14.6" cy="13" r="0.95" fill="currentColor" />
+    </svg>
+  );
+}
 
 function BrandMark() {
   return (
     <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/15 bg-white/10 shadow-[0_14px_40px_rgba(0,0,0,0.32)] backdrop-blur-md">
       <div className="absolute inset-[4px] rounded-[14px] bg-gradient-to-br from-orange-500 via-amber-500 to-orange-400 opacity-95" />
-      <span className="relative text-[1.45rem] leading-none">🍕</span>
+      <PizzaIcon className="relative h-7 w-7 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]" />
     </div>
   );
 }
-
 
 type FieldProps = {
   id: string;
@@ -165,10 +190,9 @@ type FieldProps = {
   onChange: (value: string) => void;
   icon: ReactNode;
   accent:
-    | "focus-within:border-orange-400/40 focus-within:ring-orange-400/10"
-    | "focus-within:border-amber-400/40 focus-within:ring-amber-400/10";
+    | "focus-within:border-orange-400/50 focus-within:ring-orange-400/15"
+    | "focus-within:border-amber-400/50 focus-within:ring-amber-400/15";
 };
-
 
 function InputField({
   id,
@@ -191,9 +215,9 @@ function InputField({
       </label>
 
       <div
-        className={`group flex h-16 items-center gap-3 rounded-2xl border border-white/10 bg-[#0A0A0A] px-4 transition-all focus-within:bg-[#101010] focus-within:ring-4 ${accent}`}
+        className={`group flex h-16 items-center gap-3 rounded-2xl border border-white/10 bg-[#0A0A0A] px-4 transition-all duration-200 ease-out focus-within:bg-[#101010] focus-within:ring-4 ${accent}`}
       >
-        <div className="flex h-5 w-5 shrink-0 items-center justify-center text-slate-500 transition-colors group-focus-within:text-white/90">
+        <div className="flex h-5 w-5 shrink-0 items-center justify-center text-slate-500 transition-colors duration-200 group-focus-within:text-white/90">
           {icon}
         </div>
 
@@ -212,6 +236,8 @@ function InputField({
   );
 }
 
+const FOCUS_RING =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:ring-orange-300";
 
 export default function LoginPage() {
   const { login, isAuthenticated, user } = useAuth();
@@ -227,6 +253,8 @@ export default function LoginPage() {
   const [resetting, setResetting] = useState(false);
   const [resetMsg, setResetMsg] = useState("");
   const [showWelcomeModal, setShowWelcomeModal] = useState(true);
+
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -249,6 +277,11 @@ export default function LoginPage() {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -319,7 +352,7 @@ export default function LoginPage() {
             {resetMsg && (
               <div
                 aria-live="polite"
-                className={`w-full max-w-md rounded-2xl border px-5 py-3 text-center text-sm font-medium ${
+                className={`w-full max-w-md rounded-2xl border px-5 py-3 text-center text-sm font-medium transition-all duration-300 ease-out ${
                   resetMsg.startsWith("✅")
                     ? "border-green-400/20 bg-green-400/10 text-green-200"
                     : "border-red-400/20 bg-red-400/10 text-red-200"
@@ -335,7 +368,7 @@ export default function LoginPage() {
                 setResetMsg("");
                 setShowResetModal(true);
               }}
-              className="group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl border border-white/10 bg-[#0A0A0A]/80 px-6 py-3.5 text-sm font-bold uppercase tracking-[0.18em] text-slate-300 shadow-[0_8px_28px_rgba(0,0,0,0.4)] backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-400/25 hover:shadow-[0_14px_40px_rgba(249,115,22,0.14)] hover:text-orange-200"
+              className={`group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl border border-white/10 bg-[#0A0A0A]/80 px-6 py-3.5 text-sm font-bold uppercase tracking-[0.18em] text-slate-300 shadow-[0_8px_28px_rgba(0,0,0,0.4)] backdrop-blur-md transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-orange-400/25 hover:shadow-[0_14px_40px_rgba(249,115,22,0.14)] hover:text-orange-200 active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${FOCUS_RING}`}
             >
               <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
               <RefreshIcon className="h-4 w-4 text-orange-400/80 transition-transform duration-500 group-hover:rotate-180" />
@@ -348,7 +381,13 @@ export default function LoginPage() {
             </p>}
           </div>
 
-          <div className="relative mx-auto w-full overflow-hidden rounded-[30px] border border-white/10 bg-[#050505]/90 p-5 shadow-[0_32px_90px_rgba(0,0,0,0.6)] backdrop-blur-2xl sm:p-7">
+          <div
+            className={`relative mx-auto w-full overflow-hidden rounded-[30px] border border-white/10 bg-[#050505]/90 p-5 shadow-[0_32px_90px_rgba(0,0,0,0.6)] backdrop-blur-2xl transition-all duration-500 ease-out sm:p-7 ${
+              mounted
+                ? "translate-y-0 opacity-100"
+                : "translate-y-4 opacity-0 motion-reduce:translate-y-0 motion-reduce:opacity-100"
+            }`}
+          >
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),transparent_26%)]" />
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-300/20 to-transparent" />
 
@@ -377,7 +416,7 @@ export default function LoginPage() {
                 <p className="text-lg font-semibold uppercase tracking-[0.24em] text-slate-300 sm:text-xl">
                   Bem-vindo
                 </p>
-                <h1 className="mt-3 text-3xl font-black tracking-[-0.04em] text-white sm:text-[3rem] sm:leading-[0.98]">
+                <h1 className="mt-3 text-[clamp(1.875rem,6vw,3rem)] font-black leading-[1.08] tracking-[-0.035em] text-white sm:leading-[0.98]">
                   Faça login na sua conta
                 </h1>
               </div>
@@ -395,7 +434,7 @@ export default function LoginPage() {
                     value={cpf}
                     onChange={setCpf}
                     autoComplete="username"
-                    accent="focus-within:border-orange-400/40 focus-within:ring-orange-400/10"
+                    accent="focus-within:border-orange-400/50 focus-within:ring-orange-400/15"
                     icon={<UserIcon className="h-5 w-5" />}
                   />
 
@@ -407,7 +446,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={setPassword}
                     autoComplete="current-password"
-                    accent="focus-within:border-amber-400/40 focus-within:ring-amber-400/10"
+                    accent="focus-within:border-amber-400/50 focus-within:ring-amber-400/15"
                     icon={<LockIcon className="h-5 w-5" />}
                   />
                 </div>
@@ -415,7 +454,7 @@ export default function LoginPage() {
                 {error && (
                   <div
                     aria-live="polite"
-                    className="rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+                    className="rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-200 transition-all duration-300 ease-out"
                   >
                     {error}
                   </div>
@@ -424,7 +463,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="group flex h-16 w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 px-5 text-sm font-bold uppercase tracking-[0.18em] text-white shadow-[0_18px_45px_rgba(249,115,22,0.28)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_22px_55px_rgba(249,115,22,0.36)] disabled:cursor-not-allowed disabled:opacity-80"
+                  className={`group flex h-16 w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 px-5 text-sm font-bold uppercase tracking-[0.18em] text-white shadow-[0_18px_45px_rgba(249,115,22,0.28)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_22px_55px_rgba(249,115,22,0.36)] active:translate-y-0 active:scale-[0.98] active:shadow-[0_10px_28px_rgba(249,115,22,0.24)] disabled:cursor-not-allowed disabled:opacity-80 disabled:active:scale-100 motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${FOCUS_RING}`}
                 >
                   {loading ? (
                     <>
@@ -474,7 +513,7 @@ export default function LoginPage() {
                           setPassword(account.pwd);
                           setError("");
                         }}
-                        className={`group relative rounded-[22px] border border-white/10 bg-[#0A0A0A]/92 p-5 pr-12 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-400/20 ${styles.shadow}`}
+                        className={`group relative rounded-[22px] border border-white/10 bg-[#0A0A0A]/92 p-5 pr-12 text-left transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-orange-400/20 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${styles.shadow} ${FOCUS_RING}`}
                       >
                         <div
                           className={`pointer-events-none absolute inset-x-0 top-0 h-px rounded-t-[22px] bg-gradient-to-r ${styles.line} opacity-80`}
@@ -517,7 +556,7 @@ export default function LoginPage() {
             href="https://github.com/anthonysepini"
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-medium text-slate-300 shadow-[0_12px_30px_rgba(0,0,0,0.25)] transition-all hover:border-orange-400/20 hover:bg-orange-400/[0.08] hover:text-orange-100"
+            className={`group inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-medium text-slate-300 shadow-[0_12px_30px_rgba(0,0,0,0.25)] transition-all duration-200 ease-out hover:border-orange-400/20 hover:bg-orange-400/[0.08] hover:text-orange-100 active:scale-[0.98] motion-reduce:transition-none ${FOCUS_RING}`}
           >
             <GithubIcon
               size={15}
